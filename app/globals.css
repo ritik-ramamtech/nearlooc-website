@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light theme — matches Stitch "Premium Web App Design System" */
+    --background: 240 10% 99%;       /* #f9f9ff */
+    --foreground: 220 47% 13%;       /* #141b2b */
+    --card: 0 0% 100%;               /* #ffffff */
+    --card-foreground: 220 47% 13%;
+    --surface: 240 10% 99%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 47% 13%;
+    --primary: 160 100% 11%;         /* #003527 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 159 100% 21%;       /* #006c49 */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 237 50% 93%;            /* #e9edff */
+    --muted-foreground: 163 7% 27%;  /* #404944 */
+    --accent: 152 96% 59%;           /* #6ffbbe */
+    --accent-foreground: 160 100% 11%;
+    --destructive: 355 100% 36%;     /* #ba1a1a */
+    --destructive-foreground: 0 0% 100%;
+    --border: 160 3% 75%;            /* #bfc9c3 */
+    --input: 160 3% 75%;
+    --ring: 160 100% 11%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-inter), 'Inter', sans-serif;
+    background-color: #f9f9ff;
+    color: #141b2b;
+  }
+
+  ::selection {
+    background: rgba(0, 53, 39, 0.15);
+    color: #141b2b;
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: #f1f3ff; }
+  ::-webkit-scrollbar-thumb { background: #bfc9c3; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #006c49; }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hero-gradient {
+    background: linear-gradient(180deg, rgba(0, 53, 39, 0) 0%, rgba(0, 53, 39, 0.6) 100%);
+  }
+
+  .card-shadow {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #003527, #006c49);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-primary {
+    background: linear-gradient(135deg, #003527 0%, #006c49 100%);
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+}
