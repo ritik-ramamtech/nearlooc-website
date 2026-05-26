@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Star, Clock, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Offer } from "@/types";
+import { useToggleFavorite } from "@/features/favorites/hooks";
 
 interface OfferCardProps {
   offer: Offer & { merchant?: { id: string; name: string; logo_url: string | null } };
@@ -12,6 +14,8 @@ interface OfferCardProps {
 
 export function OfferCard({ offer, className }: OfferCardProps) {
   const merchantName = offer.merchant?.name ?? offer.merchant_name ?? null;
+  const { toggle, isPending } = useToggleFavorite();
+  const [isFav, setIsFav] = useState(!!offer.is_favorite);
 
   return (
     <div style={{ width: 240 }} className={cn(className)}>
@@ -59,7 +63,13 @@ export function OfferCard({ offer, className }: OfferCardProps) {
           )}
 
           <button
-            onClick={(e) => e.preventDefault()}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (isPending) return;
+              setIsFav((prev) => !prev);
+              toggle(offer.id, isFav);
+            }}
             style={{
               position: "absolute",
               bottom: 10,
@@ -77,8 +87,8 @@ export function OfferCard({ offer, className }: OfferCardProps) {
             }}
           >
             <Heart
-              style={{ width: 14, height: 14 }}
-              className={cn(offer.is_favorite ? "fill-red-500 text-red-500" : "text-gray-400")}
+              style={{ width: 14, height: 14, transition: "fill 0.15s, color 0.15s" }}
+              className={cn(isFav ? "fill-red-500 text-red-500" : "text-gray-400")}
             />
           </button>
         </div>

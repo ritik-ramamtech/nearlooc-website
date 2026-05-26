@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Search, Bell, User } from "lucide-react";
+import Image from "next/image";
+import { Search, Bell, User, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/auth.store";
 import { useLogout } from "@/features/auth/hooks";
@@ -13,8 +14,8 @@ export function PublicNav() {
   return (
     <header className="fixed top-0 z-50 w-full border-b border-outline-variant bg-surface/90 backdrop-blur-md">
       <div className="px-4 mx-auto flex h-16 max-w-container-max items-center justify-between">
-        <Link href="/home" className="text-headline-sm font-bold text-stitch-primary">
-          Nearlooc
+        <Link href="/home">
+          <Image src="/logo.svg" alt="Nearlooc" width={120} height={31} priority />
         </Link>
 
         <div className="hidden flex-1 max-w-sm mx-8 md:block">
@@ -31,6 +32,9 @@ export function PublicNav() {
         <div className="flex items-center gap-3">
           {isAuthenticated ? (
             <>
+              <Link href="/favorites">
+                <Heart className="h-5 w-5 text-on-surface-variant hover:text-stitch-primary transition-colors" />
+              </Link>
               <Link href="/notifications">
                 <Bell className="h-5 w-5 text-on-surface-variant hover:text-stitch-primary transition-colors" />
               </Link>
@@ -49,6 +53,9 @@ export function PublicNav() {
             </>
           ) : (
             <>
+              <Link href="/favorites">
+                <Heart className="h-5 w-5 text-on-surface-variant hover:text-stitch-primary transition-colors" />
+              </Link>
               <Link href="/login">
                 <Button variant="ghost" size="sm">Sign in</Button>
               </Link>

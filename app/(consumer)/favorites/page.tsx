@@ -25,7 +25,7 @@ export default function FavoritesPage() {
           </p>
         )}
 
-        {data && data.items.length === 0 && (
+        {data && !data.items?.length && (
           <div className="py-16 text-center">
             <p className="text-headline-sm font-semibold text-on-surface">No favorites yet</p>
             <p className="mt-1 text-body-sm text-on-surface-variant">
@@ -34,9 +34,9 @@ export default function FavoritesPage() {
           </div>
         )}
 
-        {data && data.items.length > 0 && (
+        {data && data.items?.length > 0 && (
           <>
-            <p className="mb-3 text-label-sm text-on-surface-variant">{data.meta.total} saved</p>
+            <p className="mb-3 text-label-sm text-on-surface-variant">{data.meta?.total} saved</p>
             <div className="grid grid-cols-2 gap-3">
               {data.items.map((offer) => (
                 <OfferCard key={offer.id} offer={offer} />

@@ -1,13 +1,17 @@
 "use client";
 
-import { Star, Clock, CheckCircle } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type React from "react";
+import { Star, Clock, Shield, MapPin, Tag, Timer } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { PriceBlock } from "./PriceBlock";
 import { PromoTimer } from "./PromoTimer";
-import { OfferCard } from "@/features/home/components/OfferCard";
+import { OfferImageGallery } from "./OfferImageGallery";
+import { MerchantRow } from "./MerchantRow";
+import { OfferAccordion } from "./OfferAccordion";
+import { RelatedOffers } from "./RelatedOffers";
+import { OfferClaimBar } from "./OfferClaimBar";
 import { useOffer, useRelatedOffers } from "../hooks";
-import type { Offer } from "@/types";
+import { useToggleFavorite } from "@/features/favorites/hooks";
 
 interface OfferDetailProps {
   id: string;
@@ -15,14 +19,15 @@ interface OfferDetailProps {
 
 export function OfferDetail({ id }: OfferDetailProps) {
   const { data: offer, isPending, isError } = useOffer(id);
-  const { data: related } = useRelatedOffers(id, 4);
+  const { data: related = [] } = useRelatedOffers(id, 6);
+  const { toggle: toggleFavorite } = useToggleFavorite();
 
   if (isPending) {
     return (
-      <div className="space-y-4 px-4 pt-4 animate-pulse">
+      <div className="animate-pulse space-y-4 px-4 pt-4">
         <div className="aspect-[4/3] w-full rounded-2xl bg-surface-container" />
         <div className="h-6 w-3/4 rounded bg-surface-container" />
-        <div className="h-10 w-1/2 rounded bg-surface-container" />
+        <div className="h-8 w-1/2 rounded bg-surface-container" />
       </div>
     );
   }
@@ -36,137 +41,171 @@ export function OfferDetail({ id }: OfferDetailProps) {
   }
 
   const images: string[] = offer.images ?? (offer.image_url ? [offer.image_url] : []);
+  const activePrice = offer.promo_price ?? offer.discounted_price;
+
+  // Derive trust badges from real offer data — only show what we actually know
+  const trustBadges = [
+    offer.duration
+      ? { icon: Timer, label: offer.duration, sub: "Offer validity" }
+      : null,
+    offer.promo_end_at
+      ? { icon: Shield, label: "Limited Time", sub: "Promo pricing active" }
+      : null,
+    (offer.latitude && offer.longitude)
+      ? { icon: MapPin, label: "Location-based", sub: "Deal near you" }
+      : null,
+    offer.discount_percentage > 0
+      ? { icon: Tag, label: `${Math.round(offer.discount_percentage)}% Off`, sub: "On original price" }
+      : null,
+  ].filter(Boolean) as { icon: React.ElementType; label: string; sub: string }[];
 
   return (
-    <div className="pb-8">
-      {/* Main image */}
-      {images[0] && (
-        <div className="aspect-[4/3] w-full overflow-hidden bg-surface-container-low">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={images[0]} alt={offer.title} className="h-full w-full object-cover" />
-        </div>
-      )}
+    <>
+      <div className="pb-28 md:pb-12">
 
-      <div className="space-y-4 px-4 pt-4">
-        {/* Category + title */}
-        {offer.category_name && (
-          <span className="text-label-sm font-semibold uppercase tracking-wide text-stitch-secondary">
-            {offer.category_name}
-          </span>
-        )}
-        <h1 className="text-headline-md font-bold text-on-surface">{offer.title}</h1>
+        {/* ─────────────────────────────────────────────────
+            Desktop: side-by-side grid  |  Mobile: stacked
+        ───────────────────────────────────────────────── */}
+        <div className="md:mx-auto md:max-w-6xl md:px-8 md:py-8">
+          <div className="md:grid md:grid-cols-[1fr_420px] md:gap-10 md:items-start">
 
-        {/* Rating */}
-        <div className="flex items-center gap-1.5">
-          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-          <span className="text-body-sm font-semibold text-on-surface">{offer.rating.toFixed(1)}</span>
-          <span className="text-body-sm text-on-surface-variant">({offer.review_count} reviews)</span>
-          {offer.duration && (
-            <>
-              <span className="text-on-surface-variant">·</span>
-              <Clock className="h-4 w-4 text-on-surface-variant" />
-              <span className="text-body-sm text-on-surface-variant">{offer.duration}</span>
-            </>
-          )}
-        </div>
-
-        {/* Promo timer */}
-        {offer.promo_end_at && (
-          <PromoTimer promoEndAt={offer.promo_end_at} promoTimeLeft={offer.promo_time_left} />
-        )}
-
-        {/* Price */}
-        <PriceBlock offer={offer} />
-
-        <Separator />
-
-        {/* Merchant */}
-        {offer.merchant_name && (
-          <div className="flex items-center gap-3">
-            {offer.merchant_logo_url && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={offer.merchant_logo_url}
-                alt={offer.merchant_name}
-                className="h-10 w-10 rounded-full object-cover"
+            {/* ── LEFT — Image gallery ── */}
+            <div className="md:sticky md:top-20">
+              <OfferImageGallery
+                images={images}
+                title={offer.title}
+                discountPercentage={offer.discount_percentage}
+                badge={offer.badge}
               />
-            )}
-            <div>
-              <p className="text-label-sm text-on-surface-variant">Offered by</p>
-              <p className="text-body-sm font-semibold text-on-surface">{offer.merchant_name}</p>
             </div>
-          </div>
-        )}
 
-        <Separator />
+            {/* ── RIGHT — All info + CTAs ── */}
+            <div className="space-y-5 px-4 pt-5 md:px-0 md:pt-0">
 
-        {/* Tabs — details */}
-        <Tabs defaultValue="overview">
-          <TabsList className="w-full">
-            <TabsTrigger value="overview" className="flex-1">Overview</TabsTrigger>
-            <TabsTrigger value="highlights" className="flex-1">Highlights</TabsTrigger>
-            <TabsTrigger value="terms" className="flex-1">Terms</TabsTrigger>
-          </TabsList>
+              {/* Category breadcrumb */}
+              {offer.category_name && (
+                <p className="text-label-sm font-semibold uppercase tracking-widest text-stitch-secondary">
+                  {offer.category_name}
+                </p>
+              )}
 
-          <TabsContent value="overview" className="mt-4 space-y-3">
-            {offer.description && (
-              <p className="text-body-sm text-on-surface-variant leading-relaxed">{offer.description}</p>
-            )}
-            {offer.features && offer.features.length > 0 && (
-              <ul className="space-y-2">
-                {offer.features.map((f, i) => (
-                  <li key={i} className="flex items-start gap-2 text-body-sm text-on-surface">
-                    <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-stitch-secondary" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </TabsContent>
+              {/* Title */}
+              <h1 className="text-[22px] font-bold leading-snug text-on-surface">
+                {offer.title}
+              </h1>
 
-          <TabsContent value="highlights" className="mt-4">
-            {offer.highlights && offer.highlights.length > 0 ? (
-              <ul className="space-y-2">
-                {offer.highlights.map((h, i) => (
-                  <li key={i} className="flex items-start gap-2 text-body-sm text-on-surface">
-                    <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-stitch-primary" />
-                    {h}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-body-sm text-on-surface-variant">No highlights available.</p>
-            )}
-          </TabsContent>
+              {/* Rating + duration */}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  <span className="text-label-md font-semibold text-on-surface">
+                    {offer.rating.toFixed(1)}
+                  </span>
+                  <span className="text-body-sm text-on-surface-variant">
+                    ({offer.review_count} reviews)
+                  </span>
+                </div>
+                {offer.duration && (
+                  <div className="flex items-center gap-1 text-on-surface-variant">
+                    <span>·</span>
+                    <Clock className="h-3.5 w-3.5" />
+                    <span className="text-body-sm">{offer.duration}</span>
+                  </div>
+                )}
+              </div>
 
-          <TabsContent value="terms" className="mt-4">
-            {offer.terms && offer.terms.length > 0 ? (
-              <ul className="space-y-2">
-                {offer.terms.map((t, i) => (
-                  <li key={i} className="text-body-sm text-on-surface-variant">· {t}</li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-body-sm text-on-surface-variant">No terms specified.</p>
-            )}
-          </TabsContent>
-        </Tabs>
+              <Separator />
 
-        {/* Related offers */}
-        {related && related.length > 0 && (
-          <>
-            <Separator />
-            <div>
-              <h2 className="mb-3 text-headline-sm font-semibold text-on-surface">You might also like</h2>
-              <div className="grid grid-cols-2 gap-3">
-                {related.map((o: Offer) => (
-                  <OfferCard key={o.id} offer={o} />
-                ))}
+              {/* Price + savings */}
+              <PriceBlock offer={offer} />
+
+              {/* Promo timer */}
+              {offer.promo_end_at && (
+                <PromoTimer
+                  promoEndAt={offer.promo_end_at}
+                  promoTimeLeft={offer.promo_time_left}
+                />
+              )}
+
+              {/* Trust badges — only rendered when offer has matching data */}
+              {trustBadges.length > 0 && (
+                <div className="grid grid-cols-2 gap-2">
+                  {trustBadges.map(({ icon: Icon, label, sub }) => (
+                    <div
+                      key={label}
+                      className="flex items-start gap-2.5 rounded-xl border border-outline-variant bg-surface-container-lowest p-3"
+                    >
+                      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-stitch-secondary" />
+                      <div>
+                        <p className="text-label-sm font-semibold text-on-surface">{label}</p>
+                        <p className="text-[11px] text-on-surface-variant">{sub}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Merchant row */}
+              {offer.merchant_name && (
+                <MerchantRow
+                  merchantId={offer.merchant_id}
+                  merchantName={offer.merchant_name}
+                  merchantLogoUrl={offer.merchant_logo_url}
+                  latitude={offer.latitude}
+                  longitude={offer.longitude}
+                />
+              )}
+
+              {/* Desktop CTAs */}
+              <div className="hidden space-y-2 md:block">
+                <button className="w-full rounded-xl bg-stitch-primary py-3.5 text-label-md font-semibold text-white transition-colors hover:bg-stitch-secondary active:scale-[0.98]">
+                  Claim Deal — ₹{activePrice.toLocaleString()}
+                </button>
+                <button className="w-full rounded-xl border-2 border-stitch-primary py-3.5 text-label-md font-semibold text-stitch-primary transition-colors hover:bg-surface-container">
+                  Contact Merchant
+                </button>
+              </div>
+
+              {/* Accordion — desktop: inside right col */}
+              <div className="hidden md:block">
+                <OfferAccordion
+                  description={offer.description}
+                  features={offer.features}
+                  highlights={offer.highlights}
+                  terms={offer.terms}
+                />
               </div>
             </div>
-          </>
+          </div>
+        </div>
+
+        {/* ── Accordion — mobile only (full width) ── */}
+        <div className="mt-5 px-4 md:hidden">
+          <OfferAccordion
+            description={offer.description}
+            features={offer.features}
+            highlights={offer.highlights}
+            terms={offer.terms}
+          />
+        </div>
+
+        {/* ── Related offers ── */}
+        {related.length > 0 && (
+          <div className="mt-8 md:mx-auto md:max-w-6xl md:px-8">
+            <Separator className="mb-6" />
+            <RelatedOffers offers={related} />
+          </div>
         )}
       </div>
-    </div>
+
+      {/* ── Sticky claim bar — mobile only ── */}
+      <div className="md:hidden">
+        <OfferClaimBar
+          price={activePrice}
+          isFavorite={offer.is_favorite}
+          onToggleFavorite={() => toggleFavorite(offer.id, !!offer.is_favorite)}
+        />
+      </div>
+    </>
   );
 }
