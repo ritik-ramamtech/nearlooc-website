@@ -37,14 +37,8 @@ export interface OfferSection {
 }
 
 export interface HomeFeed {
-  categories: Category[];
+  categories?: Category[];
   sections: OfferSection[];
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  image_url: string | null;
 }
 
 export interface Subcategory {
@@ -52,4 +46,11 @@ export interface Subcategory {
   name: string;
   icon_key: string | null;
   category_id: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  image_url: string | null;
+  subcategories?: Subcategory[];
 }

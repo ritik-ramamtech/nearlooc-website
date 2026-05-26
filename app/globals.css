@@ -53,6 +53,11 @@
 }
 
 @layer utilities {
+  /* Single source of truth for the horizontal page grid — 16px / 24px / 64px */
+  .page-x {
+    @apply px-4 sm:px-6 lg:px-16;
+  }
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;

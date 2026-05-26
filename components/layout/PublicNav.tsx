@@ -12,7 +12,7 @@ export function PublicNav() {
 
   return (
     <header className="fixed top-0 z-50 w-full border-b border-outline-variant bg-surface/90 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-container-max items-center justify-between px-4 sm:px-6 lg:px-margin-desktop">
+      <div className="px-4 mx-auto flex h-16 max-w-container-max items-center justify-between">
         <Link href="/home" className="text-headline-sm font-bold text-stitch-primary">
           Nearlooc
         </Link>

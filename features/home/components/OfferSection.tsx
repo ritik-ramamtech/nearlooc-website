@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { OfferCard } from "./OfferCard";
 import type { OfferSection as OfferSectionType } from "@/types";
 
@@ -10,37 +11,40 @@ export function OfferSection({ section }: OfferSectionProps) {
   if (!section.offers.length) return null;
 
   return (
-    <section className="py-5">
-      {/* Section header */}
-      <div className="mb-4 flex items-start justify-between px-4">
+    <section className="py-6 w-full">
+      {/* Header — same responsive padding as container edges */}
+      <div className="mb-4 flex items-center justify-between px-4">
         <div>
-          <h2 className="flex items-center gap-1.5" style={{ fontSize: 18, fontWeight: 500, color: "#111827" }}>
-            {section.type === "top_deals" && <span>🔥</span>}
-            {section.title}
-          </h2>
+          <h2 className="text-[16px] font-bold text-on-surface">{section.title}</h2>
           {section.type === "top_deals" && (
-            <p style={{ fontSize: 13, color: "#6b7280", marginTop: 2 }}>
+            <p className="mt-0.5 text-[12px] text-on-surface-variant">
               Limited time — grab before they&apos;re gone!
             </p>
           )}
         </div>
         <Link
           href={`/offers?type=${section.type}`}
-          style={{ fontSize: 13, color: "#16a34a", fontWeight: 500, whiteSpace: "nowrap" }}
-          className="hover:underline"
+          className="flex items-center gap-0.5 text-[13px] font-semibold text-stitch-primary hover:underline"
         >
-          See All ›
+          See All <ChevronRight className="h-4 w-4" />
         </Link>
       </div>
 
-      {/* Horizontal scroll row */}
+      {/* Scroll row — left edge aligns with header; right overflows for scroll */}
       <div
-        className="flex gap-4 overflow-x-auto px-4 pb-2"
-        style={{ scrollbarWidth: "none" }}
+        className="scrollbar-hide overflow-x-auto pb-2"
+        style={{
+          WebkitOverflowScrolling: "touch",
+          scrollSnapType: "x mandatory",
+        }}
       >
-        {section.offers.map((offer) => (
-          <OfferCard key={offer.id} offer={offer} />
-        ))}
+        <div className="flex gap-4 px-4">
+          {section.offers.map((offer) => (
+            <div key={offer.id} style={{ scrollSnapAlign: "start", flexShrink: 0 }}>
+              <OfferCard offer={offer} />
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
