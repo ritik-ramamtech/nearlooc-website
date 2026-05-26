@@ -1,28 +1,53 @@
 import apiClient from "@/lib/api-client";
-import type { ApiResponse } from "@/types";
-import type { Vendor, VendorProduct, GetVendorsQuery, GetVendorProductsQuery } from "./types";
+import type { Vendor, VendorSummary, VendorProduct, GetVendorsQuery, GetVendorProductsQuery } from "./types";
 
-export interface VendorsListResponse {
-  items: Vendor[];
-  meta: { page: number; limit: number; total: number; has_more: boolean };
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  total_pages?: number;
+  has_more: boolean;
 }
 
-export interface VendorProductsResponse {
-  vendor: Vendor;
+// GET /vendors — standard ApiResponse shape
+export interface VendorsRawResponse {
+  message: string;
+  data: Vendor[];
+  meta: PaginationMeta;
+}
+
+// GET /vendors/:id/products — non-standard: vendor + meta are siblings of data
+export interface VendorProductsRawResponse {
+  success: boolean;
+  message: string;
+  vendor: VendorSummary;
+  data: VendorProduct[];
+  meta: PaginationMeta;
+}
+
+// Normalised shape consumed by components
+export interface VendorProductsNormalised {
+  vendor: VendorSummary;
   products: VendorProduct[];
-  meta: { page: number; limit: number; total: number; has_more: boolean };
+  meta: PaginationMeta;
 }
 
-export async function getAllVendors(query?: GetVendorsQuery): Promise<ApiResponse<VendorsListResponse>> {
-  const res = await apiClient.get<ApiResponse<VendorsListResponse>>("/vendors", { params: query });
+export async function getAllVendors(query?: GetVendorsQuery): Promise<VendorsRawResponse> {
+  const res = await apiClient.get<VendorsRawResponse>("/vendors", { params: query });
   return res.data;
+}
+
+export async function getVendorById(id: string): Promise<Vendor | null> {
+  // No dedicated GET /vendors/:id endpoint — fetch list with high limit and find by ID
+  const res = await apiClient.get<VendorsRawResponse>("/vendors", { params: { limit: 100 } });
+  return res.data.data.find((v) => v.id === id) ?? null;
 }
 
 export async function getVendorProducts(
   id: string,
   query?: GetVendorProductsQuery
-): Promise<ApiResponse<VendorProductsResponse>> {
-  const res = await apiClient.get<ApiResponse<VendorProductsResponse>>(
+): Promise<VendorProductsRawResponse> {
+  const res = await apiClient.get<VendorProductsRawResponse>(
     `/vendors/${id}/products`,
     { params: query }
   );

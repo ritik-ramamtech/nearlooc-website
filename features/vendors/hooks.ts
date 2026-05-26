@@ -1,14 +1,32 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { getAllVendors, getVendorProducts } from "./api";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
+import { getAllVendors, getVendorProducts, type VendorProductsNormalised } from "./api";
 import type { GetVendorsQuery, GetVendorProductsQuery } from "./types";
+
 
 export function useVendors(query?: GetVendorsQuery) {
   return useQuery({
     queryKey: ["vendors", "list", query],
     queryFn: () => getAllVendors(query),
-    select: (res) => res.data,
+    select: (res) => ({
+      items: res.data,
+      meta: res.meta,
+    }),
+  });
+}
+
+export function useVendorsInfinite(query?: Omit<GetVendorsQuery, "page">) {
+  return useInfiniteQuery({
+    queryKey: ["vendors", "infinite", query],
+    queryFn: ({ pageParam }) => getAllVendors({ ...query, page: pageParam as number }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.meta.has_more ? lastPage.meta.page + 1 : undefined,
+    select: (data) => ({
+      items: data.pages.flatMap((p) => p.data),
+      meta: data.pages[data.pages.length - 1].meta,
+    }),
   });
 }
 
@@ -16,7 +34,13 @@ export function useVendorProducts(id: string, query?: GetVendorProductsQuery) {
   return useQuery({
     queryKey: ["vendors", "products", id, query],
     queryFn: () => getVendorProducts(id, query),
-    select: (res) => res.data,
+    // Backend returns { success, message, vendor, data: [...products], meta }
+    // Normalise into { vendor, products, meta } for clean component consumption
+    select: (res): VendorProductsNormalised => ({
+      vendor: res.vendor,
+      products: res.data ?? [],
+      meta: res.meta,
+    }),
     enabled: !!id,
   });
 }

@@ -1,7 +1,10 @@
 "use client";
 
+import { Store } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/types";
+
+export const VENDORS_TAB = "vendors" as const;
 
 interface CategoryBarProps {
   categories: Category[];
@@ -23,6 +26,20 @@ export function CategoryBar({ categories, selected, onSelect }: CategoryBarProps
       >
         All
       </button>
+
+      <button
+        onClick={() => onSelect(VENDORS_TAB)}
+        className={cn(
+          "shrink-0 flex items-center gap-1.5 rounded-full px-4 py-1.5 text-label-md font-medium transition-colors",
+          selected === VENDORS_TAB
+            ? "bg-stitch-primary text-white"
+            : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container"
+        )}
+      >
+        <Store className="h-3.5 w-3.5" />
+        Vendors
+      </button>
+
       {categories.map((cat) => (
         <button
           key={cat.id}

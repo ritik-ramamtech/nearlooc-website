@@ -109,7 +109,7 @@ export function useToggleFavorite() {
       return { prevOfferDetail, prevOfferLists, prevHome, prevFavorites, offerId };
     },
     onError: (
-      _err: unknown,
+      err: unknown,
       offerId: string,
       ctx: {
         prevOfferDetail?: ApiResponse<Offer>;
@@ -120,6 +120,15 @@ export function useToggleFavorite() {
       } | undefined
     ) => {
       if (!ctx) return;
+
+      // 409 on add = already favorited; keep heart filled instead of rolling back
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      if (isAdding && status === 409) {
+        patchOfferInCache(qc, offerId, true);
+        qc.invalidateQueries({ queryKey: ["favorites", "list"] });
+        return;
+      }
+
       // Roll back all snapshots
       if (ctx.prevOfferDetail) {
         qc.setQueryData(["offers", "detail", offerId], ctx.prevOfferDetail);

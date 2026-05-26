@@ -1,24 +1,43 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { CategoryBar } from "@/features/home/components/CategoryBar";
+import { useState, useMemo, useEffect } from "react";
+import { CategoryBar, VENDORS_TAB } from "@/features/home/components/CategoryBar";
 import { SubcategoryBar } from "@/features/home/components/SubcategoryBar";
 import { OfferSection } from "@/features/home/components/OfferSection";
+import { VendorCard } from "@/features/vendors/components/VendorCard";
 import { useHomeFeed } from "@/features/home/hooks";
 import { useCategories } from "@/features/categories/hooks";
+import { useVendorsInfinite } from "@/features/vendors/hooks";
 import type { OfferSection as OfferSectionType } from "@/types";
 
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
 
+  const isVendorsTab = selectedCategory === VENDORS_TAB;
+
   const { data: categories = [] } = useCategories();
+  const {
+    data: vendorsData,
+    isPending: vendorsPending,
+    isError: vendorsError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useVendorsInfinite();
+
+  // Auto-fetch all pages sequentially until hasNextPage is false
+  useEffect(() => {
+    if (isVendorsTab && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [isVendorsTab, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Only send category_id to the API — subcategory filtering is done client-side
   const feedQuery = useMemo(() => {
-    if (!selectedCategory) return undefined;
+    if (!selectedCategory || isVendorsTab) return undefined;
     return { category_id: selectedCategory };
-  }, [selectedCategory]);
+  }, [selectedCategory, isVendorsTab]);
 
   const { data, isPending, isError } = useHomeFeed(feedQuery);
 
@@ -157,8 +176,8 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Subcategory chips — only visible when a category is active */}
-        {selectedCategory && (
+        {/* Subcategory chips — only visible when a real category is active */}
+        {selectedCategory && !isVendorsTab && (
           <SubcategoryBar
             subcategories={subcategories}
             selected={selectedSubcategory}
@@ -167,8 +186,66 @@ export default function HomePage() {
         )}
       </div>
 
+      {/* ── Vendors tab ── */}
+      {isVendorsTab && (
+        <div className="mx-auto max-w-container-max px-4 py-6">
+          {vendorsPending && (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 animate-pulse">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="overflow-hidden rounded-2xl border border-outline-variant">
+                  <div className="h-24 w-full bg-surface-container" />
+                  <div className="space-y-2 p-3 pt-7">
+                    <div className="h-4 w-3/4 rounded bg-surface-container" />
+                    <div className="h-3 w-1/2 rounded bg-surface-container" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {vendorsError && (
+            <p className="py-10 text-center text-body-sm text-on-surface-variant">
+              Failed to load vendors.
+            </p>
+          )}
+
+          {vendorsData && vendorsData.items.length === 0 && (
+            <p className="py-10 text-center text-body-sm text-on-surface-variant">
+              No vendors found.
+            </p>
+          )}
+
+          {vendorsData && vendorsData.items.length > 0 && (
+            <>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                {vendorsData.items.map((vendor) => (
+                  <VendorCard key={vendor.id} vendor={vendor} />
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* Loading next pages */}
+          <div className="mt-4">
+            {isFetchingNextPage && (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 animate-pulse">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="overflow-hidden rounded-2xl border border-outline-variant">
+                    <div className="h-24 w-full bg-surface-container" />
+                    <div className="space-y-2 p-3 pt-7">
+                      <div className="h-4 w-3/4 rounded bg-surface-container" />
+                      <div className="h-3 w-1/2 rounded bg-surface-container" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ── Loading skeleton ── */}
-      {isPending && (
+      {!isVendorsTab && isPending && (
         <div className="mx-auto max-w-container-max space-y-8 px-4 py-8">
           {[1, 2, 3].map((i) => (
             <div key={i} className="space-y-3 animate-pulse">
@@ -184,14 +261,14 @@ export default function HomePage() {
       )}
 
       {/* ── Error ── */}
-      {isError && (
+      {!isVendorsTab && isError && (
         <div className="mx-auto max-w-container-max px-4 py-16 text-center">
           <p className="text-body-md text-on-surface-variant">Failed to load. Please try again.</p>
         </div>
       )}
 
       {/* ── Empty state ── */}
-      {isEmpty && (
+      {!isVendorsTab && isEmpty && (
         <div className="mx-auto max-w-container-max px-4 py-16 text-center">
           <p className="text-body-md text-on-surface-variant">No offers found.</p>
           {(selectedCategory || selectedSubcategory) && (
@@ -206,7 +283,7 @@ export default function HomePage() {
       )}
 
       {/* ── Feed sections ── */}
-      {!isPending && !isError && !isEmpty && (
+      {!isVendorsTab && !isPending && !isError && !isEmpty && (
         <div className="mx-auto max-w-container-max divide-y divide-outline-variant/30 overflow-x-hidden">
           {displaySections.map((section) => (
             <OfferSection key={section.type} section={section} />

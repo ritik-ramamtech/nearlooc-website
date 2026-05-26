@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import Link from "next/link";
 import { Star, Clock, Shield, MapPin, Tag, Timer } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { PriceBlock } from "./PriceBlock";
@@ -43,7 +44,6 @@ export function OfferDetail({ id }: OfferDetailProps) {
   const images: string[] = offer.images ?? (offer.image_url ? [offer.image_url] : []);
   const activePrice = offer.promo_price ?? offer.discounted_price;
 
-  // Derive trust badges from real offer data — only show what we actually know
   const trustBadges = [
     offer.duration
       ? { icon: Timer, label: offer.duration, sub: "Offer validity" }
@@ -63,13 +63,10 @@ export function OfferDetail({ id }: OfferDetailProps) {
     <>
       <div className="pb-28 md:pb-12">
 
-        {/* ─────────────────────────────────────────────────
-            Desktop: side-by-side grid  |  Mobile: stacked
-        ───────────────────────────────────────────────── */}
         <div className="md:mx-auto md:max-w-6xl md:px-8 md:py-8">
           <div className="md:grid md:grid-cols-[1fr_420px] md:gap-10 md:items-start">
 
-            {/* ── LEFT — Image gallery ── */}
+            {/* Left — Image gallery */}
             <div className="md:sticky md:top-20">
               <OfferImageGallery
                 images={images}
@@ -79,22 +76,19 @@ export function OfferDetail({ id }: OfferDetailProps) {
               />
             </div>
 
-            {/* ── RIGHT — All info + CTAs ── */}
+            {/* Right — Info + CTAs */}
             <div className="space-y-5 px-4 pt-5 md:px-0 md:pt-0">
 
-              {/* Category breadcrumb */}
               {offer.category_name && (
                 <p className="text-label-sm font-semibold uppercase tracking-widest text-stitch-secondary">
                   {offer.category_name}
                 </p>
               )}
 
-              {/* Title */}
               <h1 className="text-[22px] font-bold leading-snug text-on-surface">
                 {offer.title}
               </h1>
 
-              {/* Rating + duration */}
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <div className="flex items-center gap-1">
                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
@@ -116,10 +110,8 @@ export function OfferDetail({ id }: OfferDetailProps) {
 
               <Separator />
 
-              {/* Price + savings */}
               <PriceBlock offer={offer} />
 
-              {/* Promo timer */}
               {offer.promo_end_at && (
                 <PromoTimer
                   promoEndAt={offer.promo_end_at}
@@ -127,7 +119,6 @@ export function OfferDetail({ id }: OfferDetailProps) {
                 />
               )}
 
-              {/* Trust badges — only rendered when offer has matching data */}
               {trustBadges.length > 0 && (
                 <div className="grid grid-cols-2 gap-2">
                   {trustBadges.map(({ icon: Icon, label, sub }) => (
@@ -145,28 +136,23 @@ export function OfferDetail({ id }: OfferDetailProps) {
                 </div>
               )}
 
-              {/* Merchant row */}
-              {offer.merchant_name && (
-                <MerchantRow
-                  merchantId={offer.merchant_id}
-                  merchantName={offer.merchant_name}
-                  merchantLogoUrl={offer.merchant_logo_url}
-                  latitude={offer.latitude}
-                  longitude={offer.longitude}
-                />
-              )}
 
               {/* Desktop CTAs */}
               <div className="hidden space-y-2 md:block">
                 <button className="w-full rounded-xl bg-stitch-primary py-3.5 text-label-md font-semibold text-white transition-colors hover:bg-stitch-secondary active:scale-[0.98]">
                   Claim Deal — ₹{activePrice.toLocaleString()}
                 </button>
-                <button className="w-full rounded-xl border-2 border-stitch-primary py-3.5 text-label-md font-semibold text-stitch-primary transition-colors hover:bg-surface-container">
-                  Contact Merchant
-                </button>
+                {offer.merchant_id && (
+                  <Link
+                    href={`/vendors/${offer.merchant_id}/products`}
+                    className="block w-full rounded-xl border-2 border-stitch-primary py-3.5 text-center text-label-md font-semibold text-stitch-primary transition-colors hover:bg-surface-container"
+                  >
+                    Contact Merchant
+                  </Link>
+                )}
               </div>
 
-              {/* Accordion — desktop: inside right col */}
+              {/* Desktop accordion */}
               <div className="hidden md:block">
                 <OfferAccordion
                   description={offer.description}
@@ -179,7 +165,7 @@ export function OfferDetail({ id }: OfferDetailProps) {
           </div>
         </div>
 
-        {/* ── Accordion — mobile only (full width) ── */}
+        {/* Mobile accordion */}
         <div className="mt-5 px-4 md:hidden">
           <OfferAccordion
             description={offer.description}
@@ -189,7 +175,6 @@ export function OfferDetail({ id }: OfferDetailProps) {
           />
         </div>
 
-        {/* ── Related offers ── */}
         {related.length > 0 && (
           <div className="mt-8 md:mx-auto md:max-w-6xl md:px-8">
             <Separator className="mb-6" />
@@ -198,11 +183,12 @@ export function OfferDetail({ id }: OfferDetailProps) {
         )}
       </div>
 
-      {/* ── Sticky claim bar — mobile only ── */}
+      {/* Mobile sticky claim bar */}
       <div className="md:hidden">
         <OfferClaimBar
           price={activePrice}
           isFavorite={offer.is_favorite}
+          merchantId={offer.merchant_id}
           onToggleFavorite={() => toggleFavorite(offer.id, !!offer.is_favorite)}
         />
       </div>

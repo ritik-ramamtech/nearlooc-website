@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface OfferClaimBarProps {
   price: number;
   isFavorite?: boolean;
+  merchantId?: string | null;
   onToggleFavorite?: () => void;
   onClaim?: () => void;
 }
@@ -14,6 +16,7 @@ interface OfferClaimBarProps {
 export function OfferClaimBar({
   price,
   isFavorite = false,
+  merchantId,
   onToggleFavorite,
   onClaim,
 }: OfferClaimBarProps) {
@@ -50,6 +53,16 @@ export function OfferClaimBar({
             ₹{price.toLocaleString()}
           </span>
         </button>
+
+        {/* Contact Merchant */}
+        {merchantId && (
+          <Link
+            href={`/vendors/${merchantId}/products`}
+            className="flex h-12 shrink-0 items-center justify-center rounded-xl border-2 border-stitch-primary px-3 text-label-sm font-semibold text-stitch-primary transition-colors hover:bg-surface-container"
+          >
+            Contact
+          </Link>
+        )}
       </div>
     </div>
   );

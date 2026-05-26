@@ -7,7 +7,15 @@ export function useOffer(id: string) {
   return useQuery({
     queryKey: ["offers", "detail", id],
     queryFn: () => getOfferById(id),
-    select: (res) => res.data,
+    select: (res) => {
+      const d = res.data as typeof res.data & { merchant?: { id?: string; name?: string; logo_url?: string } };
+      return {
+        ...d,
+        merchant_id: d.merchant_id ?? d.merchant?.id ?? null,
+        merchant_name: d.merchant_name ?? d.merchant?.name ?? null,
+        merchant_logo_url: d.merchant_logo_url ?? d.merchant?.logo_url ?? null,
+      };
+    },
     enabled: !!id,
   });
 }
