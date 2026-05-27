@@ -1,5 +1,6 @@
 import { Star } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatLocalDateShort } from "@/lib/utils";
 import type { Review } from "@/types";
 
 interface ReviewListProps {
@@ -35,9 +36,7 @@ function ReviewItem({ review }: { review: Review }) {
           <p className="mt-1 text-body-sm text-on-surface-variant leading-relaxed">{review.comment}</p>
         )}
         <p className="mt-1 text-label-sm text-on-surface-variant">
-          {new Date(review.created_at).toLocaleDateString("en-IN", {
-            day: "numeric", month: "short", year: "numeric",
-          })}
+          {formatLocalDateShort(review.created_at)}
         </p>
       </div>
     </div>

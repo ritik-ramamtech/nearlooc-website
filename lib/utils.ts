@@ -31,3 +31,25 @@ export function slugify(str: string): string {
 export function calculateDiscount(original: number, current: number): number {
   return Math.round(((original - current) / original) * 100);
 }
+
+export function formatLocalDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+export function formatLocalDateShort(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+export function getServerError(error: unknown): string | null {
+  if (!error || typeof error !== "object" || !("response" in error)) return null;
+  return (error as { response?: { data?: { message?: string } } }).response?.data?.message ?? null;
+}

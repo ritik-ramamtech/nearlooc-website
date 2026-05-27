@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import { cn, formatLocalDate } from "@/lib/utils";
 import { useMarkAsRead } from "../hooks";
 import type { Notification } from "@/types";
 
@@ -33,9 +33,7 @@ export function NotificationItem({ notification }: NotificationItemProps) {
             </p>
           )}
           <p className="mt-1 text-label-sm text-on-surface-variant">
-            {new Date(notification.created_at).toLocaleDateString("en-IN", {
-              day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
-            })}
+            {formatLocalDate(notification.created_at)}
           </p>
         </div>
       </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Copy, Check, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { formatLocalDateShort } from "@/lib/utils";
 import type { Coupon } from "@/types";
 
 interface CouponCardProps {
@@ -66,10 +67,7 @@ export function CouponCard({ coupon }: CouponCardProps) {
               <Badge variant="destructive" className="text-label-sm">Expired</Badge>
             ) : (
               <p className="text-label-sm text-on-surface-variant">
-                Valid until{" "}
-                {new Date(coupon.expires_at).toLocaleDateString("en-IN", {
-                  day: "numeric", month: "short", year: "numeric",
-                })}
+                Valid until {formatLocalDateShort(coupon.expires_at)}
               </p>
             )}
           </div>

@@ -5,6 +5,7 @@ import { CategoryBar, VENDORS_TAB } from "@/features/home/components/CategoryBar
 import { SubcategoryBar } from "@/features/home/components/SubcategoryBar";
 import { OfferSection } from "@/features/home/components/OfferSection";
 import { VendorCard } from "@/features/vendors/components/VendorCard";
+import { VendorCardSkeleton } from "@/features/vendors/components/VendorCardSkeleton";
 import { useHomeFeed } from "@/features/home/hooks";
 import { useCategories } from "@/features/categories/hooks";
 import { useVendorsInfinite } from "@/features/vendors/hooks";
@@ -190,17 +191,7 @@ export default function HomePage() {
       {isVendorsTab && (
         <div className="mx-auto max-w-container-max px-4 py-6">
           {vendorsPending && (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 animate-pulse">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="overflow-hidden rounded-2xl border border-outline-variant">
-                  <div className="h-24 w-full bg-surface-container" />
-                  <div className="space-y-2 p-3 pt-7">
-                    <div className="h-4 w-3/4 rounded bg-surface-container" />
-                    <div className="h-3 w-1/2 rounded bg-surface-container" />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <VendorCardSkeleton count={6} className="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" />
           )}
 
           {vendorsError && (
@@ -226,21 +217,11 @@ export default function HomePage() {
           )}
 
           {/* Loading next pages */}
-          <div className="mt-4">
-            {isFetchingNextPage && (
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 animate-pulse">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="overflow-hidden rounded-2xl border border-outline-variant">
-                    <div className="h-24 w-full bg-surface-container" />
-                    <div className="space-y-2 p-3 pt-7">
-                      <div className="h-4 w-3/4 rounded bg-surface-container" />
-                      <div className="h-3 w-1/2 rounded bg-surface-container" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          {isFetchingNextPage && (
+            <div className="mt-4">
+              <VendorCardSkeleton count={4} className="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" />
+            </div>
+          )}
         </div>
       )}
 

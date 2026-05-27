@@ -1,6 +1,7 @@
 "use client";
 
 import { TopBar } from "@/components/layout/TopBar";
+import { EmptyState } from "@/components/ui/empty-state";
 import { NotificationItem } from "@/features/notifications/components/NotificationItem";
 import { useNotifications, useMarkAllAsRead } from "@/features/notifications/hooks";
 import { Button } from "@/components/ui/button";
@@ -40,10 +41,7 @@ export default function NotificationsPage() {
         )}
 
         {data && data.items.length === 0 && (
-          <div className="py-16 text-center">
-            <p className="text-headline-sm font-semibold text-on-surface">All caught up!</p>
-            <p className="mt-1 text-body-sm text-on-surface-variant">No notifications yet.</p>
-          </div>
+          <EmptyState title="All caught up!" subtitle="No notifications yet." />
         )}
 
         {data?.items.map((n) => (

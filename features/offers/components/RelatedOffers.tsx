@@ -1,4 +1,4 @@
-import { OfferCard } from "@/features/home/components/OfferCard";
+import { OfferCard } from "@/features/home";
 import type { Offer } from "@/types";
 
 interface RelatedOffersProps {

@@ -7,6 +7,7 @@ import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getServerError } from "@/lib/utils";
 import { useUpdateProfile } from "../hooks";
 import type { UserProfile } from "@/types";
 
@@ -33,9 +34,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     reset({ name: profile.name, phone: profile.phone ?? "" });
   }, [profile, reset]);
 
-  const serverError = error && "response" in error
-    ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
-    : null;
+  const serverError = getServerError(error);
 
   return (
     <form onSubmit={handleSubmit((data) => mutate(data))} className="space-y-4">

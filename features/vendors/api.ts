@@ -1,13 +1,6 @@
 import apiClient from "@/lib/api-client";
+import type { PaginationMeta } from "@/types/api";
 import type { Vendor, VendorSummary, VendorProduct, GetVendorsQuery, GetVendorProductsQuery } from "./types";
-
-export interface PaginationMeta {
-  page: number;
-  limit: number;
-  total: number;
-  total_pages?: number;
-  has_more: boolean;
-}
 
 // GET /vendors — standard ApiResponse shape
 export interface VendorsRawResponse {

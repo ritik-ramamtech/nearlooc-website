@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Star, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getServerError } from "@/lib/utils";
 import { useCreateReview } from "../hooks";
 
 interface ReviewFormProps {
@@ -23,9 +24,7 @@ export function ReviewForm({ offerId, onSuccess }: ReviewFormProps) {
     });
   };
 
-  const serverError = error && "response" in error
-    ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
-    : null;
+  const serverError = getServerError(error);
 
   return (
     <div className="space-y-3">

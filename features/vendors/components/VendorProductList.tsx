@@ -3,8 +3,8 @@
 import { useState, useMemo } from "react";
 import { Search } from "lucide-react";
 import { useVendorProducts } from "../hooks";
-import { useFavorites } from "@/features/favorites/hooks";
-import { OfferCard } from "@/features/home/components/OfferCard";
+import { useFavorites } from "@/features/favorites";
+import { OfferCard } from "@/features/home";
 import type { Offer } from "@/types";
 import type { VendorProduct, VendorSummary } from "../types";
 

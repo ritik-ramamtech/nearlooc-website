@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { VendorCard } from "@/features/vendors/components/VendorCard";
+import { VendorCardSkeleton } from "@/features/vendors/components/VendorCardSkeleton";
 import { useVendors } from "@/features/vendors/hooks";
 
 export default function VendorsPage() {
@@ -33,19 +34,7 @@ export default function VendorsPage() {
       </div>
 
       <div className="px-4 py-4">
-        {isPending && (
-          <div className="grid grid-cols-2 gap-3 animate-pulse">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="overflow-hidden rounded-2xl border border-outline-variant">
-                <div className="h-24 w-full bg-surface-container" />
-                <div className="space-y-2 p-3 pt-7">
-                  <div className="h-4 w-3/4 rounded bg-surface-container" />
-                  <div className="h-3 w-1/2 rounded bg-surface-container" />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        {isPending && <VendorCardSkeleton count={4} />}
 
         {isError && (
           <p className="py-10 text-center text-body-sm text-on-surface-variant">

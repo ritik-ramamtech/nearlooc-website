@@ -1,6 +1,7 @@
 "use client";
 
 import { TopBar } from "@/components/layout/TopBar";
+import { EmptyState } from "@/components/ui/empty-state";
 import { OfferCard } from "@/features/home/components/OfferCard";
 import { useFavorites } from "@/features/favorites/hooks";
 
@@ -26,12 +27,7 @@ export default function FavoritesPage() {
         )}
 
         {data && !data.items?.length && (
-          <div className="py-16 text-center">
-            <p className="text-headline-sm font-semibold text-on-surface">No favorites yet</p>
-            <p className="mt-1 text-body-sm text-on-surface-variant">
-              Tap the heart on any offer to save it here.
-            </p>
-          </div>
+          <EmptyState title="No favorites yet" subtitle="Tap the heart on any offer to save it here." />
         )}
 
         {data && data.items?.length > 0 && (

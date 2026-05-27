@@ -1,6 +1,7 @@
 "use client";
 
 import { TopBar } from "@/components/layout/TopBar";
+import { EmptyState } from "@/components/ui/empty-state";
 import { CouponCard } from "@/features/coupons/components/CouponCard";
 import { useCoupons } from "@/features/coupons/hooks";
 
@@ -26,10 +27,7 @@ export default function CouponsPage() {
         )}
 
         {data && data.length === 0 && (
-          <div className="py-16 text-center">
-            <p className="text-headline-sm font-semibold text-on-surface">No coupons available</p>
-            <p className="mt-1 text-body-sm text-on-surface-variant">Check back later for deals.</p>
-          </div>
+          <EmptyState title="No coupons available" subtitle="Check back later for deals." />
         )}
 
         {data?.map((coupon) => (

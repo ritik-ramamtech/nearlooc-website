@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Star, Clock, Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Offer } from "@/types";
-import { useToggleFavorite } from "@/features/favorites/hooks";
+import { useToggleFavorite } from "@/features/favorites";
 
 interface OfferCardProps {
   offer: Offer & { merchant?: { id: string; name: string; logo_url: string | null } };

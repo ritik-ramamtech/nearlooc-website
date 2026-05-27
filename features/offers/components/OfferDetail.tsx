@@ -12,7 +12,7 @@ import { OfferAccordion } from "./OfferAccordion";
 import { RelatedOffers } from "./RelatedOffers";
 import { OfferClaimBar } from "./OfferClaimBar";
 import { useOffer, useRelatedOffers } from "../hooks";
-import { useToggleFavorite } from "@/features/favorites/hooks";
+import { useToggleFavorite } from "@/features/favorites";
 
 interface OfferDetailProps {
   id: string;
@@ -147,7 +147,7 @@ export function OfferDetail({ id }: OfferDetailProps) {
                     href={`/vendors/${offer.merchant_id}/products`}
                     className="block w-full rounded-xl border-2 border-stitch-primary py-3.5 text-center text-label-md font-semibold text-stitch-primary transition-colors hover:bg-surface-container"
                   >
-                    Contact Merchant
+                    See All Deals
                   </Link>
                 )}
               </div>
