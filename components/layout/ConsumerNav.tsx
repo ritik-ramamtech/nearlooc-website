@@ -16,6 +16,8 @@ const navItems = [
 export function ConsumerNav() {
   const pathname = usePathname();
 
+  if (pathname === "/favorites") return null;
+
   return (
     <nav className="fixed bottom-0 z-50 w-full border-t border-outline-variant bg-surface-container-lowest">
       <div className="flex h-16 items-center justify-around px-2">
