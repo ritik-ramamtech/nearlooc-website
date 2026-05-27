@@ -189,7 +189,7 @@ export function OfferDetail({ id }: OfferDetailProps) {
           price={activePrice}
           isFavorite={offer.is_favorite}
           merchantId={offer.merchant_id}
-          onToggleFavorite={() => toggleFavorite(offer.id, !!offer.is_favorite)}
+          onToggleFavorite={() => toggleFavorite(offer, !!offer.is_favorite)}
         />
       </div>
     </>

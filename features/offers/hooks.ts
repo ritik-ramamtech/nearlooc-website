@@ -24,7 +24,6 @@ export function useOffers(query?: GetOffersQuery) {
   return useQuery({
     queryKey: ["offers", "list", query],
     queryFn: () => getOffers(query),
-    select: (res) => res.data,
   });
 }
 

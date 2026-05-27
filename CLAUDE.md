@@ -64,7 +64,7 @@ client/
 │   │   └── register/page.tsx              POST /auth/register
 │   │
 │   ├── (consumer)/
-│   │   ├── layout.tsx                      Consumer shell + bottom navigation bar
+│   │   ├── layout.tsx                      Consumer shell
 │   │   ├── favorites/page.tsx             User favorites list
 │   │   ├── notifications/page.tsx         GET /notifications
 │   │   ├── coupons/page.tsx               GET /coupons
@@ -207,7 +207,6 @@ client/
 │   │   ├── skeleton.tsx
 │   │   └── pagination.tsx
 │   └── layout/
-│       ├── ConsumerNav.tsx                 Bottom nav bar (Home, Vendors, Favorites, Notifications, Profile)
 │       ├── MerchantSidebar.tsx            Sidebar nav (Dashboard, Products, Sales, Locations, Reviews, Profile)
 │       └── TopBar.tsx                      Shared top bar with back button + title
 │

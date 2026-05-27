@@ -10,22 +10,23 @@ import { useToggleFavorite } from "@/features/favorites";
 interface OfferCardProps {
   offer: Offer & { merchant?: { id: string; name: string; logo_url: string | null } };
   className?: string;
+  fluid?: boolean;
 }
 
-export function OfferCard({ offer, className }: OfferCardProps) {
+export function OfferCard({ offer, className, fluid }: OfferCardProps) {
   const merchantName = offer.merchant?.name ?? offer.merchant_name ?? null;
   const { toggle, isPending } = useToggleFavorite();
   const [isFav, setIsFav] = useState(!!offer.is_favorite);
 
   return (
-    <div style={{ width: 240 }} className={cn(className)}>
+    <div style={fluid ? undefined : { width: 240 }} className={cn(fluid && "w-full", className)}>
       <Link
         href={`/offers/${offer.id}`}
         className="group block overflow-hidden rounded-xl bg-white transition-all duration-200 hover:-translate-y-0.5"
         style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.05)" }}
       >
-        {/* Image — hard 190px */}
-        <div style={{ height: 190, position: "relative", overflow: "hidden" }} className="bg-gray-100">
+        {/* Image — maintains 240×190 proportions at any card width */}
+        <div style={{ aspectRatio: "240/190", position: "relative", overflow: "hidden" }} className="bg-gray-100">
           {offer.image_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -68,7 +69,7 @@ export function OfferCard({ offer, className }: OfferCardProps) {
               e.stopPropagation();
               if (isPending) return;
               setIsFav((prev) => !prev);
-              toggle(offer.id, isFav);
+              toggle(offer, isFav);
             }}
             style={{
               position: "absolute",
