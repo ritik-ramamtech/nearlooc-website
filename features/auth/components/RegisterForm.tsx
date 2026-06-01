@@ -51,20 +51,28 @@ export function RegisterForm() {
       </div>
 
       <div className="space-y-1">
-        <label className="text-label-md text-on-surface-variant">Phone (optional)</label>
-        <Input type="tel" placeholder="+91 98765 43210" autoComplete="tel" {...register("phone")} />
-      </div>
-
-      <div className="space-y-1">
         <label className="text-label-md text-on-surface-variant">Password</label>
         <Input
           type="password"
-          placeholder="Min. 6 characters"
+          placeholder="Min. 8 characters"
           autoComplete="new-password"
           {...register("password")}
         />
         {errors.password && (
           <p className="text-label-sm text-bg-error">{errors.password.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-1">
+        <label className="text-label-md text-on-surface-variant">Confirm Password</label>
+        <Input
+          type="password"
+          placeholder="Confirm your password"
+          autoComplete="new-password"
+          {...register("confirm_password")}
+        />
+        {errors.confirm_password && (
+          <p className="text-label-sm text-bg-error">{errors.confirm_password.message}</p>
         )}
       </div>
 

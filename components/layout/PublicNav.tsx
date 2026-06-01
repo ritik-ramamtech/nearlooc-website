@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Search, Bell, User, Heart } from "lucide-react";
+import { Search, Bell, User, Heart, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/auth.store";
 import { useLogout } from "@/features/auth/hooks";
@@ -32,13 +32,24 @@ export function PublicNav() {
         <div className="flex items-center gap-3">
           {isAuthenticated ? (
             <>
+              {/* Mode switcher — only visible for merchants */}
+              {merchant_id && (
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1a5c2a] hover:bg-[#14471f] text-white text-xs font-semibold transition-colors"
+                >
+                  <Store className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Merchant Portal</span>
+                  <span className="sm:hidden">Portal</span>
+                </Link>
+              )}
               <Link href="/favorites">
                 <Heart className="h-5 w-5 text-on-surface-variant hover:text-stitch-primary transition-colors" />
               </Link>
               <Link href="/notifications">
                 <Bell className="h-5 w-5 text-on-surface-variant hover:text-stitch-primary transition-colors" />
               </Link>
-              <Link href={merchant_id ? "/dashboard" : "/profile"}>
+              <Link href="/profile">
                 <User className="h-5 w-5 text-on-surface-variant hover:text-stitch-primary transition-colors" />
               </Link>
               <Button

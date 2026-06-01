@@ -1,18 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { MapPin, Heart, Star, LogOut, ChevronRight } from "lucide-react";
+import { MapPin, Heart, Star, LogOut, ChevronRight, Store, LayoutDashboard } from "lucide-react";
 import { TopBar } from "@/components/layout/TopBar";
 import { AvatarUpload } from "@/features/user/components/AvatarUpload";
 import { ProfileForm } from "@/features/user/components/ProfileForm";
 import { useProfile } from "@/features/user/hooks";
 import { useLogout } from "@/features/auth/hooks";
+import { useAuthStore } from "@/store/auth.store";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
 export default function ProfilePage() {
   const { data: profile, isPending } = useProfile();
   const { mutate: logout, isPending: loggingOut } = useLogout();
+  const { merchant_id } = useAuthStore();
+  const isMerchant = !!merchant_id;
 
   if (isPending) {
     return (
@@ -93,6 +96,45 @@ export default function ProfilePage() {
             </div>
             <ChevronRight className="h-4 w-4 text-on-surface-variant" />
           </Link>
+        </div>
+
+        <Separator />
+
+        {/* Merchant section */}
+        <div className="px-4">
+          {isMerchant ? (
+            <Link
+              href="/dashboard"
+              className="flex items-center justify-between w-full rounded-xl px-3 py-3 bg-[#1a5c2a] hover:bg-[#14471f] transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <LayoutDashboard className="h-5 w-5 text-white" />
+                <div>
+                  <span className="text-body-sm font-semibold text-white block">
+                    Merchant Dashboard
+                  </span>
+                  <span className="text-[11px] text-green-200">Switch to merchant mode</span>
+                </div>
+              </div>
+              <ChevronRight className="h-4 w-4 text-white" />
+            </Link>
+          ) : (
+            <Link
+              href="/profile/become-merchant"
+              className="flex items-center justify-between w-full rounded-xl px-3 py-3 bg-[#e8f5e9] border border-[#c8e6c9] hover:bg-[#c8e6c9] transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <Store className="h-5 w-5 text-[#1a5c2a]" />
+                <div>
+                  <span className="text-body-sm font-semibold text-[#1a5c2a] block">
+                    Become a Merchant
+                  </span>
+                  <span className="text-[11px] text-gray-500">List your products & offers</span>
+                </div>
+              </div>
+              <ChevronRight className="h-4 w-4 text-[#1a5c2a]" />
+            </Link>
+          )}
         </div>
 
         <Separator />
