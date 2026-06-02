@@ -209,7 +209,7 @@ export default function HomePage() {
           {vendorsData && vendorsData.items.length > 0 && (
             <>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                {vendorsData.items.map((vendor) => (
+                {Array.from(new Map(vendorsData.items.map((v) => [v.id, v])).values()).map((vendor) => (
                   <VendorCard key={vendor.id} vendor={vendor} />
                 ))}
               </div>

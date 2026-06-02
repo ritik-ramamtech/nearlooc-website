@@ -19,13 +19,13 @@ export interface CreateOfferInput {
 export type UpdateOfferInput = Partial<Omit<CreateOfferInput, "product_id" | "location_ids"> & { location_id?: string }>;
 
 export async function getActiveSales(params?: { page?: number; limit?: number }): Promise<PaginatedResponse<MerchantSale>> {
-  const res = await apiClient.get<ApiResponse<PaginatedResponse<MerchantSale>>>("/merchant/sales/active", { params });
-  return res.data.data;
+  const res = await apiClient.get<PaginatedResponse<MerchantSale> & { message: string }>("/merchant/sales/active", { params });
+  return res.data;
 }
 
 export async function getSalesHistory(params?: { page?: number; limit?: number }): Promise<PaginatedResponse<MerchantSale>> {
-  const res = await apiClient.get<ApiResponse<PaginatedResponse<MerchantSale>>>("/merchant/sales/history", { params });
-  return res.data.data;
+  const res = await apiClient.get<PaginatedResponse<MerchantSale> & { message: string }>("/merchant/sales/history", { params });
+  return res.data;
 }
 
 export async function createOffer(data: CreateOfferInput): Promise<ApiResponse<MerchantSale | MerchantSale[]>> {

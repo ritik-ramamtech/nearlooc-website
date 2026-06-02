@@ -101,21 +101,7 @@ export default function LocationsPage() {
         </div>
       </header>
 
-      {/* Top nav tabs */}
-      <div className="bg-white border-b border-gray-200 px-6 flex gap-6">
-        {["Overview", "Products", "Locations", "Settings"].map((tab) => (
-          <span
-            key={tab}
-            className={`py-3 text-sm font-medium border-b-2 transition-colors cursor-pointer ${
-              tab === "Locations"
-                ? "border-[#1a5c2a] text-[#1a5c2a]"
-                : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            {tab}
-          </span>
-        ))}
-      </div>
+
 
       <div className="p-6">
         <div className="flex gap-6">

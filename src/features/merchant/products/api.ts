@@ -22,8 +22,8 @@ export type UpdateProductInput = Partial<CreateProductInput> & { is_active?: boo
 export async function getMerchantProducts(params?: {
   page?: number; limit?: number; is_active?: boolean;
 }): Promise<PaginatedResponse<Product>> {
-  const res = await apiClient.get<ApiResponse<PaginatedResponse<Product>>>("/merchant/products", { params });
-  return res.data.data;
+  const res = await apiClient.get<PaginatedResponse<Product> & { message: string }>("/merchant/products", { params });
+  return res.data;
 }
 
 export async function createProduct(data: CreateProductInput): Promise<ApiResponse<Product>> {
