@@ -1,12 +1,8 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: ["class"],
   content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
-    "./features/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
   ],
   theme: {
     container: {
@@ -47,6 +43,19 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Brand color scale — replaces scattered #1a5c2a hex values
+        brand: {
+          50:  "#f0f7f0",
+          100: "#e8f5e9",
+          200: "#c8e6c9",
+          400: "#25823c",
+          500: "#1a5c2a",
+          600: "#154d23",
+          700: "#0d3318",
+          800: "#14471f",
+        },
+        // Page-level background tint used in merchant + consumer shells
+        "page-bg": "#f4f9f4",
         // Stitch Material Design 3 color tokens
         "on-error-container": "#93000a",
         "secondary-fixed": "#6ffbbe",
@@ -91,29 +100,13 @@ const config: Config = {
         "on-secondary-fixed-dim": "#4edea3",
       },
       spacing: {
-        "margin-desktop": "64px",
-        "gutter": "24px",
-        "margin-tablet": "32px",
         "container-max": "1440px",
-        "stack-sm": "8px",
-        "stack-lg": "32px",
-        "stack-md": "16px",
-        "margin-mobile": "16px",
       },
       maxWidth: {
         "container-max": "1440px",
       },
       fontFamily: {
         sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
-        "headline-sm": ["var(--font-inter)", "Inter", "sans-serif"],
-        "headline-lg": ["var(--font-inter)", "Inter", "sans-serif"],
-        "label-md": ["var(--font-inter)", "Inter", "sans-serif"],
-        display: ["var(--font-inter)", "Inter", "sans-serif"],
-        "body-lg": ["var(--font-inter)", "Inter", "sans-serif"],
-        "body-md": ["var(--font-inter)", "Inter", "sans-serif"],
-        "body-sm": ["var(--font-inter)", "Inter", "sans-serif"],
-        "headline-md": ["var(--font-inter)", "Inter", "sans-serif"],
-        "label-sm": ["var(--font-inter)", "Inter", "sans-serif"],
       },
       fontSize: {
         "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
