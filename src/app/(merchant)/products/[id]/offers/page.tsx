@@ -8,7 +8,7 @@ import { useMerchantProducts } from "@/features/merchant/products/hooks";
 import { useActiveSales, useSalesHistory, useCreateOffer, useDeactivateOffer } from "@/features/merchant/sales/hooks";
 import { useMerchantLocations } from "@/features/merchant/locations/hooks";
 
-const inputCls = "w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-[#1a5c2a] focus:ring-2 focus:ring-[#1a5c2a]/10 transition";
+const inputCls = "w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 transition";
 const labelCls = "block text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5";
 
 export default function ProductOffersPage() {
@@ -94,7 +94,7 @@ export default function ProductOffersPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-[#f0f7f0] overflow-hidden">
+    <div className="h-screen flex flex-col bg-page-bg overflow-hidden">
       {/* Sticky Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-4 sticky top-0 z-20">
         <button onClick={() => router.back()} className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
@@ -110,12 +110,12 @@ export default function ProductOffersPage() {
             <button onClick={() => { setShowForm(false); setError(null); }} className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
               Cancel
             </button>
-            <button onClick={handleCreate} disabled={creating} className="px-5 py-2 bg-[#1a5c2a] hover:bg-[#14471f] text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-60">
+            <button onClick={handleCreate} disabled={creating} className="px-5 py-2 bg-brand-500 hover:bg-brand-800 text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-60">
               {creating ? "Creating..." : "Create Offer"}
             </button>
           </>
         ) : (
-          <button onClick={() => setShowForm(true)} className="flex items-center gap-1.5 px-4 py-2 bg-[#1a5c2a] hover:bg-[#14471f] text-white rounded-lg text-sm font-semibold transition-colors">
+          <button onClick={() => setShowForm(true)} className="flex items-center gap-1.5 px-4 py-2 bg-brand-500 hover:bg-brand-800 text-white rounded-lg text-sm font-semibold transition-colors">
             <Plus className="h-4 w-4" />Create Offer
           </button>
         )}
@@ -129,7 +129,7 @@ export default function ProductOffersPage() {
             {/* Product Summary */}
             {product && (
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center gap-4 shrink-0">
-                <div className="h-14 w-14 rounded-xl bg-[#f0f7f0] shrink-0 overflow-hidden">
+                <div className="h-14 w-14 rounded-xl bg-brand-50 shrink-0 overflow-hidden">
                   {product.image_url ? (
                     <Image src={product.image_url} alt={product.name} width={56} height={56} className="object-cover h-full w-full" />
                   ) : (
@@ -140,7 +140,7 @@ export default function ProductOffersPage() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-900">{product.name}</p>
-                  <p className="text-sm font-bold text-[#1a5c2a] mt-0.5">Base price: ₹{product.base_price.toLocaleString("en-IN")}</p>
+                  <p className="text-sm font-bold text-brand-500 mt-0.5">Base price: ₹{product.base_price.toLocaleString("en-IN")}</p>
                   {product.category_name && <p className="text-xs text-gray-400 mt-0.5">{product.category_name}</p>}
                 </div>
               </div>
@@ -153,8 +153,8 @@ export default function ProductOffersPage() {
                 <p className="text-xs text-gray-400 mb-3">Select which branches carry this product</p>
                 <div className="space-y-1">
                   {locations.map((loc) => (
-                    <label key={loc.id} className="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-[#f0f7f0] transition-colors">
-                      <div onClick={() => toggleLocation(loc.id)} className={`h-5 w-5 rounded border-2 flex items-center justify-center transition-colors shrink-0 ${selectedLocations.includes(loc.id) ? "bg-[#1a5c2a] border-[#1a5c2a]" : "border-gray-300 bg-white"}`}>
+                    <label key={loc.id} className="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-brand-50 transition-colors">
+                      <div onClick={() => toggleLocation(loc.id)} className={`h-5 w-5 rounded border-2 flex items-center justify-center transition-colors shrink-0 ${selectedLocations.includes(loc.id) ? "bg-brand-500 border-brand-500" : "border-gray-300 bg-white"}`}>
                         {selectedLocations.includes(loc.id) && (
                           <svg className="h-3 w-3 text-white" viewBox="0 0 12 12" fill="none">
                             <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -196,7 +196,7 @@ export default function ProductOffersPage() {
           <div className="col-span-8 flex flex-col gap-5 overflow-y-auto">
             {/* Create Offer Form */}
             {showForm ? (
-              <div className="bg-white rounded-2xl border border-[#1a5c2a] shadow-sm p-6 space-y-4">
+              <div className="bg-white rounded-2xl border border-brand-500 shadow-sm p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-base font-bold text-gray-900">Create New Offer</h2>
                   <button onClick={() => { setShowForm(false); setError(null); }} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
@@ -284,14 +284,14 @@ export default function ProductOffersPage() {
                       placeholder="e.g. Free breakfast"
                       className={`${inputCls} flex-1`}
                     />
-                    <button onClick={() => { addTag(features, setFeatures, featureInput); setFeatureInput(""); }} className="px-3 py-2.5 bg-[#1a5c2a] text-white rounded-md hover:bg-[#14471f] transition-colors">
+                    <button onClick={() => { addTag(features, setFeatures, featureInput); setFeatureInput(""); }} className="px-3 py-2.5 bg-brand-500 text-white rounded-md hover:bg-brand-800 transition-colors">
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>
                   {features.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {features.map((f) => (
-                        <span key={f} className="flex items-center gap-1 text-xs px-2.5 py-1 bg-[#e8f5e9] text-[#1a5c2a] rounded-full font-medium">
+                        <span key={f} className="flex items-center gap-1 text-xs px-2.5 py-1 bg-brand-100 text-brand-500 rounded-full font-medium">
                           {f}
                           <button onClick={() => setFeatures(features.filter((x) => x !== f))}>
                             <X className="h-2.5 w-2.5" />
@@ -340,8 +340,8 @@ export default function ProductOffersPage() {
                         const loc = locations.find((l) => l.id === pl.id);
                         if (!loc) return null;
                         return (
-                          <label key={loc.id} className="flex items-center gap-2.5 cursor-pointer p-2 rounded-lg hover:bg-[#f0f7f0] transition-colors">
-                            <div onClick={() => toggleLocation(loc.id)} className={`h-4 w-4 rounded border-2 flex items-center justify-center transition-colors shrink-0 ${selectedLocations.includes(loc.id) ? "bg-[#1a5c2a] border-[#1a5c2a]" : "border-gray-300 bg-white"}`}>
+                          <label key={loc.id} className="flex items-center gap-2.5 cursor-pointer p-2 rounded-lg hover:bg-brand-50 transition-colors">
+                            <div onClick={() => toggleLocation(loc.id)} className={`h-4 w-4 rounded border-2 flex items-center justify-center transition-colors shrink-0 ${selectedLocations.includes(loc.id) ? "bg-brand-500 border-brand-500" : "border-gray-300 bg-white"}`}>
                               {selectedLocations.includes(loc.id) && (
                                 <svg className="h-2.5 w-2.5 text-white" viewBox="0 0 12 12" fill="none">
                                   <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -358,12 +358,12 @@ export default function ProductOffersPage() {
               </div>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center gap-3 bg-white rounded-2xl border border-dashed border-gray-200">
-                <div className="h-14 w-14 rounded-full bg-[#f0f7f0] flex items-center justify-center">
-                  <Tag className="h-6 w-6 text-[#1a5c2a]" />
+                <div className="h-14 w-14 rounded-full bg-brand-50 flex items-center justify-center">
+                  <Tag className="h-6 w-6 text-brand-500" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-gray-700">No offer in progress</p>
-                  <p className="text-xs text-gray-400 mt-1">Click <span className="font-semibold text-[#1a5c2a]">Create Offer</span> to set up a new promotional offer for this product.</p>
+                  <p className="text-xs text-gray-400 mt-1">Click <span className="font-semibold text-brand-500">Create Offer</span> to set up a new promotional offer for this product.</p>
                 </div>
               </div>
             )}
@@ -408,14 +408,14 @@ function OfferCard({ offer, onDeactivate, showDeactivate }: { offer: import("@/t
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center justify-between gap-4">
       <div className="flex items-center gap-3">
-        <div className="h-10 w-10 rounded-lg bg-[#e8f5e9] flex items-center justify-center shrink-0">
-          <Percent className="h-4 w-4 text-[#1a5c2a]" />
+        <div className="h-10 w-10 rounded-lg bg-brand-100 flex items-center justify-center shrink-0">
+          <Percent className="h-4 w-4 text-brand-500" />
         </div>
         <div>
           <div className="flex items-center gap-2">
             <span className="text-sm font-bold text-gray-900">₹{offer.discounted_price.toLocaleString("en-IN")}</span>
             <span className="text-xs text-gray-400 line-through">₹{offer.product?.base_price?.toLocaleString("en-IN")}</span>
-            <span className="text-xs font-semibold text-[#1a5c2a]">{offer.discount_percentage}% off</span>
+            <span className="text-xs font-semibold text-brand-500">{offer.discount_percentage}% off</span>
           </div>
           <div className="flex items-center gap-2 mt-0.5">
             {offer.badge && <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-600">{offer.badge}</span>}

@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useMerchantProfile } from "@/features/merchant/profile/hooks";
 import { useMerchantOverview } from "@/features/merchant/analytics/hooks";
+import { ROUTES } from "@/lib/constants";
 
 export default function DashboardPage() {
   const { data: profile, isPending: profileLoading } = useMerchantProfile();
@@ -16,41 +17,44 @@ export default function DashboardPage() {
   const loading = profileLoading || overviewLoading;
 
   return (
-    <div className="min-h-screen bg-[#f4f9f4]">
+    <div className="min-h-screen bg-page-bg">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200/60 px-6 py-3 flex items-center justify-between sticky top-0 z-20 transition-all">
+      <header className="sticky top-0 z-20 flex items-center justify-between border-b border-gray-200/60 bg-white/80 px-6 py-3 backdrop-blur-md transition-all">
         <div>
           <h1 className="text-lg font-bold text-gray-900">Dashboard</h1>
           <p className="text-xs text-gray-400">Merchant Overview</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors">
+          <button
+            aria-label="Notifications"
+            className="relative rounded-lg p-2 transition-colors hover:bg-gray-100"
+          >
             <Bell className="h-5 w-5 text-gray-500" />
-            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white"></span>
+            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
           </button>
-          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-[#1a5c2a] to-[#25823c] shadow-sm flex items-center justify-center text-white text-sm font-bold">
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-400 text-sm font-bold text-white shadow-sm">
             {profile?.business_name?.[0]?.toUpperCase() ?? "M"}
           </div>
         </div>
       </header>
 
-      <div className="p-6 space-y-6">
+      <div className="space-y-6 p-6">
         {/* Welcome banner */}
         {loading ? (
-          <div className="h-24 rounded-2xl bg-gray-200 animate-pulse" />
+          <div className="h-24 animate-pulse rounded-2xl bg-gray-200" />
         ) : (
-          <div className="bg-gradient-to-r from-[#1a5c2a] to-[#25823c] rounded-2xl p-6 text-white flex items-center justify-between shadow-lg shadow-green-900/10">
+          <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-brand-500 to-brand-400 p-6 text-white shadow-lg shadow-green-900/10">
             <div>
-              <p className="text-sm text-green-100/90 font-medium">Welcome back,</p>
-              <p className="text-2xl font-bold mt-1">{profile?.business_name}</p>
-              <p className="text-sm text-green-100/90 mt-2">
+              <p className="text-sm font-medium text-green-100/90">Welcome back,</p>
+              <p className="mt-1 text-2xl font-bold">{profile?.business_name}</p>
+              <p className="mt-2 text-sm text-green-100/90">
                 {overview?.products.total === 0
                   ? "Start by adding your first product."
                   : `${overview?.products.active} active product${overview?.products.active !== 1 ? "s" : ""} · ${overview?.offers.active} active offer${overview?.offers.active !== 1 ? "s" : ""}`}
               </p>
             </div>
             {profile?.is_verified && (
-              <span className="hidden sm:block bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-4 py-1.5 rounded-full shrink-0 shadow-sm border border-white/10">
+              <span className="hidden shrink-0 rounded-full border border-white/10 bg-white/20 px-4 py-1.5 text-xs font-semibold text-white shadow-sm backdrop-blur-sm sm:block">
                 ✓ Verified
               </span>
             )}
@@ -59,28 +63,26 @@ export default function DashboardPage() {
 
         {/* Quick actions */}
         {!loading && (
-          <div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <QuickAction href="/products/new" icon={<Plus className="h-5 w-5 text-[#1a5c2a]" />} title="Add Product" desc="Expand your catalog" />
-              <QuickAction href="/locations" icon={<MapPin className="h-5 w-5 text-[#1a5c2a]" />} title="Manage Locations" desc="Add or update branches" />
-              <QuickAction href="/reviews" icon={<MessageSquare className="h-5 w-5 text-[#1a5c2a]" />} title="View Reviews" desc="See customer feedback" />
-            </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <QuickAction href={ROUTES.PRODUCTS_NEW} icon={<Plus className="h-5 w-5 text-brand-500" />}  title="Add Product"      desc="Expand your catalog" />
+            <QuickAction href={ROUTES.LOCATIONS}    icon={<MapPin className="h-5 w-5 text-brand-500" />} title="Manage Locations" desc="Add or update branches" />
+            <QuickAction href={ROUTES.REVIEWS}      icon={<MessageSquare className="h-5 w-5 text-brand-500" />} title="View Reviews" desc="See customer feedback" />
           </div>
         )}
 
-        {/* Prominent Empty State if 0 products */}
+        {/* Empty state — 0 products */}
         {!loading && overview?.products.total === 0 && (
-          <div className="bg-white rounded-2xl border border-dashed border-gray-300 p-10 flex flex-col items-center justify-center text-center shadow-sm">
-            <div className="h-16 w-16 rounded-full bg-green-50 flex items-center justify-center mb-4">
-              <Package className="h-8 w-8 text-[#1a5c2a]" />
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white p-10 text-center shadow-sm">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-50">
+              <Package className="h-8 w-8 text-brand-500" />
             </div>
             <h3 className="text-lg font-bold text-gray-900">Your catalog is empty</h3>
-            <p className="text-sm text-gray-500 max-w-sm mt-2 mb-6">
+            <p className="mb-6 mt-2 max-w-sm text-sm text-gray-500">
               Add products and start creating offers to attract customers to your store.
             </p>
             <Link
-              href="/products/new"
-              className="inline-flex items-center gap-2 bg-[#1a5c2a] hover:bg-[#14471f] text-white px-5 py-2.5 rounded-xl font-semibold transition-all shadow-md shadow-green-900/10 hover:-translate-y-0.5"
+              href={ROUTES.PRODUCTS_NEW}
+              className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-5 py-2.5 font-semibold text-white shadow-md shadow-green-900/10 transition-all hover:-translate-y-0.5 hover:bg-brand-800"
             >
               <Plus className="h-4 w-4" /> Add Your First Product
             </Link>
@@ -88,9 +90,9 @@ export default function DashboardPage() {
         )}
 
         {/* Stat cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <StatCard
-            icon={<Package className="h-5 w-5 text-[#1a5c2a]" />}
+            icon={<Package className="h-5 w-5 text-brand-500" />}
             value={loading ? null : String(overview?.products.total ?? 0)}
             label="Products"
             sub={loading ? "" : `${overview?.products.active ?? 0} active · ${overview?.products.inactive ?? 0} inactive`}
@@ -121,10 +123,10 @@ export default function DashboardPage() {
 
         {/* Rating distribution */}
         {!loading && overview && overview.reviews.total > 0 && (
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-            <div className="flex items-center justify-between mb-4">
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
               <p className="text-sm font-bold text-gray-900">Rating Breakdown</p>
-              <Link href="/reviews" className="text-xs font-semibold text-[#1a5c2a] hover:underline flex items-center gap-1">
+              <Link href={ROUTES.REVIEWS} className="flex items-center gap-1 text-xs font-semibold text-brand-500 hover:underline">
                 All reviews <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
@@ -134,15 +136,12 @@ export default function DashboardPage() {
                 const pct = overview.reviews.total > 0 ? (count / overview.reviews.total) * 100 : 0;
                 return (
                   <div key={star} className="flex items-center gap-3">
-                    <span className="text-xs text-gray-500 w-4 text-right">{star}</span>
-                    <Star className="h-3 w-3 text-yellow-400 fill-yellow-400 shrink-0" />
-                    <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-yellow-400 rounded-full transition-all"
-                        style={{ width: `${pct}%` }}
-                      />
+                    <span className="w-4 text-right text-xs text-gray-500">{star}</span>
+                    <Star className="h-3 w-3 shrink-0 fill-yellow-400 text-yellow-400" />
+                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
+                      <div className="h-full rounded-full bg-yellow-400 transition-all" style={{ width: `${pct}%` }} />
                     </div>
-                    <span className="text-xs text-gray-400 w-5 text-right">{count}</span>
+                    <span className="w-5 text-right text-xs text-gray-400">{count}</span>
                   </div>
                 );
               })}
@@ -152,38 +151,38 @@ export default function DashboardPage() {
 
         {/* Top performing offers */}
         {!loading && overview && overview.top_offers.length > 0 && (
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-            <div className="flex items-center justify-between mb-4">
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
               <p className="text-sm font-bold text-gray-900">Top Offers</p>
-              <Link href="/products" className="text-xs font-semibold text-[#1a5c2a] hover:underline flex items-center gap-1">
+              <Link href={ROUTES.PRODUCTS} className="flex items-center gap-1 text-xs font-semibold text-brand-500 hover:underline">
                 Manage <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
             <div className="space-y-3">
               {overview.top_offers.map((offer) => (
                 <div key={offer.id} className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-[#f0f7f0] flex items-center justify-center shrink-0">
-                    <Tag className="h-4 w-4 text-[#1a5c2a]" />
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50">
+                    <Tag className="h-4 w-4 text-brand-500" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 truncate">{offer.title}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-gray-900">{offer.title}</p>
+                    <div className="mt-0.5 flex items-center gap-2">
                       <span className="text-xs font-bold text-gray-800">₹{offer.discounted_price.toLocaleString("en-IN")}</span>
-                      <span className="text-[10px] font-semibold text-[#1a5c2a] bg-[#e8f5e9] px-1.5 py-0.5 rounded-full">
+                      <span className="rounded-full bg-brand-100 px-1.5 py-0.5 text-[10px] font-semibold text-brand-500">
                         {offer.discount_percentage}% off
                       </span>
                     </div>
                   </div>
-                  <div className="text-right shrink-0">
+                  <div className="shrink-0 text-right">
                     {offer.rating > 0 ? (
                       <div className="flex items-center gap-1">
-                        <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
                         <span className="text-xs font-semibold text-gray-700">{offer.rating}</span>
                       </div>
                     ) : (
                       <span className="text-xs text-gray-400">No ratings</span>
                     )}
-                    <p className="text-[10px] text-gray-400 mt-0.5">{offer.review_count} reviews</p>
+                    <p className="mt-0.5 text-[10px] text-gray-400">{offer.review_count} reviews</p>
                   </div>
                 </div>
               ))}
@@ -193,10 +192,10 @@ export default function DashboardPage() {
 
         {/* Recent reviews */}
         {!loading && overview && overview.recent_reviews.length > 0 && (
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-            <div className="flex items-center justify-between mb-4">
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
               <p className="text-sm font-bold text-gray-900">Recent Reviews</p>
-              <Link href="/reviews" className="text-xs font-semibold text-[#1a5c2a] hover:underline flex items-center gap-1">
+              <Link href={ROUTES.REVIEWS} className="flex items-center gap-1 text-xs font-semibold text-brand-500 hover:underline">
                 See all <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
@@ -208,9 +207,8 @@ export default function DashboardPage() {
           </div>
         )}
 
-
         <div className="flex justify-center pb-4">
-          <Link href="/home" className="text-sm text-gray-400 hover:text-[#1a5c2a] transition-colors">
+          <Link href={ROUTES.HOME} className="text-sm text-gray-400 transition-colors hover:text-brand-500">
             ← Switch to Customer Mode
           </Link>
         </div>
@@ -229,16 +227,16 @@ function StatCard({
   loading: boolean;
 }) {
   if (loading) {
-    return <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-200 h-28 animate-pulse" />;
+    return <div className="h-28 animate-pulse rounded-xl border border-gray-200 bg-white p-5 shadow-sm" />;
   }
   return (
-    <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md hover:border-[#1a5c2a]/20 hover:-translate-y-1 transition-all duration-300">
-      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-green-50 to-green-100/50 flex items-center justify-center">
+    <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-500/20 hover:shadow-md">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-green-50 to-green-100/50">
         {icon}
       </div>
-      <p className="text-2xl font-bold text-gray-900 mt-4 tracking-tight">{value}</p>
-      <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mt-1">{label}</p>
-      <p className="text-[11px] text-gray-400 mt-0.5">{sub}</p>
+      <p className="mt-4 text-2xl font-bold tracking-tight text-gray-900">{value}</p>
+      <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-gray-500">{label}</p>
+      <p className="mt-0.5 text-[11px] text-gray-400">{sub}</p>
     </div>
   );
 }
@@ -247,14 +245,16 @@ function QuickAction({ href, icon, title, desc }: { href: string; icon: React.Re
   return (
     <Link
       href={href}
-      className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center gap-4 hover:border-[#1a5c2a]/30 hover:shadow-md hover:-translate-y-1 transition-all duration-300 group"
+      className="group flex items-center gap-4 rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-500/30 hover:shadow-md"
     >
-      <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-green-50 to-green-100/50 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">{icon}</div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-gray-900 group-hover:text-[#1a5c2a] transition-colors">{title}</p>
-        <p className="text-xs text-gray-500 mt-0.5">{desc}</p>
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-green-50 to-green-100/50 transition-transform duration-300 group-hover:scale-110">
+        {icon}
       </div>
-      <ArrowRight className="h-5 w-5 text-gray-300 group-hover:text-[#1a5c2a] group-hover:translate-x-1 transition-all shrink-0" />
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-gray-900 transition-colors group-hover:text-brand-500">{title}</p>
+        <p className="mt-0.5 text-xs text-gray-500">{desc}</p>
+      </div>
+      <ArrowRight className="h-5 w-5 shrink-0 text-gray-300 transition-all group-hover:translate-x-1 group-hover:text-brand-500" />
     </Link>
   );
 }
@@ -271,30 +271,30 @@ function ReviewRow({ review }: {
 }) {
   return (
     <div className="flex gap-3">
-      <div className="h-8 w-8 rounded-full bg-[#f0f7f0] shrink-0 overflow-hidden">
+      <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-brand-50">
         {review.reviewer.avatar_url ? (
-          <Image src={review.reviewer.avatar_url} alt={review.reviewer.name} width={32} height={32} className="object-cover h-full w-full" />
+          <Image src={review.reviewer.avatar_url} alt={review.reviewer.name} width={32} height={32} className="h-full w-full object-cover" />
         ) : (
-          <div className="h-full w-full flex items-center justify-center text-xs font-bold text-[#1a5c2a]">
+          <div className="flex h-full w-full items-center justify-center text-xs font-bold text-brand-500">
             {review.reviewer.name[0]?.toUpperCase()}
           </div>
         )}
       </div>
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <p className="text-sm font-semibold text-gray-900">{review.reviewer.name}</p>
           <div className="flex">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
                 key={i}
-                className={`h-3 w-3 ${i < review.rating ? "text-yellow-400 fill-yellow-400" : "text-gray-200 fill-gray-200"}`}
+                className={`h-3 w-3 ${i < review.rating ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`}
               />
             ))}
           </div>
         </div>
-        <p className="text-xs text-gray-400 mt-0.5">{review.product.name}</p>
+        <p className="mt-0.5 text-xs text-gray-400">{review.product.name}</p>
         {review.comment && (
-          <p className="text-sm text-gray-600 mt-1 line-clamp-2">{review.comment}</p>
+          <p className="mt-1 line-clamp-2 text-sm text-gray-600">{review.comment}</p>
         )}
       </div>
     </div>

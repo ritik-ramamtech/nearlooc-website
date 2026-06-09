@@ -1,14 +1,14 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getOfferById, getOffers, getRelatedOffers, type GetOffersQuery } from "./api";
+import { getOfferById, getOffers, getRelatedOffers, type GetOffersQuery, type OfferDetailResponse } from "./api";
 
 export function useOffer(id: string) {
   return useQuery({
     queryKey: ["offers", "detail", id],
     queryFn: () => getOfferById(id),
     select: (res) => {
-      const d = res.data as typeof res.data & { merchant?: { id?: string; name?: string; logo_url?: string } };
+      const d: OfferDetailResponse = res.data;
       return {
         ...d,
         merchant_id: d.merchant_id ?? d.merchant?.id ?? null,

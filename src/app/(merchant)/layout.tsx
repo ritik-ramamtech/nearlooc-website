@@ -19,13 +19,14 @@ import {
 } from "lucide-react";
 import { MerchantSidebar } from "@/components/layout/MerchantSidebar";
 import { useLogout } from "@/features/auth/hooks";
+import { ROUTES } from "@/lib/constants";
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Overview", Icon: LayoutDashboard },
-  { href: "/products", label: "Products", Icon: Package },
-  { href: "/locations", label: "Locations", Icon: MapPin },
-  { href: "/reviews", label: "Reviews", Icon: MessageSquare },
-  { href: "/settings", label: "Settings", Icon: Settings },
+  { href: ROUTES.DASHBOARD, label: "Overview",  Icon: LayoutDashboard },
+  { href: ROUTES.PRODUCTS,  label: "Products",  Icon: Package },
+  { href: ROUTES.LOCATIONS, label: "Locations", Icon: MapPin },
+  { href: ROUTES.REVIEWS,   label: "Reviews",   Icon: MessageSquare },
+  { href: ROUTES.SETTINGS,  label: "Settings",  Icon: Settings },
 ];
 
 export default function MerchantLayout({ children }: { children: React.ReactNode }) {
@@ -35,31 +36,32 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
   const { mutate: logout, isPending: loggingOut } = useLogout();
 
   return (
-    <div className="min-h-screen bg-[#f0f7f0]">
+    <div className="min-h-screen bg-brand-50">
       {/* Desktop sidebar */}
       <div className="hidden md:block">
         <MerchantSidebar />
       </div>
 
       {/* Mobile top bar */}
-      <header className="md:hidden fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-200 h-14 flex items-center justify-between px-4">
+      <header className="fixed left-0 right-0 top-0 z-40 flex h-14 items-center justify-between border-b border-gray-200 bg-white px-4 md:hidden">
         <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-lg bg-[#1a5c2a] flex items-center justify-center">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-500">
             <Store className="h-3.5 w-3.5 text-white" />
           </div>
           <span className="text-sm font-bold text-gray-900">Merchant Portal</span>
         </div>
         <div className="flex items-center gap-2">
           <Link
-            href="/home"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-gray-200 text-gray-600 text-xs font-semibold hover:border-[#1a5c2a] hover:text-[#1a5c2a] transition-colors"
+            href={ROUTES.HOME}
+            className="flex items-center gap-1.5 rounded-full border border-gray-200 px-2.5 py-1.5 text-xs font-semibold text-gray-600 transition-colors hover:border-brand-500 hover:text-brand-500"
           >
             <ShoppingBag className="h-3.5 w-3.5" />
             Customer
           </Link>
           <button
             onClick={() => setMobileOpen(true)}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            aria-label="Open navigation menu"
+            className="rounded-lg p-2 transition-colors hover:bg-gray-100"
           >
             <Menu className="h-5 w-5 text-gray-600" />
           </button>
@@ -69,16 +71,16 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
       {/* Mobile drawer overlay */}
       {mobileOpen && (
         <div
-          className="md:hidden fixed inset-0 z-50 bg-black/40"
+          className="fixed inset-0 z-50 bg-black/40 md:hidden"
           onClick={() => setMobileOpen(false)}
         >
           <div
-            className="absolute left-0 top-0 h-full w-64 bg-[#e8f5e9] flex flex-col"
+            className="absolute left-0 top-0 flex h-full w-64 flex-col bg-brand-100"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-4 py-4 border-b border-[#c8e6c9]">
+            <div className="flex items-center justify-between border-b border-brand-200 px-4 py-4">
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-[#1a5c2a] flex items-center justify-center">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500">
                   <Store className="h-4 w-4 text-white" />
                 </div>
                 <div>
@@ -88,13 +90,14 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
               </div>
               <button
                 onClick={() => setMobileOpen(false)}
-                className="p-1.5 rounded-lg hover:bg-[#c8e6c9] transition-colors"
+                aria-label="Close navigation menu"
+                className="rounded-lg p-1.5 transition-colors hover:bg-brand-200"
               >
                 <X className="h-4 w-4 text-gray-600" />
               </button>
             </div>
 
-            <nav className="flex-1 px-3 py-4 space-y-1">
+            <nav className="flex-1 space-y-1 px-3 py-4">
               {NAV_ITEMS.map(({ href, label, Icon }) => {
                 const active = pathname === href || pathname.startsWith(href + "/");
                 return (
@@ -102,10 +105,10 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
                     key={href}
                     href={href}
                     onClick={() => setMobileOpen(false)}
-                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                       active
-                        ? "bg-[#1a5c2a] text-white"
-                        : "text-gray-600 hover:bg-[#c8e6c9] hover:text-gray-900"
+                        ? "bg-brand-500 text-white"
+                        : "text-gray-600 hover:bg-brand-200 hover:text-gray-900"
                     }`}
                   >
                     <Icon className="h-4 w-4 shrink-0" />
@@ -115,18 +118,18 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
               })}
             </nav>
 
-            <div className="px-3 py-4 space-y-2 border-t border-[#c8e6c9]">
+            <div className="space-y-2 border-t border-brand-200 px-3 py-4">
               <button
-                onClick={() => { router.push("/products/new"); setMobileOpen(false); }}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2.5 bg-[#1a5c2a] hover:bg-[#14471f] text-white rounded-lg text-sm font-semibold transition-colors"
+                onClick={() => { router.push(ROUTES.PRODUCTS_NEW); setMobileOpen(false); }}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand-500 px-3 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800"
               >
                 <Plus className="h-4 w-4" />
                 Add New Product
               </button>
               <Link
-                href="/help"
+                href={ROUTES.HELP}
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-gray-500 hover:bg-[#c8e6c9] transition-colors"
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-brand-200"
               >
                 <HelpCircle className="h-4 w-4" />
                 Help Center
@@ -134,7 +137,7 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
               <button
                 onClick={() => logout()}
                 disabled={loggingOut}
-                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600"
               >
                 <LogOut className="h-4 w-4" />
                 {loggingOut ? "Signing out..." : "Log Out"}
@@ -145,7 +148,7 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
       )}
 
       {/* Page content */}
-      <div className="md:ml-52 pt-14 md:pt-0 min-h-screen">
+      <div className="min-h-screen pt-14 md:ml-52 md:pt-0">
         {children}
       </div>
     </div>

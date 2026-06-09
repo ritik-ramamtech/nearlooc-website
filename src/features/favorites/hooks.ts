@@ -5,22 +5,23 @@ import { getFavorites, addFavorite, removeFavorite, type FavoritesListResponse }
 import type { ApiResponse, Offer, HomeFeed } from "@/types";
 import type { OffersListResponse } from "@/features/offers/api";
 
+function normalizeFavoritesData(data: unknown): FavoritesListResponse {
+  if (Array.isArray(data)) {
+    return {
+      items: data as Offer[],
+      meta: { total: data.length, page: 1, limit: 20, has_more: false },
+    };
+  }
+  return data as FavoritesListResponse;
+}
+
 export function useFavorites(page = 1) {
   return useQuery({
     queryKey: ["favorites", "list", page],
     queryFn: () => getFavorites(page),
     staleTime: 30_000,
     placeholderData: keepPreviousData,
-    select: (res) => {
-      const raw = res.data as unknown;
-      if (Array.isArray(raw)) {
-        return {
-          items: raw as Offer[],
-          meta: { total: (raw as unknown[]).length, page: 1, limit: 20, has_more: false },
-        } as FavoritesListResponse;
-      }
-      return raw as FavoritesListResponse;
-    },
+    select: (res) => normalizeFavoritesData(res.data),
   });
 }
 
@@ -68,49 +69,29 @@ function patchOfferInCache(
     };
   });
 
-  // Favorites list
-  if (!isFavorite) {
-    // Remove optimistically
-    qc.setQueriesData<ApiResponse<FavoritesListResponse>>(
-      { queryKey: ["favorites", "list"] },
-      (old) => {
-        if (!old) return old;
-        const raw = old.data as unknown;
-        const items: Offer[] = Array.isArray(raw)
-          ? (raw as Offer[])
-          : ((raw as FavoritesListResponse)?.items ?? []);
+  // Favorites list — update in place using normalized shape
+  qc.setQueriesData<ApiResponse<FavoritesListResponse>>(
+    { queryKey: ["favorites", "list"] },
+    (old) => {
+      if (!old) return old;
+      const current = normalizeFavoritesData(old.data);
 
-        const next = items.filter((o) => o.id !== offerId);
-        const normalized: FavoritesListResponse = {
-          items: next,
-          meta: { total: next.length, page: 1, limit: 20, has_more: false },
-        };
-        return { ...old, data: normalized as unknown as typeof old.data };
+      let nextItems: Offer[];
+      if (!isFavorite) {
+        nextItems = current.items.filter((o) => o.id !== offerId);
+      } else if (offerObj && !current.items.some((o) => o.id === offerId)) {
+        nextItems = [{ ...offerObj, is_favorite: true }, ...current.items];
+      } else {
+        return old;
       }
-    );
-  } else if (offerObj) {
-    // Add optimistically!
-    qc.setQueriesData<ApiResponse<FavoritesListResponse>>(
-      { queryKey: ["favorites", "list"] },
-      (old) => {
-        if (!old) return old;
-        const raw = old.data as unknown;
-        const items: Offer[] = Array.isArray(raw)
-          ? (raw as Offer[])
-          : ((raw as FavoritesListResponse)?.items ?? []);
 
-        // Avoid adding duplicates
-        if (items.some((o) => o.id === offerId)) return old;
-
-        const next = [{ ...offerObj, is_favorite: true }, ...items];
-        const normalized: FavoritesListResponse = {
-          items: next,
-          meta: { total: next.length, page: 1, limit: 20, has_more: false },
-        };
-        return { ...old, data: normalized as unknown as typeof old.data };
-      }
-    );
-  }
+      const normalized: FavoritesListResponse = {
+        items: nextItems,
+        meta: { total: nextItems.length, page: 1, limit: 20, has_more: false },
+      };
+      return { ...old, data: normalized };
+    }
+  );
 }
 
 export function useToggleFavorite() {
@@ -121,12 +102,10 @@ export function useToggleFavorite() {
       const offerId = typeof offerOrId === "string" ? offerOrId : offerOrId.id;
       const offerObj = typeof offerOrId === "string" ? null : offerOrId;
 
-      // Cancel in-flight queries to avoid overwriting our optimistic update
       await qc.cancelQueries({ queryKey: ["offers"] });
       await qc.cancelQueries({ queryKey: ["home"] });
       await qc.cancelQueries({ queryKey: ["favorites"] });
 
-      // Snapshot current cache for rollback
       const prevOfferDetail = qc.getQueryData<ApiResponse<Offer>>(["offers", "detail", offerId]);
       const prevOfferLists = qc.getQueriesData<ApiResponse<OffersListResponse>>({ queryKey: ["offers", "list"] });
       const prevHome = qc.getQueriesData<ApiResponse<HomeFeed>>({ queryKey: ["home"] });
@@ -148,19 +127,17 @@ export function useToggleFavorite() {
       } | undefined
     ) => {
       if (!ctx) return;
-      const offerId = ctx.offerId;
 
-      // 409 on add = already favorited; keep heart filled instead of rolling back
+      // 409 on add = already favorited — keep heart filled instead of rolling back
       const status = (err as { response?: { status?: number } })?.response?.status;
       if (isAdding && status === 409) {
-        patchOfferInCache(qc, offerId, true);
+        patchOfferInCache(qc, ctx.offerId, true);
         qc.invalidateQueries({ queryKey: ["favorites", "list"] });
         return;
       }
 
-      // Roll back all snapshots
       if (ctx.prevOfferDetail) {
-        qc.setQueryData(["offers", "detail", offerId], ctx.prevOfferDetail);
+        qc.setQueryData(["offers", "detail", ctx.offerId], ctx.prevOfferDetail);
       }
       ctx.prevOfferLists.forEach(([key, data]) => qc.setQueryData(key, data));
       ctx.prevHome.forEach(([key, data]) => qc.setQueryData(key, data));
@@ -168,10 +145,7 @@ export function useToggleFavorite() {
     },
     onSettled: (_data: unknown, _err: unknown, offerOrId: string | Offer) => {
       const offerId = typeof offerOrId === "string" ? offerOrId : offerOrId.id;
-      // Sync the specific offer status
       qc.invalidateQueries({ queryKey: ["offers", "detail", offerId] });
-      // Only invalidate favorites list when ADDING, so it fetches the full offer details from server.
-      // When REMOVING, our optimistic update has already filtered it out and we don't need to refetch.
       if (isAdding) {
         qc.invalidateQueries({ queryKey: ["favorites", "list"] });
       }
@@ -183,7 +157,7 @@ export function useToggleFavorite() {
       const offerId = typeof offerOrId === "string" ? offerOrId : offerOrId.id;
       return addFavorite(offerId);
     },
-    ...mutationOptions(true)
+    ...mutationOptions(true),
   });
 
   const remove = useMutation({
@@ -191,7 +165,7 @@ export function useToggleFavorite() {
       const offerId = typeof offerOrId === "string" ? offerOrId : offerOrId.id;
       return removeFavorite(offerId);
     },
-    ...mutationOptions(false)
+    ...mutationOptions(false),
   });
 
   const toggle = (offerOrId: string | Offer, isFavorite: boolean) => {

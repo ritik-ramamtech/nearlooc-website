@@ -19,21 +19,19 @@ export function OfferCard({ offer, className, fluid }: OfferCardProps) {
   const [isFav, setIsFav] = useState(!!offer.is_favorite);
 
   return (
-    <div style={fluid ? undefined : { width: 240 }} className={cn(fluid && "w-full", className)}>
+    <div className={cn(!fluid && "w-60", fluid && "w-full", className)}>
       <Link
         href={`/offers/${offer.id}`}
-        className="group block overflow-hidden rounded-xl bg-white transition-all duration-200 hover:-translate-y-0.5"
-        style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.05)" }}
+        className="group block overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-0.5"
       >
         {/* Image — maintains 240×190 proportions at any card width */}
-        <div style={{ aspectRatio: "240/190", position: "relative", overflow: "hidden" }} className="bg-gray-100">
+        <div className="relative aspect-[240/190] overflow-hidden bg-gray-100">
           {offer.image_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={offer.image_url}
               alt={offer.title}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              className="transition-transform duration-300 group-hover:scale-105"
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = "none";
               }}
@@ -45,20 +43,7 @@ export function OfferCard({ offer, className, fluid }: OfferCardProps) {
           )}
 
           {offer.discount_percentage > 0 && (
-            <span
-              style={{
-                position: "absolute",
-                top: 10,
-                left: 10,
-                background: "#ef4444",
-                color: "#fff",
-                fontSize: 11,
-                fontWeight: 700,
-                borderRadius: 999,
-                padding: "3px 8px",
-                lineHeight: 1,
-              }}
-            >
+            <span className="absolute left-2.5 top-2.5 rounded-full bg-red-500 px-2 py-[3px] text-[11px] font-bold leading-none text-white">
               {Math.round(offer.discount_percentage)}%
             </span>
           )}
@@ -71,78 +56,37 @@ export function OfferCard({ offer, className, fluid }: OfferCardProps) {
               setIsFav((prev) => !prev);
               toggle(offer, isFav);
             }}
-            style={{
-              position: "absolute",
-              bottom: 10,
-              right: 10,
-              width: 28,
-              height: 28,
-              borderRadius: "50%",
-              background: "#fff",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxShadow: "0 1px 4px rgba(0,0,0,0.15)",
-              border: "none",
-              cursor: "pointer",
-            }}
+            aria-label={isFav ? "Remove from favorites" : "Add to favorites"}
+            className="absolute bottom-2.5 right-2.5 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border-none bg-white shadow"
           >
             <Heart
-              style={{ width: 14, height: 14, transition: "fill 0.15s, color 0.15s" }}
-              className={cn(isFav ? "fill-red-500 text-red-500" : "text-gray-400")}
+              className={cn(
+                "h-3.5 w-3.5 transition-[fill,color] duration-150",
+                isFav ? "fill-red-500 text-red-500" : "text-gray-400"
+              )}
             />
           </button>
         </div>
 
         {/* Content */}
-        <div
-          style={{
-            padding: "10px 12px",
-            display: "flex",
-            flexDirection: "column",
-            gap: 6,
-          }}
-        >
+        <div className="flex flex-col gap-1.5 px-3 py-[10px]">
           {/* Title — 1 line hard clip */}
-          <p
-            style={{
-              fontSize: 13,
-              fontWeight: 500,
-              color: "#111827",
-              lineHeight: "1.35",
-              overflow: "hidden",
-              display: "-webkit-box",
-              WebkitLineClamp: 1,
-              WebkitBoxOrient: "vertical",
-              margin: 0,
-            }}
-          >
+          <p className="line-clamp-1 m-0 text-[13px] font-medium leading-snug text-gray-900">
             {offer.title}
           </p>
 
           {/* Price */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "nowrap" }}>
+          <div className="flex flex-nowrap items-center gap-1.5">
             {offer.original_price > offer.discounted_price && (
-              <span style={{ fontSize: 11, color: "#9ca3af", textDecoration: "line-through" }}>
+              <span className="text-[11px] text-gray-400 line-through">
                 ₹{offer.original_price.toLocaleString()}
               </span>
             )}
-            <span style={{ fontSize: 14, fontWeight: 600, color: "#111827" }}>
+            <span className="text-sm font-semibold text-gray-900">
               ₹{offer.discounted_price.toLocaleString()}
             </span>
             {offer.discount_percentage > 0 && (
-              <span
-                style={{
-                  fontSize: 10,
-                  fontWeight: 600,
-                  color: "#16a34a",
-                  background: "#dcfce7",
-                  borderRadius: 999,
-                  padding: "2px 6px",
-                  lineHeight: 1.4,
-                  whiteSpace: "nowrap",
-                }}
-              >
+              <span className="whitespace-nowrap rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] font-semibold leading-snug text-green-600">
                 {Math.round(offer.discount_percentage)}% off
               </span>
             )}
@@ -150,36 +94,25 @@ export function OfferCard({ offer, className, fluid }: OfferCardProps) {
 
           {/* Merchant */}
           {merchantName && (
-            <div style={{ display: "flex", alignItems: "center", gap: 4, overflow: "hidden" }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", flexShrink: 0 }} />
-              <span style={{ fontSize: 11, color: "#6b7280", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                {merchantName}
-              </span>
-              <Star style={{ width: 10, height: 10, flexShrink: 0, fill: "#fbbf24", color: "#fbbf24" }} />
-              <span style={{ fontSize: 11, color: "#374151" }}>{offer.rating.toFixed(1)}</span>
-              <span style={{ fontSize: 11, color: "#9ca3af" }}>({offer.review_count})</span>
+            <div className="flex items-center gap-1 overflow-hidden">
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-green-500" />
+              <span className="truncate text-[11px] text-gray-500">{merchantName}</span>
+              <Star className="h-2.5 w-2.5 shrink-0 fill-amber-400 text-amber-400" />
+              <span className="text-[11px] text-gray-700">{offer.rating.toFixed(1)}</span>
+              <span className="text-[11px] text-gray-400">({offer.review_count})</span>
             </div>
           )}
 
           {/* Timer */}
           {offer.promo_time_left && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                borderTop: "1px solid #f3f4f6",
-                paddingTop: 6,
-                marginTop: "auto",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                <Clock style={{ width: 11, height: 11, color: "#9ca3af" }} />
-                <span style={{ fontSize: 10, color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 500 }}>
+            <div className="mt-auto flex items-center justify-between border-t border-gray-100 pt-1.5">
+              <div className="flex items-center gap-1">
+                <Clock className="h-[11px] w-[11px] text-gray-400" />
+                <span className="text-[10px] font-medium uppercase tracking-wide text-gray-400">
                   Ends in
                 </span>
               </div>
-              <span style={{ fontSize: 12, fontWeight: 600, color: "#16a34a", fontVariantNumeric: "tabular-nums" }}>
+              <span className="tabular-nums text-xs font-semibold text-green-600">
                 {offer.promo_time_left}
               </span>
             </div>

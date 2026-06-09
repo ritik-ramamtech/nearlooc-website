@@ -3,11 +3,13 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowLeft, Plus, X, Upload, Package, MapPin } from "lucide-react";
 import { useCreateProduct } from "@/features/merchant/products/hooks";
 import { uploadProductImage } from "@/features/merchant/products/api";
 import { useMerchantLocations } from "@/features/merchant/locations/hooks";
 import { useCategories } from "@/features/categories/hooks";
+import { ROUTES } from "@/lib/constants";
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -79,7 +81,7 @@ export default function NewProductPage() {
         await uploadProductImage(result.data.id, imageFile);
       }
 
-      router.push("/products");
+      router.push(ROUTES.PRODUCTS);
     } catch (e: unknown) {
       const msg = (e as { response?: { data?: { message?: string } } })?.response?.data?.message;
       setError(typeof msg === "string" ? msg : "Failed to create product. Please try again.");
@@ -87,7 +89,7 @@ export default function NewProductPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-[#f0f7f0] overflow-hidden">
+    <div className="h-screen flex flex-col bg-page-bg overflow-hidden">
       {/* Sticky Header with actions */}
       <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shrink-0 z-20">
         <div className="flex items-center gap-4">
@@ -117,7 +119,7 @@ export default function NewProductPage() {
           <button
             onClick={handleSubmit}
             disabled={creating}
-            className="flex items-center gap-2 px-5 py-2 bg-[#1a5c2a] hover:bg-[#14471f] text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-60"
+            className="flex items-center gap-2 px-5 py-2 bg-brand-500 hover:bg-brand-800 text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-60"
           >
             {creating ? "Creating..." : "Create Product"}
           </button>
@@ -136,7 +138,7 @@ export default function NewProductPage() {
               <p className="text-sm font-bold text-gray-900 mb-3">Product Image</p>
               <div
                 onClick={() => imgRef.current?.click()}
-                className="border-2 border-dashed border-[#c8e6c9] rounded-xl bg-[#f0f7f0] h-52 flex flex-col items-center justify-center cursor-pointer hover:bg-[#e8f5e9] transition-colors overflow-hidden relative"
+                className="border-2 border-dashed border-brand-200 rounded-xl bg-brand-50 h-52 flex flex-col items-center justify-center cursor-pointer hover:bg-brand-100 transition-colors overflow-hidden relative"
               >
                 {imagePreview ? (
                   <>
@@ -147,8 +149,8 @@ export default function NewProductPage() {
                   </>
                 ) : (
                   <>
-                    <Upload className="h-8 w-8 text-[#1a5c2a] mb-2" />
-                    <p className="text-sm font-semibold text-[#1a5c2a]">Upload product image</p>
+                    <Upload className="h-8 w-8 text-brand-500 mb-2" />
+                    <p className="text-sm font-semibold text-brand-500">Upload product image</p>
                     <p className="text-xs text-gray-400 mt-1">JPG or PNG · Max 5MB</p>
                   </>
                 )}
@@ -172,12 +174,12 @@ export default function NewProductPage() {
                     <label
                       key={loc.id}
                       onClick={() => toggleLocation(loc.id)}
-                      className="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-[#f0f7f0] transition-colors"
+                      className="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-brand-50 transition-colors"
                     >
                       <div
                         className={`h-5 w-5 rounded border-2 flex items-center justify-center transition-colors shrink-0 ${
                           selectedLocations.includes(loc.id)
-                            ? "bg-[#1a5c2a] border-[#1a5c2a]"
+                            ? "bg-brand-500 border-brand-500"
                             : "border-gray-300 bg-white"
                         }`}
                       >
@@ -196,11 +198,11 @@ export default function NewProductPage() {
                 </div>
               </div>
             ) : (
-              <div className="bg-[#f0f7f0] border border-[#c8e6c9] rounded-xl p-4 flex items-start gap-3">
-                <MapPin className="h-5 w-5 text-[#1a5c2a] shrink-0 mt-0.5" />
+              <div className="bg-brand-50 border border-brand-200 rounded-xl p-4 flex items-start gap-3">
+                <MapPin className="h-5 w-5 text-brand-500 shrink-0 mt-0.5" />
                 <p className="text-sm text-gray-600">
                   Add store locations first to assign this product to specific branches.{" "}
-                  <a href="/locations" className="text-[#1a5c2a] font-semibold underline">Add locations →</a>
+                  <Link href={ROUTES.LOCATIONS} className="font-semibold text-brand-500 underline">Add locations →</Link>
                 </p>
               </div>
             )}
@@ -297,7 +299,7 @@ export default function NewProductPage() {
                 />
                 <button
                   onClick={addHighlight}
-                  className="px-3 py-2.5 bg-[#1a5c2a] text-white rounded-md hover:bg-[#14471f] transition-colors"
+                  className="px-3 py-2.5 bg-brand-500 text-white rounded-md hover:bg-brand-800 transition-colors"
                 >
                   <Plus className="h-4 w-4" />
                 </button>
@@ -308,7 +310,7 @@ export default function NewProductPage() {
                   {highlights.map((h) => (
                     <span
                       key={h}
-                      className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 bg-[#e8f5e9] text-[#1a5c2a] rounded-full"
+                      className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 bg-brand-100 text-brand-500 rounded-full"
                     >
                       {h}
                       <button onClick={() => setHighlights((prev) => prev.filter((x) => x !== h))}>
@@ -330,7 +332,7 @@ export default function NewProductPage() {
 }
 
 const inputCls =
-  "w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-[#1a5c2a] focus:ring-2 focus:ring-[#1a5c2a]/10 transition";
+  "w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 transition";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (

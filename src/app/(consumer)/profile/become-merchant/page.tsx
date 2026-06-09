@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, Store, Phone, MapPin, CheckCircle, Check, Lightb
 import { useCategories } from "@/features/categories/hooks";
 import { saveMerchantProfile } from "@/features/merchant/profile/api";
 import { useAuthStore } from "@/store/auth.store";
+import { ROUTES } from "@/lib/constants";
 
 interface FormData {
   business_name: string;
@@ -48,7 +49,7 @@ const STEPS = [
 ];
 
 const inputCls =
-  "w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-[#1a5c2a] focus:ring-2 focus:ring-[#1a5c2a]/10 transition";
+  "w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 transition";
 const labelCls =
   "block text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5";
 
@@ -70,7 +71,7 @@ export default function BecomeMerchantPage() {
   });
 
   useEffect(() => {
-    if (merchant_id) router.replace("/dashboard");
+    if (merchant_id) router.replace(ROUTES.DASHBOARD);
   }, [merchant_id, router]);
 
   if (merchant_id) return null;
@@ -99,7 +100,7 @@ export default function BecomeMerchantPage() {
         category_id: form.category_id || undefined,
         subcategory_id: form.subcategory_id || undefined,
       });
-      router.push("/dashboard");
+      router.push(ROUTES.DASHBOARD);
     } catch {
       setError("Something went wrong. Please try again.");
       setSubmitting(false);
@@ -107,7 +108,7 @@ export default function BecomeMerchantPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-[#f4f9f4]">
+    <div className="h-screen flex flex-col overflow-hidden bg-page-bg">
 
       {/* ── Top Bar ── */}
       <header className="shrink-0 bg-white border-b border-gray-200 z-10">
@@ -127,7 +128,7 @@ export default function BecomeMerchantPage() {
         {/* Progress bar */}
         <div className="h-0.5 bg-gray-100">
           <div
-            className="h-full bg-[#1a5c2a] transition-all duration-500"
+            className="h-full bg-brand-500 transition-all duration-500"
             style={{ width: `${(step / STEPS.length) * 100}%` }}
           />
         </div>
@@ -137,7 +138,7 @@ export default function BecomeMerchantPage() {
       <div className="flex flex-1 overflow-hidden">
 
         {/* ── Left Sidebar ── */}
-        <aside className="hidden md:flex w-64 shrink-0 bg-gradient-to-b from-[#1a5c2a] via-[#154d23] to-[#0d3318] flex-col px-6 py-8">
+        <aside className="hidden md:flex w-64 shrink-0 bg-gradient-to-b from-brand-500 via-brand-600 to-brand-700 flex-col px-6 py-8">
 
           {/* Step list */}
           <div className="flex-1 flex flex-col gap-0">
@@ -151,7 +152,7 @@ export default function BecomeMerchantPage() {
                       done ? "bg-white border-white" : active ? "bg-white/20 border-white" : "bg-transparent border-white/20"
                     }`}>
                       {done ? (
-                        <Check className="h-3.5 w-3.5 text-[#1a5c2a]" />
+                        <Check className="h-3.5 w-3.5 text-brand-500" />
                       ) : (
                         <span className={`text-[11px] font-bold ${active ? "text-white" : "text-white/30"}`}>
                           {s.id}
@@ -289,15 +290,15 @@ export default function BecomeMerchantPage() {
 
               {/* Step 3 — Location */}
               {step === 3 && (
-                <div className="bg-[#f0f7f0] border border-[#c8e6c9] rounded-2xl p-6 flex items-start gap-5">
-                  <div className="h-12 w-12 rounded-full bg-[#1a5c2a]/10 flex items-center justify-center shrink-0">
-                    <MapPin className="h-6 w-6 text-[#1a5c2a]" />
+                <div className="bg-brand-50 border border-brand-200 rounded-2xl p-6 flex items-start gap-5">
+                  <div className="h-12 w-12 rounded-full bg-brand-500/10 flex items-center justify-center shrink-0">
+                    <MapPin className="h-6 w-6 text-brand-500" />
                   </div>
                   <div>
                     <p className="text-sm font-bold text-gray-800">Add Locations After Sign-up</p>
                     <p className="text-sm text-gray-500 mt-1 leading-relaxed">
                       Once your merchant profile is live, go to{" "}
-                      <span className="font-semibold text-[#1a5c2a]">Dashboard → Locations</span>{" "}
+                      <span className="font-semibold text-brand-500">Dashboard → Locations</span>{" "}
                       to pin your physical branches on the map and make it easy for nearby customers to find you.
                     </p>
                   </div>
@@ -323,7 +324,7 @@ export default function BecomeMerchantPage() {
                     </p>
                   )}
 
-                  <div className="bg-gradient-to-r from-[#1a5c2a] to-[#25823c] rounded-xl px-4 py-3 flex items-center gap-3">
+                  <div className="bg-gradient-to-r from-brand-500 to-brand-400 rounded-xl px-4 py-3 flex items-center gap-3">
                     <CheckCircle className="h-5 w-5 text-white shrink-0" />
                     <p className="text-xs text-green-100 leading-relaxed">
                       By submitting you agree to our Supplier Terms of Service. Your account will be reviewed within 48 hours.
@@ -356,7 +357,7 @@ export default function BecomeMerchantPage() {
                 <button
                   onClick={() => setStep((s) => s + 1)}
                   disabled={!canAdvance()}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-[#1a5c2a] hover:bg-[#14471f] text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-brand-500 hover:bg-brand-800 text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Continue
                   <ArrowRight className="h-4 w-4" />
@@ -365,7 +366,7 @@ export default function BecomeMerchantPage() {
                 <button
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-[#1a5c2a] hover:bg-[#14471f] text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-60"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-brand-500 hover:bg-brand-800 text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-60"
                 >
                   {submitting ? "Submitting…" : "Submit & Go Live"}
                   {!submitting && <ArrowRight className="h-4 w-4" />}
@@ -414,7 +415,7 @@ function CustomSelect({
         onClick={() => !disabled && setOpen((o) => !o)}
         className={`w-full flex items-center justify-between px-3 py-2.5 border rounded-md text-sm bg-white transition-all ${
           open
-            ? "border-[#1a5c2a] ring-2 ring-[#1a5c2a]/10"
+            ? "border-brand-500 ring-2 ring-brand-500/10"
             : "border-gray-300 hover:border-gray-400"
         } ${disabled ? "opacity-40 cursor-not-allowed bg-gray-50" : "cursor-pointer"}`}
       >
@@ -434,12 +435,12 @@ function CustomSelect({
                 onClick={() => { onChange(opt.value); setOpen(false); }}
                 className={`w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors ${
                   opt.value === value
-                    ? "bg-[#f0f7f0] text-[#1a5c2a] font-semibold"
+                    ? "bg-brand-50 text-brand-500 font-semibold"
                     : "text-gray-700 hover:bg-gray-50"
                 }`}
               >
                 {opt.label}
-                {opt.value === value && <Check className="h-3.5 w-3.5 text-[#1a5c2a]" />}
+                {opt.value === value && <Check className="h-3.5 w-3.5 text-brand-500" />}
               </button>
             ))}
           </div>

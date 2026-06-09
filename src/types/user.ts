@@ -24,7 +24,12 @@ export interface AuthTokens {
   expires_in: number;
 }
 
+// Backend includes merchant_id on the user object in the login/register response
+export interface AuthUser extends User {
+  merchant_id?: string | null;
+}
+
 export interface AuthData {
-  user: User;
+  user: AuthUser;
   tokens: AuthTokens;
 }

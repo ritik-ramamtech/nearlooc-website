@@ -77,7 +77,7 @@ export default function LocationsPage() {
   const count = locations?.length ?? 0;
 
   return (
-    <div className="min-h-screen bg-[#f0f7f0]">
+    <div className="min-h-screen bg-page-bg">
       {/* Top nav */}
       <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20">
         <div>
@@ -95,7 +95,7 @@ export default function LocationsPage() {
           <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
             <Bell className="h-5 w-5 text-gray-500" />
           </button>
-          <div className="h-8 w-8 rounded-full bg-[#1a5c2a] flex items-center justify-center text-white text-sm font-bold">
+          <div className="h-8 w-8 rounded-full bg-brand-500 flex items-center justify-center text-white text-sm font-bold">
             {profile?.business_name?.[0]?.toUpperCase() ?? "M"}
           </div>
         </div>
@@ -109,11 +109,11 @@ export default function LocationsPage() {
           <div className="w-56 shrink-0 space-y-4">
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
               <div className="flex items-center justify-between mb-3">
-                <div className="h-9 w-9 rounded-lg bg-[#f0f7f0] flex items-center justify-center">
-                  <MapPin className="h-5 w-5 text-[#1a5c2a]" />
+                <div className="h-9 w-9 rounded-lg bg-brand-50 flex items-center justify-center">
+                  <MapPin className="h-5 w-5 text-brand-500" />
                 </div>
                 {count > 0 && (
-                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#e8f5e9] text-[#1a5c2a]">
+                  <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-brand-100 text-brand-500">
                     Active
                   </span>
                 )}
@@ -131,7 +131,7 @@ export default function LocationsPage() {
 
             <button
               onClick={openAdd}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#1a5c2a] hover:bg-[#14471f] text-white rounded-lg text-sm font-semibold transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-500 hover:bg-brand-800 text-white rounded-lg text-sm font-semibold transition-colors"
             >
               <Plus className="h-4 w-4" />
               Add Location
@@ -149,7 +149,7 @@ export default function LocationsPage() {
             ) : count === 0 && !showForm ? (
               /* Empty state */
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-10 flex flex-col items-center text-center">
-                <div className="h-16 w-16 rounded-full bg-[#f0f7f0] flex items-center justify-center mb-4">
+                <div className="h-16 w-16 rounded-full bg-brand-50 flex items-center justify-center mb-4">
                   <MapPin className="h-8 w-8 text-gray-300" />
                 </div>
                 <p className="text-base font-semibold text-gray-800">No locations added</p>
@@ -158,7 +158,7 @@ export default function LocationsPage() {
                 </p>
                 <button
                   onClick={openAdd}
-                  className="mt-5 flex items-center gap-2 px-5 py-2.5 bg-[#1a5c2a] hover:bg-[#14471f] text-white rounded-lg text-sm font-semibold transition-colors"
+                  className="mt-5 flex items-center gap-2 px-5 py-2.5 bg-brand-500 hover:bg-brand-800 text-white rounded-lg text-sm font-semibold transition-colors"
                 >
                   <Plus className="h-4 w-4" />
                   Add Your First Location
@@ -190,7 +190,7 @@ export default function LocationsPage() {
 
             {/* Add / Edit form */}
             {showForm && (
-              <div className="mt-4 bg-white rounded-xl border border-[#1a5c2a] shadow-sm p-6">
+              <div className="mt-4 bg-white rounded-xl border border-brand-500 shadow-sm p-6">
                 <div className="flex items-center justify-between mb-5">
                   <h2 className="text-base font-bold text-gray-900">
                     {editing ? "Edit Location" : "Add New Location"}
@@ -258,7 +258,7 @@ export default function LocationsPage() {
                       onClick={() => set("is_primary", !form.is_primary)}
                       className={`h-5 w-5 rounded border-2 flex items-center justify-center transition-colors ${
                         form.is_primary
-                          ? "bg-[#1a5c2a] border-[#1a5c2a]"
+                          ? "bg-brand-500 border-brand-500"
                           : "border-gray-300 bg-white"
                       }`}
                     >
@@ -278,7 +278,7 @@ export default function LocationsPage() {
                   <button
                     onClick={handleSubmit}
                     disabled={creating || updating}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-[#1a5c2a] hover:bg-[#14471f] text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-60"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-brand-500 hover:bg-brand-800 text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-60"
                   >
                     {creating || updating ? "Saving..." : editing ? "Save Changes" : "Save Location"}
                   </button>
@@ -306,19 +306,19 @@ function LocationCard({
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3">
-          <div className="h-9 w-9 rounded-lg bg-[#f0f7f0] flex items-center justify-center shrink-0 mt-0.5">
-            <MapPin className="h-4 w-4 text-[#1a5c2a]" />
+          <div className="h-9 w-9 rounded-lg bg-brand-50 flex items-center justify-center shrink-0 mt-0.5">
+            <MapPin className="h-4 w-4 text-brand-500" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <p className="text-sm font-semibold text-gray-900">{loc.label}</p>
               {loc.is_primary && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#e8f5e9] text-[#1a5c2a]">
+                <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-100 text-brand-500">
                   <Star className="h-2.5 w-2.5" />
                   Primary
                 </span>
               )}
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#e3f2fd] text-[#1565c0]">
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
                 Active
               </span>
             </div>
@@ -337,7 +337,7 @@ function LocationCard({
         <div className="flex items-center gap-1">
           <button
             onClick={onEdit}
-            className="p-2 rounded-lg hover:bg-[#f0f7f0] text-gray-400 hover:text-[#1a5c2a] transition-colors"
+            className="p-2 rounded-lg hover:bg-brand-50 text-gray-400 hover:text-brand-500 transition-colors"
           >
             <Pencil className="h-4 w-4" />
           </button>
@@ -392,7 +392,7 @@ function FormField({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-[#1a5c2a] focus:ring-2 focus:ring-[#1a5c2a]/10 transition"
+        className="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 transition"
       />
     </div>
   );

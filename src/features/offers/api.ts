@@ -17,6 +17,15 @@ export interface OffersListResponse {
   meta: { page: number; limit: number; total: number; has_more: boolean };
 }
 
+// The detail endpoint may include a nested merchant object alongside the flat fields
+export interface OfferDetailResponse extends Offer {
+  merchant?: {
+    id?: string;
+    name?: string;
+    logo_url?: string;
+  };
+}
+
 // Actual shape the backend returns for GET /offers (meta is at the top level, not inside data)
 interface OffersApiResponse {
   success: boolean;
@@ -31,7 +40,7 @@ export async function getOffers(query?: GetOffersQuery): Promise<OffersListRespo
 }
 
 export async function getOfferById(id: string) {
-  const res = await apiClient.get(`/offers/${id}`);
+  const res = await apiClient.get<{ data: OfferDetailResponse }>(`/offers/${id}`);
   return res.data;
 }
 

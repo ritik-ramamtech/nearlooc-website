@@ -6,6 +6,8 @@ import Link from "next/link";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { getServerError } from "@/lib/utils";
+import { ROUTES } from "@/lib/constants";
 import { useRegister } from "../hooks";
 import { registerSchema, type RegisterInput } from "../types";
 
@@ -18,10 +20,7 @@ export function RegisterForm() {
     formState: { errors },
   } = useForm<RegisterInput>({ resolver: zodResolver(registerSchema) });
 
-  const serverError =
-    error && "response" in error
-      ? (error as { response?: { data?: { message?: string } } }).response?.data?.message
-      : null;
+  const serverError = getServerError(error);
 
   return (
     <form onSubmit={handleSubmit((data) => mutate(data))} className="space-y-4">
@@ -82,7 +81,7 @@ export function RegisterForm() {
 
       <p className="text-center text-body-sm text-on-surface-variant">
         Already have an account?{" "}
-        <Link href="/login" className="font-medium text-stitch-primary hover:underline">
+        <Link href={ROUTES.LOGIN} className="font-medium text-stitch-primary hover:underline">
           Sign in
         </Link>
       </p>

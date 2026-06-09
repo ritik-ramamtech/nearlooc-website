@@ -30,7 +30,7 @@ export default function ReviewsPage() {
   const meta = data?.meta;
 
   return (
-    <div className="min-h-screen bg-[#f0f7f0]">
+    <div className="min-h-screen bg-page-bg">
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20">
         <div>
@@ -86,8 +86,8 @@ export default function ReviewsPage() {
               onClick={() => { setStarFilter(f.value); setPage(1); }}
               className={`px-3 py-1.5 text-xs font-semibold rounded-full transition-colors ${
                 starFilter === f.value
-                  ? "bg-[#1a5c2a] text-white"
-                  : "bg-white text-gray-600 border border-gray-200 hover:border-[#1a5c2a] hover:text-[#1a5c2a]"
+                  ? "bg-brand-500 text-white"
+                  : "bg-white text-gray-600 border border-gray-200 hover:border-brand-500 hover:text-brand-500"
               }`}
             >
               {f.label}
@@ -104,7 +104,7 @@ export default function ReviewsPage() {
           </div>
         ) : reviews.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-12 flex flex-col items-center text-center">
-            <div className="h-16 w-16 rounded-full bg-[#f0f7f0] flex items-center justify-center mb-4">
+            <div className="h-16 w-16 rounded-full bg-brand-50 flex items-center justify-center mb-4">
               <MessageSquare className="h-8 w-8 text-gray-300" />
             </div>
             <p className="text-base font-semibold text-gray-800">No reviews yet</p>
@@ -120,7 +120,7 @@ export default function ReviewsPage() {
               <div key={review.id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
                 <div className="flex gap-3">
                   {/* Avatar */}
-                  <div className="h-10 w-10 rounded-full bg-[#f0f7f0] shrink-0 overflow-hidden">
+                  <div className="h-10 w-10 rounded-full bg-brand-50 shrink-0 overflow-hidden">
                     {review.reviewer.avatar_url ? (
                       <Image
                         src={review.reviewer.avatar_url}
@@ -130,7 +130,7 @@ export default function ReviewsPage() {
                         className="object-cover h-full w-full"
                       />
                     ) : (
-                      <div className="h-full w-full flex items-center justify-center text-sm font-bold text-[#1a5c2a]">
+                      <div className="h-full w-full flex items-center justify-center text-sm font-bold text-brand-500">
                         {review.reviewer.name[0]?.toUpperCase()}
                       </div>
                     )}
@@ -158,7 +158,7 @@ export default function ReviewsPage() {
 
                     {/* Product/offer tags */}
                     <div className="flex flex-wrap gap-1.5 mt-2">
-                      <span className="text-[10px] font-semibold px-2 py-0.5 bg-[#f0f7f0] text-[#1a5c2a] rounded-full">
+                      <span className="text-[10px] font-semibold px-2 py-0.5 bg-brand-50 text-brand-500 rounded-full">
                         {review.product.name}
                       </span>
                       {review.offer && (
@@ -186,7 +186,7 @@ export default function ReviewsPage() {
             <button
               disabled={page <= 1}
               onClick={() => setPage((p) => p - 1)}
-              className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:border-[#1a5c2a] hover:text-[#1a5c2a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:border-brand-500 hover:text-brand-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               ← Previous
             </button>
@@ -196,7 +196,7 @@ export default function ReviewsPage() {
             <button
               disabled={!meta.has_more}
               onClick={() => setPage((p) => p + 1)}
-              className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:border-[#1a5c2a] hover:text-[#1a5c2a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:border-brand-500 hover:text-brand-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Next →
             </button>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { ROUTES } from "@/lib/constants";
 import {
   Package, Plus, Search, Bell, Tag, TrendingDown, History,
   Pencil, Power, ArrowRight, Star,
@@ -34,7 +35,7 @@ export default function ProductsPage() {
   const isLoading = tab === "products" ? loadingProducts : tab === "active" ? loadingActive : loadingHistory;
 
   return (
-    <div className="min-h-screen bg-[#f0f7f0]">
+    <div className="min-h-screen bg-page-bg">
       {/* Top nav */}
       <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20">
         <div>
@@ -54,7 +55,7 @@ export default function ProductsPage() {
           <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
             <Bell className="h-5 w-5 text-gray-500" />
           </button>
-          <div className="h-8 w-8 rounded-full bg-[#1a5c2a] flex items-center justify-center text-white text-sm font-bold">
+          <div className="h-8 w-8 rounded-full bg-brand-500 flex items-center justify-center text-white text-sm font-bold">
             {profile?.business_name?.[0]?.toUpperCase() ?? "M"}
           </div>
         </div>
@@ -75,7 +76,7 @@ export default function ProductsPage() {
               onClick={() => setTab(key)}
               className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 tab === key
-                  ? "border-[#1a5c2a] text-[#1a5c2a]"
+                  ? "border-brand-500 text-brand-500"
                   : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
@@ -86,8 +87,8 @@ export default function ProductsPage() {
         </div>
 
         <Link
-          href="/products/new"
-          className="flex items-center gap-1.5 px-4 py-2 bg-[#1a5c2a] hover:bg-[#14471f] text-white rounded-lg text-sm font-semibold transition-colors"
+          href={ROUTES.PRODUCTS_NEW}
+          className="flex items-center gap-1.5 px-4 py-2 bg-brand-500 hover:bg-brand-800 text-white rounded-lg text-sm font-semibold transition-colors"
         >
           <Plus className="h-4 w-4" />
           Add New Product
@@ -133,7 +134,7 @@ function ProductsTab({ products, onDeactivate }: { products: Product[]; onDeacti
   if (products.length === 0) {
     return (
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-12 flex flex-col items-center text-center">
-        <div className="h-16 w-16 rounded-full bg-[#f0f7f0] flex items-center justify-center mb-4">
+        <div className="h-16 w-16 rounded-full bg-brand-50 flex items-center justify-center mb-4">
           <Package className="h-8 w-8 text-gray-300" />
         </div>
         <p className="text-base font-semibold text-gray-800">No products yet</p>
@@ -141,8 +142,8 @@ function ProductsTab({ products, onDeactivate }: { products: Product[]; onDeacti
           Start building your catalog by adding your first offering.
         </p>
         <Link
-          href="/products/new"
-          className="mt-5 flex items-center gap-2 px-5 py-2.5 bg-[#1a5c2a] hover:bg-[#14471f] text-white rounded-lg text-sm font-semibold transition-colors"
+          href={ROUTES.PRODUCTS_NEW}
+          className="mt-5 flex items-center gap-2 px-5 py-2.5 bg-brand-500 hover:bg-brand-800 text-white rounded-lg text-sm font-semibold transition-colors"
         >
           Get Started
         </Link>
@@ -158,7 +159,7 @@ function ProductsTab({ products, onDeactivate }: { products: Product[]; onDeacti
           className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center gap-4"
         >
           {/* Image */}
-          <div className="h-16 w-16 rounded-xl bg-[#f0f7f0] shrink-0 overflow-hidden">
+          <div className="h-16 w-16 rounded-xl bg-brand-50 shrink-0 overflow-hidden">
             {p.image_url ? (
               <Image src={p.image_url} alt={p.name} width={64} height={64} className="object-cover h-full w-full" />
             ) : (
@@ -175,7 +176,7 @@ function ProductsTab({ products, onDeactivate }: { products: Product[]; onDeacti
               <span
                 className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                   p.is_active
-                    ? "bg-[#e8f5e9] text-[#1a5c2a]"
+                    ? "bg-brand-100 text-brand-500"
                     : "bg-gray-100 text-gray-400"
                 }`}
               >
@@ -193,14 +194,14 @@ function ProductsTab({ products, onDeactivate }: { products: Product[]; onDeacti
           <div className="flex items-center gap-1 shrink-0">
             <Link
               href={`/products/${p.id}/offers`}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#1a5c2a] bg-[#e8f5e9] rounded-lg hover:bg-[#c8e6c9] transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-brand-500 bg-brand-100 rounded-lg hover:bg-brand-200 transition-colors"
             >
               <Tag className="h-3 w-3" />
               Offers
             </Link>
             <button
               title="Edit"
-              className="p-2 rounded-lg hover:bg-[#f0f7f0] text-gray-400 hover:text-[#1a5c2a] transition-colors"
+              className="p-2 rounded-lg hover:bg-brand-50 text-gray-400 hover:text-brand-500 transition-colors"
             >
               <Pencil className="h-4 w-4" />
             </button>
@@ -233,7 +234,7 @@ function SalesTab({
   if (offers.length === 0) {
     return (
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-12 flex flex-col items-center text-center">
-        <div className="h-16 w-16 rounded-full bg-[#f0f7f0] flex items-center justify-center mb-4">
+        <div className="h-16 w-16 rounded-full bg-brand-50 flex items-center justify-center mb-4">
           <TrendingDown className="h-8 w-8 text-gray-300" />
         </div>
         <p className="text-base font-semibold text-gray-800">{emptyLabel}</p>
@@ -247,7 +248,7 @@ function SalesTab({
       {offers.map((o) => (
         <div key={o.id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center gap-4">
           {/* Image */}
-          <div className="h-14 w-14 rounded-xl bg-[#f0f7f0] shrink-0 overflow-hidden">
+          <div className="h-14 w-14 rounded-xl bg-brand-50 shrink-0 overflow-hidden">
             {o.product?.image_url ? (
               <Image src={o.product.image_url} alt={o.product.name} width={56} height={56} className="object-cover h-full w-full" />
             ) : (
@@ -265,7 +266,7 @@ function SalesTab({
                   {o.badge}
                 </span>
               )}
-              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${o.is_active ? "bg-[#e8f5e9] text-[#1a5c2a]" : "bg-gray-100 text-gray-400"}`}>
+              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${o.is_active ? "bg-brand-100 text-brand-500" : "bg-gray-100 text-gray-400"}`}>
                 {o.is_active ? "Active" : "Inactive"}
               </span>
             </div>
@@ -273,7 +274,7 @@ function SalesTab({
             <div className="flex items-center gap-3 mt-1">
               <span className="text-sm font-bold text-gray-900">₹{o.discounted_price.toLocaleString("en-IN")}</span>
               <span className="text-xs text-gray-400 line-through">₹{o.product?.base_price?.toLocaleString("en-IN")}</span>
-              <span className="text-xs font-semibold text-[#1a5c2a]">{o.discount_percentage}% off</span>
+              <span className="text-xs font-semibold text-brand-500">{o.discount_percentage}% off</span>
             </div>
 
             {o.rating > 0 && (
@@ -287,7 +288,7 @@ function SalesTab({
           <div className="flex items-center gap-1 shrink-0">
             <Link
               href={`/products/${o.product?.id}/offers`}
-              className="p-2 rounded-lg hover:bg-[#f0f7f0] text-gray-400 hover:text-[#1a5c2a] transition-colors"
+              className="p-2 rounded-lg hover:bg-brand-50 text-gray-400 hover:text-brand-500 transition-colors"
             >
               <ArrowRight className="h-4 w-4" />
             </Link>

@@ -108,7 +108,7 @@ export default function MerchantProfilePage() {
 
   if (isPending) {
     return (
-      <div className="min-h-screen bg-[#f0f7f0] p-6 space-y-4 animate-pulse">
+      <div className="min-h-screen bg-page-bg p-6 space-y-4 animate-pulse">
         <div className="h-10 w-48 bg-gray-200 rounded-xl" />
         <div className="h-64 bg-gray-200 rounded-2xl" />
         <div className="h-96 bg-gray-200 rounded-2xl" />
@@ -117,7 +117,7 @@ export default function MerchantProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f0f7f0]">
+    <div className="min-h-screen bg-page-bg">
       {/* Top nav */}
       <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20">
         <div>
@@ -128,7 +128,7 @@ export default function MerchantProfilePage() {
           <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
             <Bell className="h-5 w-5 text-gray-500" />
           </button>
-          <div className="h-8 w-8 rounded-full bg-[#1a5c2a] flex items-center justify-center text-white text-sm font-bold">
+          <div className="h-8 w-8 rounded-full bg-brand-500 flex items-center justify-center text-white text-sm font-bold">
             {profile?.business_name?.[0]?.toUpperCase() ?? "M"}
           </div>
         </div>
@@ -143,7 +143,7 @@ export default function MerchantProfilePage() {
           {/* Logo upload */}
           <div className="flex items-center gap-5 mb-6 pb-6 border-b border-gray-100">
             <div className="relative">
-              <div className="relative h-20 w-20 rounded-xl bg-[#f0f7f0] border-2 border-dashed border-[#c8e6c9] flex items-center justify-center overflow-hidden">
+              <div className="relative h-20 w-20 rounded-xl bg-brand-50 border-2 border-dashed border-brand-200 flex items-center justify-center overflow-hidden">
                 {profile?.logo_url ? (
                   <Image
                     src={profile.logo_url}
@@ -158,7 +158,7 @@ export default function MerchantProfilePage() {
               <button
                 onClick={() => logoRef.current?.click()}
                 disabled={logoUploading}
-                className="absolute -bottom-2 -right-2 h-7 w-7 rounded-full bg-[#1a5c2a] flex items-center justify-center shadow-md hover:bg-[#14471f] transition-colors"
+                className="absolute -bottom-2 -right-2 h-7 w-7 rounded-full bg-brand-500 flex items-center justify-center shadow-md hover:bg-brand-800 transition-colors"
               >
                 <Camera className="h-3.5 w-3.5 text-white" />
               </button>
@@ -176,7 +176,7 @@ export default function MerchantProfilePage() {
               <button
                 onClick={() => logoRef.current?.click()}
                 disabled={logoUploading}
-                className="mt-2 text-xs font-semibold text-[#1a5c2a] hover:underline disabled:opacity-50"
+                className="mt-2 text-xs font-semibold text-brand-500 hover:underline disabled:opacity-50"
               >
                 {logoUploading ? "Uploading..." : profile?.logo_url ? "Change Logo" : "Upload Logo"}
               </button>
@@ -205,14 +205,14 @@ export default function MerchantProfilePage() {
               <button
                 onClick={() => storeImgRef.current?.click()}
                 disabled={storeImgUploading}
-                className="h-24 w-24 rounded-xl border-2 border-dashed border-[#c8e6c9] bg-[#f0f7f0] flex flex-col items-center justify-center gap-1 hover:bg-[#e8f5e9] transition-colors disabled:opacity-50"
+                className="h-24 w-24 rounded-xl border-2 border-dashed border-brand-200 bg-brand-50 flex flex-col items-center justify-center gap-1 hover:bg-brand-100 transition-colors disabled:opacity-50"
               >
                 {storeImgUploading ? (
                   <Upload className="h-5 w-5 text-gray-400 animate-bounce" />
                 ) : (
                   <>
-                    <Plus className="h-5 w-5 text-[#1a5c2a]" />
-                    <span className="text-[10px] font-semibold text-[#1a5c2a]">Add Photos</span>
+                    <Plus className="h-5 w-5 text-brand-500" />
+                    <span className="text-[10px] font-semibold text-brand-500">Add Photos</span>
                   </>
                 )}
               </button>
@@ -253,7 +253,7 @@ export default function MerchantProfilePage() {
                   value={form.business_name}
                   onChange={(e) => set("business_name", e.target.value)}
                   placeholder="Your business name"
-                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-[#1a5c2a] focus:ring-2 focus:ring-[#1a5c2a]/10 transition"
+                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 transition"
                 />
               </div>
             </div>
@@ -267,7 +267,7 @@ export default function MerchantProfilePage() {
                 <select
                   value={form.category_id}
                   onChange={(e) => { set("category_id", e.target.value); set("subcategory_id", ""); }}
-                  className="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-[#1a5c2a] focus:ring-2 focus:ring-[#1a5c2a]/10 transition"
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 transition"
                 >
                   <option value="">Select category</option>
                   {categories?.map((c) => (
@@ -283,7 +283,7 @@ export default function MerchantProfilePage() {
                   value={form.subcategory_id}
                   onChange={(e) => set("subcategory_id", e.target.value)}
                   disabled={!form.category_id}
-                  className="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-[#1a5c2a] focus:ring-2 focus:ring-[#1a5c2a]/10 transition disabled:opacity-50"
+                  className="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 transition disabled:opacity-50"
                 >
                   <option value="">Select sub-category</option>
                   {subcategories.map((s) => (
@@ -305,7 +305,7 @@ export default function MerchantProfilePage() {
                   value={form.bio}
                   onChange={(e) => set("bio", e.target.value)}
                   placeholder="Describe your business, specialties, and what makes you unique..."
-                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-[#1a5c2a] focus:ring-2 focus:ring-[#1a5c2a]/10 transition resize-none"
+                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 transition resize-none"
                 />
               </div>
             </div>
@@ -323,7 +323,7 @@ export default function MerchantProfilePage() {
                     value={form.phone}
                     onChange={(e) => set("phone", e.target.value)}
                     placeholder="+91 00000 00000"
-                    className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-[#1a5c2a] focus:ring-2 focus:ring-[#1a5c2a]/10 transition"
+                    className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 transition"
                   />
                 </div>
               </div>
@@ -338,7 +338,7 @@ export default function MerchantProfilePage() {
                     value={form.website}
                     onChange={(e) => set("website", e.target.value)}
                     placeholder="https://yoursite.com"
-                    className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-[#1a5c2a] focus:ring-2 focus:ring-[#1a5c2a]/10 transition"
+                    className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 transition"
                   />
                 </div>
               </div>
@@ -350,12 +350,12 @@ export default function MerchantProfilePage() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 px-6 py-2.5 bg-[#1a5c2a] hover:bg-[#14471f] text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-60"
+              className="flex items-center gap-2 px-6 py-2.5 bg-brand-500 hover:bg-brand-800 text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-60"
             >
               {saving ? "Saving..." : "Save Changes"}
             </button>
             {saved && (
-              <span className="flex items-center gap-1.5 text-sm text-[#1a5c2a] font-medium">
+              <span className="flex items-center gap-1.5 text-sm text-brand-500 font-medium">
                 <CheckCircle className="h-4 w-4" />
                 Saved successfully
               </span>
@@ -409,7 +409,7 @@ function ReadOnlyField({
   return (
     <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
       <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide">{label}</span>
-      <span className={`text-sm font-medium ${highlight ? "text-[#1a5c2a]" : "text-gray-700"}`}>
+      <span className={`text-sm font-medium ${highlight ? "text-brand-500" : "text-gray-700"}`}>
         {value}
       </span>
     </div>
