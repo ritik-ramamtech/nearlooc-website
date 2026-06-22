@@ -9,6 +9,7 @@ interface PromoTimerProps {
 }
 
 interface TimeUnits {
+  days: number;
   hours: string;
   minutes: string;
   seconds: string;
@@ -17,10 +18,12 @@ interface TimeUnits {
 function getTimeUnits(endAt: string): TimeUnits | null {
   const diff = new Date(endAt).getTime() - Date.now();
   if (diff <= 0) return null;
-  const h = Math.floor(diff / 3_600_000);
+  const days = Math.floor(diff / 86_400_000);
+  const h = Math.floor((diff % 86_400_000) / 3_600_000);
   const m = Math.floor((diff % 3_600_000) / 60_000);
   const s = Math.floor((diff % 60_000) / 1_000);
   return {
+    days,
     hours: String(h).padStart(2, "0"),
     minutes: String(m).padStart(2, "0"),
     seconds: String(s).padStart(2, "0"),
@@ -78,11 +81,23 @@ export function PromoTimer({ promoEndAt, promoTimeLeft }: PromoTimerProps) {
       </div>
 
       <div className="flex items-center gap-2">
-        <TimeUnit value={units.hours} label="hrs" />
-        <span className="mb-3 text-[18px] font-bold text-white/80">:</span>
-        <TimeUnit value={units.minutes} label="min" />
-        <span className="mb-3 text-[18px] font-bold text-white/80">:</span>
-        <TimeUnit value={units.seconds} label="sec" />
+        {units.days > 0 ? (
+          <>
+            <TimeUnit value={String(units.days)} label={units.days === 1 ? "day" : "days"} />
+            <span className="mb-3 text-[18px] font-bold text-white/80">:</span>
+            <TimeUnit value={units.hours} label="hrs" />
+            <span className="mb-3 text-[18px] font-bold text-white/80">:</span>
+            <TimeUnit value={units.minutes} label="min" />
+          </>
+        ) : (
+          <>
+            <TimeUnit value={units.hours} label="hrs" />
+            <span className="mb-3 text-[18px] font-bold text-white/80">:</span>
+            <TimeUnit value={units.minutes} label="min" />
+            <span className="mb-3 text-[18px] font-bold text-white/80">:</span>
+            <TimeUnit value={units.seconds} label="sec" />
+          </>
+        )}
       </div>
     </div>
   );

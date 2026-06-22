@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Package, MapPin, Star, TrendingUp, ArrowRight, Bell,
   Tag, MessageSquare, Plus,
@@ -41,7 +42,7 @@ export default function DashboardPage() {
       <div className="space-y-6 p-6">
         {/* Welcome banner */}
         {loading ? (
-          <div className="h-24 animate-pulse rounded-2xl bg-gray-200" />
+          <Skeleton className="h-24 rounded-2xl" />
         ) : (
           <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-brand-500 to-brand-400 p-6 text-white shadow-lg shadow-green-900/10">
             <div>
@@ -227,7 +228,7 @@ function StatCard({
   loading: boolean;
 }) {
   if (loading) {
-    return <div className="h-28 animate-pulse rounded-xl border border-gray-200 bg-white p-5 shadow-sm" />;
+    return <Skeleton className="h-28 rounded-xl" />;
   }
   return (
     <div className="rounded-xl border border-gray-100 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-500/20 hover:shadow-md">

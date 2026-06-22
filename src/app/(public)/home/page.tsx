@@ -6,6 +6,7 @@ import { SubcategoryBar } from "@/features/home/components/SubcategoryBar";
 import { OfferSection } from "@/features/home/components/OfferSection";
 import { VendorCard } from "@/features/vendors/components/VendorCard";
 import { VendorCardSkeleton } from "@/features/vendors/components/VendorCardSkeleton";
+import { OfferSectionSkeleton } from "@/features/home/components/OfferCardSkeleton";
 import { useHomeFeed } from "@/features/home/hooks";
 import { useCategories } from "@/features/categories/hooks";
 import { useVendorsInfinite } from "@/features/vendors/hooks";
@@ -161,7 +162,7 @@ export default function HomePage() {
   const isEmpty = !isPending && !isError && displaySections.every((s) => s.offers.length === 0);
 
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="min-h-[calc(100vh-4rem)] bg-surface">
 
       {/* ── Sticky filter header ── */}
       <div className="sticky top-16 z-30">
@@ -191,7 +192,7 @@ export default function HomePage() {
       {isVendorsTab && (
         <div className="mx-auto max-w-container-max px-4 py-6">
           {vendorsPending && (
-            <VendorCardSkeleton count={6} className="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" />
+            <VendorCardSkeleton className="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" />
           )}
 
           {vendorsError && (
@@ -227,16 +228,9 @@ export default function HomePage() {
 
       {/* ── Loading skeleton ── */}
       {!isVendorsTab && isPending && (
-        <div className="mx-auto max-w-container-max space-y-8 px-4 py-8">
+        <div className="mx-auto max-w-container-max divide-y divide-outline-variant/30 overflow-x-hidden">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="space-y-3 animate-pulse">
-              <div className="h-5 w-36 rounded bg-surface-container" />
-              <div className="flex gap-4">
-                {[1, 2, 3, 4].map((j) => (
-                  <div key={j} className="h-[320px] w-[240px] flex-shrink-0 rounded-xl bg-surface-container" />
-                ))}
-              </div>
-            </div>
+            <OfferSectionSkeleton key={i} />
           ))}
         </div>
       )}

@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useMerchantProfile, useSaveMerchantProfile } from "@/features/merchant/profile/hooks";
 import { useCategories } from "@/features/categories/hooks";
+import { Skeleton } from "@/components/ui/skeleton";
 import apiClient from "@/lib/api-client";
 
 export default function MerchantProfilePage() {
@@ -108,10 +109,10 @@ export default function MerchantProfilePage() {
 
   if (isPending) {
     return (
-      <div className="min-h-screen bg-page-bg p-6 space-y-4 animate-pulse">
-        <div className="h-10 w-48 bg-gray-200 rounded-xl" />
-        <div className="h-64 bg-gray-200 rounded-2xl" />
-        <div className="h-96 bg-gray-200 rounded-2xl" />
+      <div className="min-h-screen bg-page-bg p-6 space-y-4">
+        <Skeleton className="h-10 w-48 rounded-xl" />
+        <Skeleton className="h-64 rounded-2xl" />
+        <Skeleton className="h-96 rounded-2xl" />
       </div>
     );
   }

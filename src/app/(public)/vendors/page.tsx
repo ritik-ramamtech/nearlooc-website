@@ -13,7 +13,7 @@ export default function VendorsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="min-h-[calc(100vh-4rem)] bg-surface">
       {/* Header */}
       <div className="border-b border-outline-variant bg-surface-container-lowest px-4 py-4">
         <h1 className="text-headline-md font-bold text-on-surface">Vendors</h1>
@@ -34,7 +34,7 @@ export default function VendorsPage() {
       </div>
 
       <div className="px-4 py-4">
-        {isPending && <VendorCardSkeleton count={4} />}
+        {isPending && <VendorCardSkeleton />}
 
         {isError && (
           <p className="py-10 text-center text-body-sm text-on-surface-variant">

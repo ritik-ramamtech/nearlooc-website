@@ -7,6 +7,7 @@ import { ArrowLeft, Plus, Tag, Power, Percent, Clock, Star, X, MapPin } from "lu
 import { useMerchantProducts } from "@/features/merchant/products/hooks";
 import { useActiveSales, useSalesHistory, useCreateOffer, useDeactivateOffer } from "@/features/merchant/sales/hooks";
 import { useMerchantLocations } from "@/features/merchant/locations/hooks";
+import { SkeletonList } from "@/components/ui/skeleton";
 
 const inputCls = "w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 transition";
 const labelCls = "block text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5";
@@ -382,11 +383,7 @@ function Section({ title, count, loading, children }: { title: string; count: nu
         <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">{count}</span>
       </div>
       {loading ? (
-        <div className="space-y-2">
-          {[1, 2].map((i) => (
-            <div key={i} className="bg-white rounded-xl h-20 animate-pulse border border-gray-200" />
-          ))}
-        </div>
+        <SkeletonList itemHeight={80} gap={8} itemClassName="rounded-xl" min={2} max={4} />
       ) : (
         <div className="space-y-2">{children}</div>
       )}

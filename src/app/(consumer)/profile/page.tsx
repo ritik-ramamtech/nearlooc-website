@@ -11,6 +11,7 @@ import { useProfile } from "@/features/user/hooks";
 import { useLogout } from "@/features/auth/hooks";
 import { useAuthStore } from "@/store/auth.store";
 import { ROUTES } from "@/lib/constants";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProfilePage() {
   const { data: profile, isPending } = useProfile();
@@ -21,13 +22,18 @@ export default function ProfilePage() {
   if (isPending) {
     return (
       <div className="flex h-screen">
-        <div className="w-72 shrink-0 animate-pulse bg-white border-r border-gray-100" />
-        <div className="flex-1 animate-pulse space-y-6 bg-page-bg p-10">
-          <div className="h-8 w-48 rounded-lg bg-gray-200" />
+        <div className="w-72 shrink-0 bg-white border-r border-gray-100 p-4 space-y-4">
+          <Skeleton className="h-12 w-full rounded-xl" />
+          <Skeleton className="h-9 w-full rounded-lg" />
+          <Skeleton className="h-9 w-full rounded-lg" />
+          <Skeleton className="h-9 w-2/3 rounded-lg" />
+        </div>
+        <div className="flex-1 space-y-6 bg-page-bg p-10">
+          <Skeleton className="h-8 w-48 rounded-lg" />
           <div className="grid grid-cols-3 gap-3">
-            {[1, 2, 3].map((i) => <div key={i} className="h-16 rounded-2xl bg-gray-200" />)}
+            {[1, 2, 3].map((i) => <Skeleton key={i} className="h-16 rounded-2xl" />)}
           </div>
-          <div className="h-64 max-w-xl rounded-2xl bg-gray-200" />
+          <Skeleton className="h-64 max-w-xl rounded-2xl" />
         </div>
       </div>
     );
@@ -172,19 +178,6 @@ export default function ProfilePage() {
             </div>
           </section>
 
-          {/* Quick Links card */}
-          <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-            <div className="border-b border-gray-100 px-6 py-4">
-              <h2 className="text-sm font-bold text-gray-900">Quick Links</h2>
-              <p className="mt-0.5 text-xs text-gray-400">Jump to your saved content</p>
-            </div>
-            <div className="divide-y divide-gray-50">
-              <QuickLink href={ROUTES.FAVORITES}        icon={<Heart  className="h-4 w-4 text-rose-500"  />} label="My Favorites"       description="View all your saved offers"    />
-              <QuickLink href={ROUTES.PROFILE_LOCATION} icon={<MapPin className="h-4 w-4 text-blue-500"  />} label="Preferred Location" description="Update your delivery area"      />
-              <QuickLink href={ROUTES.MY_REVIEWS}       icon={<Star   className="h-4 w-4 text-amber-500" />} label="My Reviews"         description="Manage reviews you've written" />
-            </div>
-          </section>
-
         </div>
       </main>
     </div>
@@ -214,20 +207,5 @@ function StatPill({ icon, label, value, muted }: { icon: React.ReactNode; label:
         <p className={`mt-0.5 truncate text-sm font-bold ${muted ? "text-gray-400" : "text-gray-800"}`}>{value}</p>
       </div>
     </div>
-  );
-}
-
-function QuickLink({ href, icon, label, description }: { href: string; icon: React.ReactNode; label: string; description: string }) {
-  return (
-    <Link href={href} className="group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-gray-50">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-50 transition-colors group-hover:bg-white">
-        {icon}
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-gray-900">{label}</p>
-        <p className="text-xs text-gray-400">{description}</p>
-      </div>
-      <ChevronRight className="h-4 w-4 shrink-0 text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-gray-500" />
-    </Link>
   );
 }

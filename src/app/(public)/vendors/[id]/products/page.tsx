@@ -2,7 +2,6 @@
 
 import { use } from "react";
 import { BadgeCheck, Star } from "lucide-react";
-import { TopBar } from "@/components/layout/TopBar";
 import { VendorProductList } from "@/features/vendors/components/VendorProductList";
 import { useVendorProducts } from "@/features/vendors/hooks";
 
@@ -16,10 +15,8 @@ export default function VendorProductsPage({ params }: Props) {
   const vendor = data?.vendor;
 
   return (
-    <>
-      <TopBar title={vendor?.business_name ?? "Vendor"} />
-      <div className="pt-14">
-        {/* Vendor hero */}
+    <div className="min-h-[calc(100vh-4rem)] bg-surface">
+      {/* Vendor hero */}
         {vendor && (
           <div className="relative">
             <div className="h-28 w-full bg-gradient-to-br from-stitch-primary/20 to-stitch-secondary/10" />
@@ -64,6 +61,5 @@ export default function VendorProductsPage({ params }: Props) {
           <VendorProductList vendorId={id} />
         </div>
       </div>
-    </>
   );
 }

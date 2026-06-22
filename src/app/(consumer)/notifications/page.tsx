@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { NotificationItem } from "@/features/notifications/components/NotificationItem";
 import { useNotifications, useMarkAllAsRead } from "@/features/notifications/hooks";
 import { Button } from "@/components/ui/button";
+import { SkeletonList } from "@/components/ui/skeleton";
 
 export default function NotificationsPage() {
   const { data, isPending, isError } = useNotifications();
@@ -27,11 +28,7 @@ export default function NotificationsPage() {
       />
       <div className="pt-14 px-4 py-4 space-y-3">
         {isPending && (
-          <div className="space-y-3 animate-pulse">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 rounded-xl border border-outline-variant bg-surface-container" />
-            ))}
-          </div>
+          <SkeletonList itemHeight={80} itemClassName="rounded-xl" />
         )}
 
         {isError && (
