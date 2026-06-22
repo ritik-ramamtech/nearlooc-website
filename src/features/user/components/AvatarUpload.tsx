@@ -47,9 +47,9 @@ export function AvatarUpload({ name, avatarUrl }: AvatarUploadProps) {
   return (
     <div className="flex flex-col items-center gap-3">
       <div className="relative">
-        <Avatar className="h-20 w-20">
+        <Avatar className="h-24 w-24 ring-4 ring-brand-100">
           <AvatarImage src={avatarUrl ?? undefined} />
-          <AvatarFallback className="bg-stitch-primary/10 text-stitch-primary text-headline-sm font-bold">
+          <AvatarFallback className="bg-brand-500 text-white text-headline-sm font-bold">
             {name.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
@@ -57,7 +57,7 @@ export function AvatarUpload({ name, avatarUrl }: AvatarUploadProps) {
           onClick={() => inputRef.current?.click()}
           disabled={isPending}
           aria-label="Change profile photo"
-          className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-stitch-primary text-white shadow-md disabled:opacity-60"
+          className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-stitch-primary text-white shadow-md disabled:opacity-60"
         >
           {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Camera className="h-3.5 w-3.5" />}
         </button>
@@ -72,7 +72,7 @@ export function AvatarUpload({ name, avatarUrl }: AvatarUploadProps) {
       {validationError ? (
         <p className="text-label-sm text-red-500">{validationError}</p>
       ) : (
-        <p className="text-label-sm text-on-surface-variant">Tap to change photo</p>
+        <p className="text-label-sm text-gray-400">Tap to change photo</p>
       )}
     </div>
   );

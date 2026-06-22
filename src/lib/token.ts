@@ -41,11 +41,22 @@ export const tokenStorage = {
     }
   },
 
+  setMerchantCookie: (isMerchant: boolean) => {
+    if (isBrowser()) {
+      if (isMerchant) {
+        document.cookie = `nearlooc_merchant=1; path=/; max-age=604800; SameSite=Lax`;
+      } else {
+        document.cookie = "nearlooc_merchant=; path=/; max-age=0";
+      }
+    }
+  },
+
   clearTokens: () => {
     safeRemove(ACCESS_TOKEN_KEY);
     safeRemove(REFRESH_TOKEN_KEY);
     if (isBrowser()) {
       document.cookie = "nearlooc_auth=; path=/; max-age=0";
+      document.cookie = "nearlooc_merchant=; path=/; max-age=0";
     }
   },
 };
