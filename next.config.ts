@@ -9,18 +9,6 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "**" },
     ],
   },
-  eslint: {
-    // Treat no-img-element as warning only, not build-blocking
-    ignoreDuringBuilds: false,
-  },
-  webpack: (config) => {
-    // Remotion requires these node modules to be ignored in browser bundles
-    config.resolve.alias = {
-      ...config.resolve.alias,
-    };
-    return config;
-  },
-  
 };
 
 export default nextConfig;
