@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Search, SlidersHorizontal } from "lucide-react";
 import { useOffers } from "@/features/offers/hooks";
 import { OfferCard } from "@/features/home/components/OfferCard";
+import { OfferCardSkeletonGrid } from "@/features/home/components/OfferCardSkeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { Offer } from "@/types";
 
@@ -85,12 +86,12 @@ export function OffersView({ initialParams }: { initialParams: OffersInitialPara
   const isFirstLoad = isPending && page === 1 && allItems.length === 0;
   const isLoadingMore = isFetching && page > 1;
   const hasMore = data?.meta?.has_more ?? false;
-  const total = data?.meta?.total ?? 0;
 
   return (
-    <div className="min-h-screen bg-surface pb-10">
-      {/* Sticky header */}
-      <div className="sticky top-16 z-20 border-b border-outline-variant/30 bg-surface">
+    <div className="min-h-[calc(100vh-4rem)] bg-surface pb-10">
+      {/* Filter header */}
+      <div className="border-b border-outline-variant/30 bg-surface">
+       <div className="mx-auto max-w-container-max">
         <div className="flex items-center gap-3 px-4 py-3">
           <button
             onClick={() => router.back()}
@@ -99,11 +100,6 @@ export function OffersView({ initialParams }: { initialParams: OffersInitialPara
             <ArrowLeft className="h-5 w-5 text-on-surface" />
           </button>
           <h1 className="flex-1 text-[17px] font-bold text-on-surface">{pageTitle}</h1>
-          {!isFirstLoad && total > 0 && (
-            <span className="text-[12px] text-on-surface-variant">
-              {total.toLocaleString()} offers
-            </span>
-          )}
         </div>
 
         <div className="flex gap-2 px-4 pb-3">
@@ -135,23 +131,13 @@ export function OffersView({ initialParams }: { initialParams: OffersInitialPara
             </select>
           </div>
         </div>
+       </div>
       </div>
 
-      <div className="px-4 py-4">
+      <div className="mx-auto max-w-container-max px-4 py-6">
         {/* First-load skeleton */}
         {isFirstLoad && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="animate-pulse overflow-hidden rounded-xl">
-                <div className="aspect-square bg-surface-container" />
-                <div className="space-y-2 bg-white p-2.5">
-                  <div className="h-3 w-3/4 rounded bg-surface-container" />
-                  <div className="h-3 w-1/2 rounded bg-surface-container" />
-                  <div className="h-3 w-1/3 rounded bg-surface-container" />
-                </div>
-              </div>
-            ))}
-          </div>
+          <OfferCardSkeletonGrid className="justify-center" />
         )}
 
         {/* Empty */}
@@ -165,7 +151,7 @@ export function OffersView({ initialParams }: { initialParams: OffersInitialPara
         {/* Results */}
         {!isFirstLoad && allItems.length > 0 && (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(200px,240px))] gap-4 justify-center">
               {allItems.map((offer) => (
                 <OfferCard key={offer.id} offer={offer} fluid />
               ))}
@@ -179,12 +165,6 @@ export function OffersView({ initialParams }: { initialParams: OffersInitialPara
               >
                 {isLoadingMore ? "Loading…" : "Load more"}
               </button>
-            )}
-
-            {!hasMore && total > 0 && (
-              <p className="mt-5 text-center text-[12px] text-on-surface-variant">
-                All {total.toLocaleString()} offers shown
-              </p>
             )}
           </>
         )}

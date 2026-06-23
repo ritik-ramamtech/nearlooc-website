@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { TopBar } from "@/components/layout/TopBar";
 import { EmptyState } from "@/components/ui/empty-state";
 import { OfferCard } from "@/features/home/components/OfferCard";
+import { OfferCardSkeletonGrid } from "@/features/home/components/OfferCardSkeleton";
 import { useFavorites } from "@/features/favorites/hooks";
 import { useCategories } from "@/features/categories/hooks";
 
@@ -43,15 +44,7 @@ export default function FavoritesPage() {
       <div className="pt-14 min-h-screen bg-surface">
         {/* Loading skeleton */}
         {isPending && (
-          <div className="flex flex-wrap gap-4 px-4 py-4 animate-pulse">
-            {[1, 2, 3, 4].map((i) => (
-              <div
-                key={i}
-                style={{ width: 240, height: 280 }}
-                className="rounded-xl bg-surface-container shrink-0"
-              />
-            ))}
-          </div>
+          <OfferCardSkeletonGrid className="px-4 py-4" />
         )}
 
         {isError && (

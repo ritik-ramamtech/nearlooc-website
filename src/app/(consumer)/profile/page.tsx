@@ -1,33 +1,65 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   MapPin, Heart, Star, LogOut, ChevronRight,
-  Store, LayoutDashboard, Calendar, Shield,
+  Store, LayoutDashboard, Calendar, Shield, RotateCcw,
 } from "lucide-react";
 import { AvatarUpload } from "@/features/user/components/AvatarUpload";
 import { ProfileForm } from "@/features/user/components/ProfileForm";
 import { useProfile } from "@/features/user/hooks";
 import { useLogout } from "@/features/auth/hooks";
+import { reactivateMerchantProfile } from "@/features/merchant/profile/api";
 import { useAuthStore } from "@/store/auth.store";
+import { tokenStorage } from "@/lib/token";
 import { ROUTES } from "@/lib/constants";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "@/components/ui/toast";
 
 export default function ProfilePage() {
   const { data: profile, isPending } = useProfile();
   const { mutate: logout, isPending: loggingOut } = useLogout();
-  const { merchant_id } = useAuthStore();
+  const { merchant_id, setMerchantId } = useAuthStore();
   const isMerchant = !!merchant_id;
+
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const [reactivating, setReactivating] = useState(false);
+  const isDeactivatedMerchant = profile?.merchant_status === "inactive";
+
+  const handleReactivate = async () => {
+    setReactivating(true);
+    try {
+      const { data } = await reactivateMerchantProfile();
+      setMerchantId(data.merchant_id);
+      tokenStorage.setMerchantCookie(true);
+      queryClient.invalidateQueries({ queryKey: ["user", "profile"] });
+      toast.success("Merchant account reactivated", "Welcome back — your store is live again.");
+      router.push(ROUTES.DASHBOARD);
+    } catch {
+      setReactivating(false);
+      toast.error("Couldn't reactivate", "Something went wrong. Please try again.");
+    }
+  };
 
   if (isPending) {
     return (
       <div className="flex h-screen">
-        <div className="w-72 shrink-0 animate-pulse bg-white border-r border-gray-100" />
-        <div className="flex-1 animate-pulse space-y-6 bg-page-bg p-10">
-          <div className="h-8 w-48 rounded-lg bg-gray-200" />
+        <div className="w-72 shrink-0 bg-white border-r border-gray-100 p-4 space-y-4">
+          <Skeleton className="h-12 w-full rounded-xl" />
+          <Skeleton className="h-9 w-full rounded-lg" />
+          <Skeleton className="h-9 w-full rounded-lg" />
+          <Skeleton className="h-9 w-2/3 rounded-lg" />
+        </div>
+        <div className="flex-1 space-y-6 bg-page-bg p-10">
+          <Skeleton className="h-8 w-48 rounded-lg" />
           <div className="grid grid-cols-3 gap-3">
-            {[1, 2, 3].map((i) => <div key={i} className="h-16 rounded-2xl bg-gray-200" />)}
+            {[1, 2, 3].map((i) => <Skeleton key={i} className="h-16 rounded-2xl" />)}
           </div>
-          <div className="h-64 max-w-xl rounded-2xl bg-gray-200" />
+          <Skeleton className="h-64 max-w-xl rounded-2xl" />
         </div>
       </div>
     );
@@ -102,6 +134,21 @@ export default function ProfilePage() {
               </div>
               <ChevronRight className="h-4 w-4 shrink-0 text-white/60 transition-colors group-hover:text-white" />
             </Link>
+          ) : isDeactivatedMerchant ? (
+            <button
+              onClick={handleReactivate}
+              disabled={reactivating}
+              className="group flex w-full items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 transition-colors hover:bg-amber-100 disabled:opacity-60"
+            >
+              <RotateCcw className={`h-4 w-4 shrink-0 text-amber-600 ${reactivating ? "animate-spin" : ""}`} />
+              <div className="min-w-0 flex-1 text-left">
+                <p className="text-sm font-semibold text-amber-700">
+                  {reactivating ? "Reactivating…" : "Reactivate Merchant Account"}
+                </p>
+                <p className="text-[11px] text-amber-600/70">Your store is deactivated — restore it</p>
+              </div>
+              <ChevronRight className="h-4 w-4 shrink-0 text-amber-300 transition-colors group-hover:text-amber-500" />
+            </button>
           ) : (
             <Link
               href={ROUTES.PROFILE_BECOME_MERCHANT}
@@ -172,19 +219,6 @@ export default function ProfilePage() {
             </div>
           </section>
 
-          {/* Quick Links card */}
-          <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-            <div className="border-b border-gray-100 px-6 py-4">
-              <h2 className="text-sm font-bold text-gray-900">Quick Links</h2>
-              <p className="mt-0.5 text-xs text-gray-400">Jump to your saved content</p>
-            </div>
-            <div className="divide-y divide-gray-50">
-              <QuickLink href={ROUTES.FAVORITES}        icon={<Heart  className="h-4 w-4 text-rose-500"  />} label="My Favorites"       description="View all your saved offers"    />
-              <QuickLink href={ROUTES.PROFILE_LOCATION} icon={<MapPin className="h-4 w-4 text-blue-500"  />} label="Preferred Location" description="Update your delivery area"      />
-              <QuickLink href={ROUTES.MY_REVIEWS}       icon={<Star   className="h-4 w-4 text-amber-500" />} label="My Reviews"         description="Manage reviews you've written" />
-            </div>
-          </section>
-
         </div>
       </main>
     </div>
@@ -214,20 +248,5 @@ function StatPill({ icon, label, value, muted }: { icon: React.ReactNode; label:
         <p className={`mt-0.5 truncate text-sm font-bold ${muted ? "text-gray-400" : "text-gray-800"}`}>{value}</p>
       </div>
     </div>
-  );
-}
-
-function QuickLink({ href, icon, label, description }: { href: string; icon: React.ReactNode; label: string; description: string }) {
-  return (
-    <Link href={href} className="group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-gray-50">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-50 transition-colors group-hover:bg-white">
-        {icon}
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-gray-900">{label}</p>
-        <p className="text-xs text-gray-400">{description}</p>
-      </div>
-      <ChevronRight className="h-4 w-4 shrink-0 text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-gray-500" />
-    </Link>
   );
 }

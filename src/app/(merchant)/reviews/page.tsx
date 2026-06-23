@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Star, MessageSquare, Filter } from "lucide-react";
 import { useMerchantReviews } from "@/features/merchant/reviews/hooks";
+import { SkeletonList } from "@/components/ui/skeleton";
 
 const STAR_FILTERS = [
   { label: "All", value: undefined },
@@ -97,11 +98,7 @@ export default function ReviewsPage() {
 
         {/* Reviews list */}
         {isPending ? (
-          <div className="space-y-3">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white rounded-xl border border-gray-200 h-28 animate-pulse" />
-            ))}
-          </div>
+          <SkeletonList itemHeight={112} itemClassName="rounded-xl" />
         ) : reviews.length === 0 ? (
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-12 flex flex-col items-center text-center">
             <div className="h-16 w-16 rounded-full bg-brand-50 flex items-center justify-center mb-4">

@@ -11,6 +11,7 @@ import {
   useDeleteLocation,
 } from "@/features/merchant/locations/hooks";
 import { useMerchantProfile } from "@/features/merchant/profile/hooks";
+import { SkeletonList } from "@/components/ui/skeleton";
 import type { MerchantLocationData } from "@/types/merchant";
 import type { CreateLocationInput } from "@/features/merchant/locations/api";
 
@@ -141,11 +142,7 @@ export default function LocationsPage() {
           {/* Right content */}
           <div className="flex-1">
             {isPending ? (
-              <div className="space-y-3">
-                {[1, 2].map((i) => (
-                  <div key={i} className="bg-white rounded-xl border border-gray-200 h-24 animate-pulse" />
-                ))}
-              </div>
+              <SkeletonList itemHeight={96} itemClassName="rounded-xl" min={2} />
             ) : count === 0 && !showForm ? (
               /* Empty state */
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-10 flex flex-col items-center text-center">

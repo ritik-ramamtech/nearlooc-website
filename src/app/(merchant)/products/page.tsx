@@ -11,6 +11,7 @@ import {
 import { useMerchantProducts, useDeactivateProduct } from "@/features/merchant/products/hooks";
 import { useActiveSales, useSalesHistory, useDeactivateOffer } from "@/features/merchant/sales/hooks";
 import { useMerchantProfile } from "@/features/merchant/profile/hooks";
+import { SkeletonList } from "@/components/ui/skeleton";
 import type { Product, MerchantSale } from "@/types/merchant";
 
 type Tab = "products" | "active" | "history";
@@ -97,11 +98,7 @@ export default function ProductsPage() {
 
       <div className="p-6">
         {isLoading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-xl border border-gray-200 h-24 animate-pulse" />
-            ))}
-          </div>
+          <SkeletonList itemHeight={96} itemClassName="rounded-xl" />
         ) : tab === "products" ? (
           <ProductsTab
             products={products}

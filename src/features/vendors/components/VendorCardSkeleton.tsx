@@ -1,19 +1,45 @@
+"use client";
+
+import { Skeleton } from "@/components/ui/skeleton";
+import { useFitCount } from "@/hooks/useFitCount";
 import { cn } from "@/lib/utils";
 
 interface VendorCardSkeletonProps {
+  /** Fixed count (e.g. appended "load more" pages). Omit to fill the grid dynamically. */
   count?: number;
   className?: string;
 }
 
-export function VendorCardSkeleton({ count = 4, className }: VendorCardSkeletonProps) {
+/** Grid of placeholders mirroring <VendorCard /> — cover band, logo, title, stats. */
+export function VendorCardSkeleton({ count, className }: VendorCardSkeletonProps) {
+  const { ref, count: fitCount } = useFitCount<HTMLDivElement>({
+    axis: "grid",
+    itemWidth: 220,
+    gap: 12,
+    rows: 2,
+  });
+  const n = count ?? fitCount;
+
   return (
-    <div className={cn("grid gap-3 animate-pulse", className ?? "grid-cols-2")}>
-      {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="overflow-hidden rounded-2xl border border-outline-variant">
-          <div className="h-24 w-full bg-surface-container" />
-          <div className="space-y-2 p-3 pt-7">
-            <div className="h-4 w-3/4 rounded bg-surface-container" />
-            <div className="h-3 w-1/2 rounded bg-surface-container" />
+    <div ref={ref} className={cn("grid gap-3", className ?? "grid-cols-2")}>
+      {Array.from({ length: n }).map((_, i) => (
+        <div
+          key={i}
+          className="overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-lowest"
+        >
+          {/* Cover + logo */}
+          <div className="relative">
+            <Skeleton className="h-24 w-full rounded-none" />
+            <Skeleton className="absolute -bottom-5 left-3 h-12 w-12 rounded-xl border-2 border-surface-container-lowest" />
+          </div>
+          {/* Content */}
+          <div className="space-y-2 px-3 pb-3 pt-7">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-3 w-1/2" />
+            <div className="flex items-center gap-3 pt-1">
+              <Skeleton className="h-3 w-12" />
+              <Skeleton className="h-3 w-16" />
+            </div>
           </div>
         </div>
       ))}

@@ -5,4 +5,5 @@ export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
 export { EmptyState } from "./empty-state";
 export { Input } from "./input";
 export { Separator } from "./separator";
+export { Skeleton, SkeletonList } from "./skeleton";
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs";

@@ -1,9 +1,11 @@
 "use client";
 
 import type React from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { Star, Clock, Shield, MapPin, Tag, Timer } from "lucide-react";
+import { Star, Clock, Shield, MapPin, Tag, Timer, Heart, Share2, Check } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import { PriceBlock } from "./PriceBlock";
 import { PromoTimer } from "./PromoTimer";
 import { OfferImageGallery } from "./OfferImageGallery";
@@ -11,6 +13,7 @@ import { MerchantRow } from "./MerchantRow";
 import { OfferAccordion } from "./OfferAccordion";
 import { RelatedOffers } from "./RelatedOffers";
 import { OfferClaimBar } from "./OfferClaimBar";
+import { OfferDetailSkeleton } from "./OfferDetailSkeleton";
 import { useOffer, useRelatedOffers } from "../hooks";
 import { useToggleFavorite } from "@/features/favorites";
 
@@ -22,15 +25,10 @@ export function OfferDetail({ id }: OfferDetailProps) {
   const { data: offer, isPending, isError } = useOffer(id);
   const { data: related = [] } = useRelatedOffers(id, 6);
   const { toggle: toggleFavorite } = useToggleFavorite();
+  const [copied, setCopied] = useState(false);
 
   if (isPending) {
-    return (
-      <div className="animate-pulse space-y-4 px-4 pt-4">
-        <div className="aspect-[4/3] w-full rounded-2xl bg-surface-container" />
-        <div className="h-6 w-3/4 rounded bg-surface-container" />
-        <div className="h-8 w-1/2 rounded bg-surface-container" />
-      </div>
-    );
+    return <OfferDetailSkeleton />;
   }
 
   if (isError || !offer) {
@@ -42,7 +40,27 @@ export function OfferDetail({ id }: OfferDetailProps) {
   }
 
   const images: string[] = offer.images ?? (offer.image_url ? [offer.image_url] : []);
-  const activePrice = offer.promo_price ?? offer.discounted_price;
+
+  const handleShare = async () => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title: offer.title, text: offer.title, url });
+      } catch {
+        /* share dismissed — ignore */
+      }
+      return;
+    }
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      try {
+        await navigator.clipboard.writeText(url);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch {
+        /* clipboard blocked — ignore */
+      }
+    }
+  };
 
   const trustBadges = [
     offer.duration
@@ -85,9 +103,37 @@ export function OfferDetail({ id }: OfferDetailProps) {
                 </p>
               )}
 
-              <h1 className="text-[22px] font-bold leading-snug text-on-surface">
-                {offer.title}
-              </h1>
+              <div className="flex items-start justify-between gap-3">
+                <h1 className="text-[22px] font-bold leading-snug text-on-surface">
+                  {offer.title}
+                </h1>
+
+                <div className="flex shrink-0 items-center gap-2">
+                  {/* Like */}
+                  <button
+                    onClick={() => toggleFavorite(offer, !!offer.is_favorite)}
+                    aria-label={offer.is_favorite ? "Remove from favorites" : "Save offer"}
+                    aria-pressed={!!offer.is_favorite}
+                    className={cn(
+                      "flex h-10 w-10 items-center justify-center rounded-full border transition-all active:scale-95",
+                      offer.is_favorite
+                        ? "border-red-200 bg-red-50 text-red-500"
+                        : "border-outline-variant bg-white text-on-surface-variant hover:border-red-200 hover:text-red-500"
+                    )}
+                  >
+                    <Heart className={cn("h-5 w-5 transition-all", offer.is_favorite && "fill-red-500")} />
+                  </button>
+
+                  {/* Share */}
+                  <button
+                    onClick={handleShare}
+                    aria-label="Share offer"
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant bg-white text-on-surface-variant transition-all hover:border-stitch-primary hover:text-stitch-primary active:scale-95"
+                  >
+                    {copied ? <Check className="h-5 w-5 text-green-600" /> : <Share2 className="h-5 w-5" />}
+                  </button>
+                </div>
+              </div>
 
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <div className="flex items-center gap-1">
@@ -139,9 +185,6 @@ export function OfferDetail({ id }: OfferDetailProps) {
 
               {/* Desktop CTAs */}
               <div className="hidden space-y-2 md:block">
-                <button className="w-full rounded-xl bg-stitch-primary py-3.5 text-label-md font-semibold text-white transition-colors hover:bg-stitch-secondary active:scale-[0.98]">
-                  Claim Deal — ₹{activePrice.toLocaleString()}
-                </button>
                 {offer.merchant_id && (
                   <Link
                     href={`/vendors/${offer.merchant_id}/products`}
@@ -183,14 +226,9 @@ export function OfferDetail({ id }: OfferDetailProps) {
         )}
       </div>
 
-      {/* Mobile sticky claim bar */}
+      {/* Mobile sticky bar */}
       <div className="md:hidden">
-        <OfferClaimBar
-          price={activePrice}
-          isFavorite={offer.is_favorite}
-          merchantId={offer.merchant_id}
-          onToggleFavorite={() => toggleFavorite(offer, !!offer.is_favorite)}
-        />
+        <OfferClaimBar merchantId={offer.merchant_id} />
       </div>
     </>
   );

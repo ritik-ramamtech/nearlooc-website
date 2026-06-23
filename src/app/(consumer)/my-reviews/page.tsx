@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Star, MessageSquare } from "lucide-react";
 import { useMyReviews } from "@/features/reviews/hooks";
 import { TopBar } from "@/components/layout/TopBar";
+import { SkeletonList } from "@/components/ui/skeleton";
 
 export default function MyReviewsPage() {
   const [page, setPage] = useState(1);
@@ -14,13 +15,7 @@ export default function MyReviewsPage() {
       <TopBar title="My Reviews" />
 
       <div className="mx-auto max-w-2xl space-y-4 px-4 py-6">
-        {isPending && (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-24 animate-pulse rounded-2xl bg-gray-200" />
-            ))}
-          </div>
-        )}
+        {isPending && <SkeletonList itemHeight={96} itemClassName="rounded-2xl" />}
 
         {!isPending && (data?.items?.length ?? 0) === 0 && (
           <div className="flex flex-col items-center gap-3 py-20 text-center">

@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import { useVendorProducts } from "../hooks";
 import { useFavorites } from "@/features/favorites";
 import { OfferCard } from "@/features/home";
+import { OfferCardSkeletonGrid } from "@/features/home/components/OfferCardSkeleton";
 import type { Offer } from "@/types";
 import type { VendorProduct, VendorSummary } from "../types";
 
@@ -85,21 +86,8 @@ export function VendorProductList({ vendorId }: VendorProductListProps) {
         />
       </div>
 
-      {/* Skeleton — same 240px width as OfferCard */}
-      {isPending && (
-        <div className="flex flex-wrap gap-3">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="animate-pulse overflow-hidden rounded-2xl border border-outline-variant" style={{ width: 240 }}>
-              <div className="bg-surface-container" style={{ height: 190 }} />
-              <div className="space-y-2 p-2.5">
-                <div className="h-3 w-3/4 rounded bg-surface-container" />
-                <div className="h-3 w-1/2 rounded bg-surface-container" />
-                <div className="h-4 w-1/3 rounded bg-surface-container" />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Skeleton — fills the grid dynamically, same 240px cards as OfferCard */}
+      {isPending && <OfferCardSkeletonGrid />}
 
       {isError && (
         <p className="py-10 text-center text-[13px] text-on-surface-variant">

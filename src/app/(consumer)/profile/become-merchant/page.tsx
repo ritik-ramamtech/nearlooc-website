@@ -4,8 +4,10 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, Store, Phone, MapPin, CheckCircle, Check, Lightbulb, ChevronDown } from "lucide-react";
 import { useCategories } from "@/features/categories/hooks";
+import { useProfile } from "@/features/user/hooks";
 import { saveMerchantProfile } from "@/features/merchant/profile/api";
 import { useAuthStore } from "@/store/auth.store";
+import { tokenStorage } from "@/lib/token";
 import { ROUTES } from "@/lib/constants";
 
 interface FormData {
@@ -56,7 +58,13 @@ const labelCls =
 export default function BecomeMerchantPage() {
   const router = useRouter();
   const { data: categories } = useCategories();
-  const { user, merchant_id } = useAuthStore();
+  const { data: profile } = useProfile();
+  const { user, merchant_id, setMerchantId } = useAuthStore();
+
+  // A deactivated merchant has no merchant_id, so this page is reachable via back
+  // button / stale link. Send them to the Profile page's Reactivate flow instead of
+  // the blank create form, which would otherwise overwrite their preserved data.
+  const isDeactivatedMerchant = profile?.merchant_status === "inactive";
 
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
@@ -72,9 +80,10 @@ export default function BecomeMerchantPage() {
 
   useEffect(() => {
     if (merchant_id) router.replace(ROUTES.DASHBOARD);
-  }, [merchant_id, router]);
+    else if (isDeactivatedMerchant) router.replace(ROUTES.PROFILE);
+  }, [merchant_id, isDeactivatedMerchant, router]);
 
-  if (merchant_id) return null;
+  if (merchant_id || isDeactivatedMerchant) return null;
 
   const selectedCategory = categories?.find((c) => c.id === form.category_id);
   const subcategories = selectedCategory?.subcategories ?? [];
@@ -92,7 +101,7 @@ export default function BecomeMerchantPage() {
     setSubmitting(true);
     setError(null);
     try {
-      await saveMerchantProfile({
+      const { data } = await saveMerchantProfile({
         business_name: form.business_name,
         bio: form.bio || undefined,
         phone: form.phone || undefined,
@@ -100,6 +109,10 @@ export default function BecomeMerchantPage() {
         category_id: form.category_id || undefined,
         subcategory_id: form.subcategory_id || undefined,
       });
+      // Reflect the new merchant role immediately so the Merchant Portal toggle
+      // shows and middleware allows /dashboard — without waiting for a full reload.
+      setMerchantId(data.merchant_id);
+      tokenStorage.setMerchantCookie(true);
       router.push(ROUTES.DASHBOARD);
     } catch {
       setError("Something went wrong. Please try again.");
