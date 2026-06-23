@@ -39,7 +39,7 @@ const redirectToLogin = () => {
   }
 };
 
-const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "1.0.0";
+const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "1.0.1";
 
 apiClient.interceptors.request.use((config) => {
   const token = tokenStorage.getAccessToken();
