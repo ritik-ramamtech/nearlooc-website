@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Plus, X, Upload, Package, MapPin } from "lucide-react";
+import { ArrowLeft, Plus, X, Upload, MapPin } from "lucide-react";
 import { useCreateProduct } from "@/features/merchant/products/hooks";
 import { uploadProductImage } from "@/features/merchant/products/api";
 import { useMerchantLocations } from "@/features/merchant/locations/hooks";
