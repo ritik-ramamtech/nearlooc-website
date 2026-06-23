@@ -21,11 +21,11 @@ export default function ProfilePage() {
   if (isPending) {
     return (
       <div className="flex h-screen">
-        <div className="w-72 shrink-0 animate-pulse bg-gradient-to-b from-brand-500 to-brand-700" />
+        <div className="w-72 shrink-0 animate-pulse bg-white border-r border-gray-100" />
         <div className="flex-1 animate-pulse space-y-6 bg-page-bg p-10">
           <div className="h-8 w-48 rounded-lg bg-gray-200" />
-          <div className="flex gap-3">
-            {[1, 2, 3].map((i) => <div key={i} className="h-16 w-32 rounded-2xl bg-gray-200" />)}
+          <div className="grid grid-cols-3 gap-3">
+            {[1, 2, 3].map((i) => <div key={i} className="h-16 rounded-2xl bg-gray-200" />)}
           </div>
           <div className="h-64 max-w-xl rounded-2xl bg-gray-200" />
         </div>
@@ -51,69 +51,75 @@ export default function ProfilePage() {
     <div className="flex h-screen overflow-hidden">
 
       {/* ── Left Sidebar ── */}
-      <aside className="flex w-72 shrink-0 flex-col overflow-y-auto bg-gradient-to-b from-brand-500 via-brand-600 to-brand-700">
+      <aside className="flex w-72 shrink-0 flex-col overflow-y-auto border-r border-gray-100 bg-white">
+
+        {/* App branding */}
+        <div className="flex items-center gap-2.5 px-6 py-5 border-b border-gray-100">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500">
+            <span className="text-xs font-bold text-white">N</span>
+          </div>
+          <span className="text-sm font-bold text-gray-900">Nearlooc</span>
+        </div>
 
         {/* Identity block */}
-        <div className="flex flex-col items-center gap-4 px-6 pb-8 pt-10">
-          <div className="rounded-full ring-4 ring-white/20">
-            <AvatarUpload name={profile.name} avatarUrl={profile.avatar_url} />
-          </div>
+        <div className="flex flex-col items-center gap-3 px-6 pb-6 pt-6">
+          <AvatarUpload name={profile.name} avatarUrl={profile.avatar_url} />
 
           <div className="text-center">
-            <p className="text-lg font-bold leading-tight text-white">{profile.name}</p>
-            <p className="mt-0.5 text-sm text-green-200/70">{profile.email}</p>
+            <p className="text-base font-bold leading-tight text-gray-900">{profile.name}</p>
+            <p className="mt-0.5 text-xs text-gray-400">{profile.email}</p>
           </div>
 
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold ring-1 ${isPremium ? "bg-amber-400/20 text-amber-300 ring-amber-400/30" : "bg-white/10 text-green-100 ring-white/20"}`}>
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold ring-1 ${isPremium ? "bg-amber-50 text-amber-700 ring-amber-200" : "bg-brand-50 text-brand-700 ring-brand-200"}`}>
             <Shield className="h-3 w-3" />
             {membershipLabel} Member
           </span>
         </div>
 
-        <div className="mx-6 border-t border-white/10" />
+        <div className="mx-6 border-t border-gray-100" />
 
         {/* Nav */}
-        <nav className="flex-1 space-y-1 px-4 py-6">
-          <p className="mb-3 px-3 text-[10px] font-bold uppercase tracking-widest text-white/30">Menu</p>
+        <nav className="flex-1 space-y-0.5 px-4 py-4">
+          <p className="mb-2 px-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">Menu</p>
           <SideNavLink href={ROUTES.FAVORITES}        icon={<Heart className="h-4 w-4" />}   label="My Favorites" />
           <SideNavLink href={ROUTES.PROFILE_LOCATION} icon={<MapPin className="h-4 w-4" />}  label="Preferred Location" />
-          <SideNavLink href={ROUTES.REVIEWS}          icon={<Star className="h-4 w-4" />}    label="My Reviews" />
+          <SideNavLink href={ROUTES.MY_REVIEWS}       icon={<Star className="h-4 w-4" />}    label="My Reviews" />
         </nav>
 
-        <div className="mx-6 border-t border-white/10" />
+        <div className="mx-6 border-t border-gray-100" />
 
         {/* Bottom actions */}
-        <div className="space-y-2 px-4 py-6">
+        <div className="space-y-1.5 px-4 py-5">
           {isMerchant ? (
             <Link
               href={ROUTES.DASHBOARD}
-              className="group flex w-full items-center gap-3 rounded-xl bg-white/10 px-3 py-2.5 transition-colors hover:bg-white/20"
+              className="group flex w-full items-center gap-3 rounded-xl bg-brand-500 px-3 py-2.5 transition-colors hover:bg-brand-600"
             >
               <LayoutDashboard className="h-4 w-4 shrink-0 text-white" />
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-white">Merchant Dashboard</p>
-                <p className="text-[11px] text-green-300/70">Switch to merchant mode</p>
+                <p className="text-[11px] text-green-200/80">Switch to merchant mode</p>
               </div>
-              <ChevronRight className="h-4 w-4 shrink-0 text-white/40 transition-colors group-hover:text-white/70" />
+              <ChevronRight className="h-4 w-4 shrink-0 text-white/60 transition-colors group-hover:text-white" />
             </Link>
           ) : (
             <Link
               href={ROUTES.PROFILE_BECOME_MERCHANT}
-              className="group flex w-full items-center gap-3 rounded-xl bg-white/10 px-3 py-2.5 transition-colors hover:bg-white/20"
+              className="group flex w-full items-center gap-3 rounded-xl border border-brand-200 bg-brand-50 px-3 py-2.5 transition-colors hover:bg-brand-100"
             >
-              <Store className="h-4 w-4 shrink-0 text-white" />
+              <Store className="h-4 w-4 shrink-0 text-brand-600" />
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-white">Become a Merchant</p>
-                <p className="text-[11px] text-green-300/70">List your products &amp; offers</p>
+                <p className="text-sm font-semibold text-brand-700">Become a Merchant</p>
+                <p className="text-[11px] text-brand-500/70">List your products &amp; offers</p>
               </div>
-              <ChevronRight className="h-4 w-4 shrink-0 text-white/40 transition-colors group-hover:text-white/70" />
+              <ChevronRight className="h-4 w-4 shrink-0 text-brand-300 transition-colors group-hover:text-brand-500" />
             </Link>
           )}
 
           <button
             onClick={() => logout()}
             disabled={loggingOut}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-red-300 transition-colors hover:bg-red-500/10"
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-red-500 transition-colors hover:bg-red-50"
           >
             <LogOut className="h-4 w-4 shrink-0" />
             <span className="text-sm font-medium">{loggingOut ? "Signing out…" : "Sign Out"}</span>
@@ -123,18 +129,18 @@ export default function ProfilePage() {
 
       {/* ── Right Panel ── */}
       <main className="flex-1 overflow-y-auto bg-page-bg">
-        <div className="mx-auto max-w-2xl space-y-6 px-8 py-10">
+        <div className="mx-auto max-w-2xl space-y-5 px-8 py-8">
 
           {/* Welcome header */}
           <div>
             <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-brand-500">Your Profile</p>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-headline-md font-bold text-gray-900">
               Welcome back, {profile.name.split(" ")[0]} 👋
             </h1>
           </div>
 
           {/* Stat pills */}
-          <div className="flex flex-wrap gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <StatPill
               icon={<Calendar className="h-4 w-4 text-brand-500" />}
               label="Member since"
@@ -166,6 +172,19 @@ export default function ProfilePage() {
             </div>
           </section>
 
+          {/* Quick Links card */}
+          <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+            <div className="border-b border-gray-100 px-6 py-4">
+              <h2 className="text-sm font-bold text-gray-900">Quick Links</h2>
+              <p className="mt-0.5 text-xs text-gray-400">Jump to your saved content</p>
+            </div>
+            <div className="divide-y divide-gray-50">
+              <QuickLink href={ROUTES.FAVORITES}        icon={<Heart  className="h-4 w-4 text-rose-500"  />} label="My Favorites"       description="View all your saved offers"    />
+              <QuickLink href={ROUTES.PROFILE_LOCATION} icon={<MapPin className="h-4 w-4 text-blue-500"  />} label="Preferred Location" description="Update your delivery area"      />
+              <QuickLink href={ROUTES.MY_REVIEWS}       icon={<Star   className="h-4 w-4 text-amber-500" />} label="My Reviews"         description="Manage reviews you've written" />
+            </div>
+          </section>
+
         </div>
       </main>
     </div>
@@ -176,7 +195,7 @@ function SideNavLink({ href, icon, label }: { href: string; icon: React.ReactNod
   return (
     <Link
       href={href}
-      className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-green-100/70 transition-colors hover:bg-white/10 hover:text-white"
+      className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-gray-500 transition-colors hover:bg-brand-50 hover:text-brand-700"
     >
       <span className="shrink-0 transition-transform group-hover:scale-110">{icon}</span>
       <span className="text-sm font-medium">{label}</span>
@@ -190,10 +209,25 @@ function StatPill({ icon, label, value, muted }: { icon: React.ReactNode; label:
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-50">
         {icon}
       </div>
-      <div>
+      <div className="min-w-0">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">{label}</p>
-        <p className={`mt-0.5 text-sm font-bold ${muted ? "text-gray-400" : "text-gray-800"}`}>{value}</p>
+        <p className={`mt-0.5 truncate text-sm font-bold ${muted ? "text-gray-400" : "text-gray-800"}`}>{value}</p>
       </div>
     </div>
+  );
+}
+
+function QuickLink({ href, icon, label, description }: { href: string; icon: React.ReactNode; label: string; description: string }) {
+  return (
+    <Link href={href} className="group flex items-center gap-4 px-6 py-4 transition-colors hover:bg-gray-50">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-50 transition-colors group-hover:bg-white">
+        {icon}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-gray-900">{label}</p>
+        <p className="text-xs text-gray-400">{description}</p>
+      </div>
+      <ChevronRight className="h-4 w-4 shrink-0 text-gray-300 transition-transform group-hover:translate-x-0.5 group-hover:text-gray-500" />
+    </Link>
   );
 }

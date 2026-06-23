@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, User, Mail, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getServerError } from "@/lib/utils";
@@ -47,19 +47,25 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
       <div className="space-y-1">
         <label className="text-label-md text-on-surface-variant">Full Name</label>
-        <Input {...register("name")} />
+        <Input {...register("name")} icon={<User className="h-4 w-4" />} />
         {errors.name && <p className="text-label-sm text-red-500">{errors.name.message}</p>}
       </div>
 
       <div className="space-y-1">
         <label className="text-label-md text-on-surface-variant">Email</label>
-        <Input value={profile.email} disabled className="opacity-60" />
+        <Input value={profile.email} disabled className="opacity-60" icon={<Mail className="h-4 w-4" />} />
         <p className="text-label-sm text-on-surface-variant">Email cannot be changed</p>
       </div>
 
       <div className="space-y-1">
         <label className="text-label-md text-on-surface-variant">Phone</label>
-        <Input type="tel" placeholder="+91 98765 43210" {...register("phone")} />
+        <Input
+          type="tel"
+          placeholder="e.g. +91 98765 43210"
+          className="placeholder:text-gray-400"
+          icon={<Phone className="h-4 w-4" />}
+          {...register("phone")}
+        />
       </div>
 
       <Button type="submit" disabled={isPending} className="w-full bg-stitch-primary hover:bg-stitch-secondary text-white">

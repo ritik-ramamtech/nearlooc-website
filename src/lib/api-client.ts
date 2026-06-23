@@ -39,11 +39,14 @@ const redirectToLogin = () => {
   }
 };
 
+const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "1.0.0";
+
 apiClient.interceptors.request.use((config) => {
   const token = tokenStorage.getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  config.headers["x-app-version"] = APP_VERSION;
   if (config.url && !config.url.startsWith(API_PREFIX)) {
     config.url = `${API_PREFIX}${config.url}`;
   }

@@ -19,4 +19,5 @@ export const ROUTES = {
   PROFILE: "/profile",
   PROFILE_LOCATION: "/profile/location",
   PROFILE_BECOME_MERCHANT: "/profile/become-merchant",
+  MY_REVIEWS: "/my-reviews",
 } as const;

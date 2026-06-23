@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { tokenStorage } from "@/lib/token";
+
 import { useAuthStore } from "@/store/auth.store";
 import apiClient from "@/lib/api-client";
 import type { User } from "@/types";
@@ -48,6 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const merchantIdFromToken = (payload.merchant_id as string) ?? null;
     setAuth(user, merchantIdFromToken, accessToken, refreshToken);
+    tokenStorage.setMerchantCookie(!!merchantIdFromToken);
 
     // Always fetch /users/me to get the authoritative merchant_id
     // (old JWTs don't contain it; this also handles role upgrades without re-login)
@@ -63,6 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             accessToken,
             refreshToken,
           );
+          tokenStorage.setMerchantCookie(!!freshMerchantId);
         }
       })
       .catch(() => {
