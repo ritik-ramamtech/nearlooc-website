@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { ArrowLeft, Plus, Tag, Power, Percent, Clock, Star, X, MapPin } from "lucide-react";
+import { ArrowLeft, Plus, Tag, Power, Percent, Clock, Star, X } from "lucide-react";
 import { useMerchantProducts } from "@/features/merchant/products/hooks";
 import { useActiveSales, useSalesHistory, useCreateOffer, useDeactivateOffer } from "@/features/merchant/sales/hooks";
 import { useMerchantLocations } from "@/features/merchant/locations/hooks";

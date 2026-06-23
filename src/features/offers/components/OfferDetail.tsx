@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 import { PriceBlock } from "./PriceBlock";
 import { PromoTimer } from "./PromoTimer";
 import { OfferImageGallery } from "./OfferImageGallery";
-import { MerchantRow } from "./MerchantRow";
 import { OfferAccordion } from "./OfferAccordion";
 import { RelatedOffers } from "./RelatedOffers";
 import { OfferClaimBar } from "./OfferClaimBar";
