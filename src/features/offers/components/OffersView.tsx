@@ -86,7 +86,6 @@ export function OffersView({ initialParams }: { initialParams: OffersInitialPara
   const isFirstLoad = isPending && page === 1 && allItems.length === 0;
   const isLoadingMore = isFetching && page > 1;
   const hasMore = data?.meta?.has_more ?? false;
-  const total = data?.meta?.total ?? 0;
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface pb-10">
@@ -101,11 +100,6 @@ export function OffersView({ initialParams }: { initialParams: OffersInitialPara
             <ArrowLeft className="h-5 w-5 text-on-surface" />
           </button>
           <h1 className="flex-1 text-[17px] font-bold text-on-surface">{pageTitle}</h1>
-          {!isFirstLoad && total > 0 && (
-            <span className="text-[12px] text-on-surface-variant">
-              {total.toLocaleString()} offers
-            </span>
-          )}
         </div>
 
         <div className="flex gap-2 px-4 pb-3">
@@ -171,12 +165,6 @@ export function OffersView({ initialParams }: { initialParams: OffersInitialPara
               >
                 {isLoadingMore ? "Loading…" : "Load more"}
               </button>
-            )}
-
-            {!hasMore && total > 0 && (
-              <p className="mt-5 text-center text-[12px] text-on-surface-variant">
-                All {total.toLocaleString()} offers shown
-              </p>
             )}
           </>
         )}

@@ -16,3 +16,13 @@ export async function saveMerchantProfile(
   );
   return res.data;
 }
+
+export async function deactivateMerchantProfile(): Promise<{ message: string }> {
+  const res = await apiClient.patch<{ message: string }>("/merchant/deactivate");
+  return res.data;
+}
+
+export async function reactivateMerchantProfile(): Promise<{ message: string; data: MerchantProfileData }> {
+  const res = await apiClient.patch<{ message: string; data: MerchantProfileData }>("/merchant/reactivate");
+  return res.data;
+}

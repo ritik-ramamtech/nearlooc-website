@@ -7,6 +7,7 @@ interface AuthState {
   merchant_id: string | null;
   isAuthenticated: boolean;
   setAuth: (user: User, merchant_id: string | null, accessToken: string, refreshToken: string) => void;
+  setMerchantId: (merchant_id: string | null) => void;
   clearAuth: () => void;
 }
 
@@ -19,6 +20,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     tokenStorage.setTokens(accessToken, refreshToken);
     set({ user, merchant_id, isAuthenticated: true });
   },
+
+  setMerchantId: (merchant_id) => set({ merchant_id }),
 
   clearAuth: () => {
     tokenStorage.clearTokens();

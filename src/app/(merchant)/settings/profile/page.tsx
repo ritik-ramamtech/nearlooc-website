@@ -1,15 +1,23 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import {
   Camera, Upload, X, Plus, Bell, Globe, Phone, FileText,
-  Store, CheckCircle, Trash2,
+  Store, CheckCircle, Trash2, AlertTriangle,
 } from "lucide-react";
 import { useMerchantProfile, useSaveMerchantProfile } from "@/features/merchant/profile/hooks";
+import { deactivateMerchantProfile } from "@/features/merchant/profile/api";
 import { useCategories } from "@/features/categories/hooks";
+import { useAuthStore } from "@/store/auth.store";
+import { tokenStorage } from "@/lib/token";
+import { ROUTES } from "@/lib/constants";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "@/components/ui/toast";
 import apiClient from "@/lib/api-client";
+import type { ApiResponse, UserProfile } from "@/types";
 
 export default function MerchantProfilePage() {
   const { data: profile, isPending } = useMerchantProfile();
@@ -28,6 +36,38 @@ export default function MerchantProfilePage() {
   const [logoUploading, setLogoUploading] = useState(false);
   const [storeImgUploading, setStoreImgUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [deactivating, setDeactivating] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deactivateError, setDeactivateError] = useState<string | null>(null);
+
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const setMerchantId = useAuthStore((s) => s.setMerchantId);
+
+  const confirmDeactivate = async () => {
+    setDeactivating(true);
+    setDeactivateError(null);
+    try {
+      await deactivateMerchantProfile();
+      // Mirror the server state immediately so the Merchant Portal toggle disappears
+      // and middleware blocks /dashboard — without waiting for a reload.
+      setMerchantId(null);
+      tokenStorage.setMerchantCookie(false);
+      // Patch the cached /users/me so the Profile page shows the "Reactivate" card
+      // right away instead of stale "Become a Merchant" (60s global staleTime).
+      queryClient.setQueryData<ApiResponse<UserProfile>>(["user", "profile"], (old) =>
+        old ? { ...old, data: { ...old.data, merchant_status: "inactive" } } : old,
+      );
+      toast.success(
+        "Merchant account deactivated",
+        "Your store is hidden. You can reactivate anytime from your profile.",
+      );
+      router.replace(ROUTES.HOME);
+    } catch {
+      setDeactivating(false);
+      setDeactivateError("Could not deactivate the account. Please try again.");
+    }
+  };
 
   const logoRef = useRef<HTMLInputElement>(null);
   const storeImgRef = useRef<HTMLInputElement>(null);
@@ -390,9 +430,88 @@ export default function MerchantProfilePage() {
           <p className="text-sm text-gray-400 mb-4">
             Deactivating your merchant account will hide all your products and offers.
           </p>
-          <button className="flex items-center gap-2 px-5 py-2.5 border border-red-300 text-red-500 rounded-lg text-sm font-semibold hover:bg-red-50 transition-colors">
+          <button
+            onClick={() => { setDeactivateError(null); setConfirmOpen(true); }}
+            className="flex items-center gap-2 px-5 py-2.5 border border-red-300 text-red-500 rounded-lg text-sm font-semibold hover:bg-red-50 transition-colors"
+          >
             <Trash2 className="h-4 w-4" />
             Deactivate Merchant Account
+          </button>
+        </div>
+      </div>
+
+      {confirmOpen && (
+        <DeactivateConfirmModal
+          businessName={profile?.business_name ?? "your store"}
+          loading={deactivating}
+          error={deactivateError}
+          onCancel={() => setConfirmOpen(false)}
+          onConfirm={confirmDeactivate}
+        />
+      )}
+    </div>
+  );
+}
+
+function DeactivateConfirmModal({
+  businessName,
+  loading,
+  error,
+  onCancel,
+  onConfirm,
+}: {
+  businessName: string;
+  loading: boolean;
+  error: string | null;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm p-4"
+      onClick={() => !loading && onCancel()}
+    >
+      <div
+        className="w-full max-w-md rounded-2xl bg-white shadow-xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-6">
+          <div className="flex items-start gap-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-red-50">
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-base font-bold text-gray-900">Deactivate merchant account?</h3>
+              <p className="mt-1.5 text-sm text-gray-500 leading-relaxed">
+                <span className="font-semibold text-gray-700">{businessName}</span> and all its products
+                and offers will be hidden from customers. You can reactivate anytime from your profile —
+                your data is kept safe.
+              </p>
+            </div>
+          </div>
+
+          {error && (
+            <p className="mt-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              {error}
+            </p>
+          )}
+        </div>
+
+        <div className="flex items-center justify-end gap-3 border-t border-gray-100 bg-gray-50 px-6 py-4">
+          <button
+            onClick={onCancel}
+            disabled={loading}
+            className="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-60"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors disabled:opacity-60"
+          >
+            <Trash2 className="h-4 w-4" />
+            {loading ? "Deactivating…" : "Deactivate"}
           </button>
         </div>
       </div>

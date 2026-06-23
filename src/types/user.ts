@@ -10,6 +10,8 @@ export interface User {
 export interface UserProfile extends User {
   membership_type: string;
   preferred_location: PreferredLocation | null;
+  // 'active' = current merchant · 'inactive' = deactivated (can reactivate) · null = never a merchant
+  merchant_status: "active" | "inactive" | null;
 }
 
 export interface PreferredLocation {
