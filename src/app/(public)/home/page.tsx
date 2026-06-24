@@ -71,7 +71,9 @@ export default function HomePage() {
     // Default feed — API sections + per-category grouped sections
     if (!selectedCategory) {
       const categoryNameById = new Map(categories.map((c) => [c.id, c.name]));
-      const allOffers = data.sections.flatMap((s) => s.offers);
+      // Hide the "Recommended For You" section from the UI
+      const apiSections = data.sections.filter((s) => s.type !== "recommended");
+      const allOffers = apiSections.flatMap((s) => s.offers);
 
       const grouped = new Map<string, typeof allOffers>();
       for (const offer of allOffers) {
@@ -92,7 +94,7 @@ export default function HomePage() {
         }];
       });
 
-      return [...data.sections, ...catSections];
+      return [...apiSections, ...catSections];
     }
 
     const allOffers = data.sections.flatMap((s) => s.offers);
