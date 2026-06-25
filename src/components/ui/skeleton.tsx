@@ -10,7 +10,7 @@ import { useFitCount } from "@/hooks/useFitCount";
  * these to mirror the real layout (a title bar, an avatar circle, a card, …)
  * so the transition into loaded content has no layout shift.
  *
- * Base color is `surface-container` to match the design system. Override with
+ * Base color is neutral gray so it stays visible on white app backgrounds. Override with
  * className for size, radius, and shape:
  *   <Skeleton className="h-4 w-3/4" />            text line
  *   <Skeleton className="h-10 w-10 rounded-full"/> avatar
@@ -20,7 +20,7 @@ function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>)
   return (
     <div
       className={cn(
-        "shimmer-overlay rounded-md bg-surface-container",
+        "shimmer-overlay rounded-md bg-gray-100 ring-1 ring-gray-200/70",
         className,
       )}
       {...props}
