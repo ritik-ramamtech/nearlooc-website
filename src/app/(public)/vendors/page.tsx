@@ -15,7 +15,7 @@ export default function VendorsPage() {
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface">
       {/* Header */}
-      <div className="border-b border-outline-variant bg-surface-container-lowest px-4 py-4">
+      <div className="bg-surface-container-lowest px-4 py-4">
         <h1 className="text-headline-md font-bold text-on-surface">Vendors</h1>
         <p className="mt-0.5 text-body-sm text-on-surface-variant">
           Discover local businesses near you

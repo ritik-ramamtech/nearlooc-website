@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { Star, BadgeCheck, Package, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -22,14 +22,14 @@ export function VendorCard({ vendor, className }: VendorCardProps) {
     <Link
       href={`/vendors/${vendor.id}/products`}
       className={cn(
-        "group flex flex-col overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-lowest shadow-sm transition-shadow hover:shadow-md",
+        "group flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-[0_8px_22px_rgba(20,27,43,0.06)] transition-shadow hover:shadow-[0_12px_28px_rgba(20,27,43,0.10)]",
         className
       )}
     >
-      {/* Cover placeholder — backend has no cover_url */}
-      <div className="relative h-24 w-full overflow-hidden bg-gradient-to-br from-stitch-primary/20 to-stitch-secondary/10">
+      {/* Cover placeholder â€” backend has no cover_url */}
+      <div className="relative h-32 w-full overflow-hidden bg-gradient-to-br from-emerald-100 to-slate-100">
         {/* Logo */}
-        <div className="absolute -bottom-5 left-3 h-12 w-12 overflow-hidden rounded-xl border-2 border-surface-container-lowest bg-surface-container-low shadow-sm">
+        <div className="absolute -bottom-6 left-3 h-14 w-14 overflow-hidden rounded-xl border-2 border-surface-container-lowest bg-surface-container-low shadow-sm">
           {vendor.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={vendor.logo_url} alt={vendor.business_name ?? ""} className="h-full w-full object-cover" />
@@ -42,7 +42,7 @@ export function VendorCard({ vendor, className }: VendorCardProps) {
       </div>
 
       {/* Content */}
-      <div className="px-3 pb-3 pt-7">
+      <div className="flex flex-1 flex-col px-3 pb-3 pt-8">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1">
@@ -70,7 +70,7 @@ export function VendorCard({ vendor, className }: VendorCardProps) {
         )}
 
         {/* Stats */}
-        <div className="mt-3 flex items-center gap-3 text-label-sm text-on-surface-variant">
+        <div className="mt-auto flex items-center gap-3 pt-4 text-label-sm text-on-surface-variant">
           <span className="flex items-center gap-1">
             <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
             <span className="font-medium text-on-surface">{(vendor.rating ?? 0).toFixed(1)}</span>
@@ -85,3 +85,5 @@ export function VendorCard({ vendor, className }: VendorCardProps) {
     </Link>
   );
 }
+
+

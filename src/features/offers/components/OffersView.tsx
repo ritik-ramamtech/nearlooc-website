@@ -90,7 +90,7 @@ export function OffersView({ initialParams }: { initialParams: OffersInitialPara
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface pb-10">
       {/* Filter header */}
-      <div className="border-b border-outline-variant/30 bg-surface">
+      <div className="bg-surface">
        <div className="mx-auto max-w-container-max">
         <div className="flex items-center gap-3 px-4 py-3">
           <button

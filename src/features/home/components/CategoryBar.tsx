@@ -1,6 +1,14 @@
-"use client";
+﻿"use client";
 
-import { Store, LayoutGrid } from "lucide-react";
+import { useState } from "react";
+import {
+  ConciergeBell,
+  Flower,
+  Shirt,
+  Smartphone,
+  Sofa,
+  type LucideIcon,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/types";
 
@@ -10,96 +18,152 @@ interface CategoryBarProps {
   categories: Category[];
   selected: string | null;
   onSelect: (id: string | null) => void;
+  onSubcategorySelect?: (categoryId: string, subcategoryId: string) => void;
 }
 
-/** A single circular category tile with a label underneath. */
-function CategoryTile({
+const CATEGORY_ICON_BY_NAME: Record<string, LucideIcon> = {
+  electronics: Smartphone,
+  "home decore": Sofa,
+  "home decor": Sofa,
+  fashion: Shirt,
+  "beauty & spa": Flower,
+  beauty: Flower,
+  spa: Flower,
+  "food dinning": ConciergeBell,
+  "food dining": ConciergeBell,
+  food: ConciergeBell,
+};
+
+function getCategoryIcon(name: string) {
+  const normalizedName = name.trim().toLowerCase();
+
+  if (normalizedName.includes("food") || normalizedName.includes("dining") || normalizedName.includes("dinning")) {
+    return ConciergeBell;
+  }
+
+  if (normalizedName.includes("beauty") || normalizedName.includes("spa")) {
+    return Flower;
+  }
+
+  if (normalizedName.includes("fashion")) {
+    return Shirt;
+  }
+
+  if (normalizedName.includes("home")) {
+    return Sofa;
+  }
+
+  if (normalizedName.includes("electronic")) {
+    return Smartphone;
+  }
+
+  return CATEGORY_ICON_BY_NAME[normalizedName] ?? Smartphone;
+}
+
+function CategoryTab({
   label,
   isSelected,
   onClick,
-  imageUrl,
-  icon,
+  onMouseEnter,
+  icon: Icon,
+  emoji,
 }: {
   label: string;
   isSelected: boolean;
   onClick: () => void;
-  imageUrl?: string | null;
-  icon?: React.ReactNode;
+  onMouseEnter?: () => void;
+  icon?: LucideIcon;
+  emoji?: string;
 }) {
   return (
     <button
       onClick={onClick}
-      className="group flex w-[68px] shrink-0 flex-col items-center gap-1.5 pt-1"
+      onMouseEnter={onMouseEnter}
+      onFocus={onMouseEnter}
+      className={cn(
+        "group relative flex h-[54px] shrink-0 items-center justify-center gap-2 px-5 text-[13px] font-semibold leading-none transition-colors whitespace-nowrap",
+        isSelected ? "text-stitch-secondary" : "text-gray-950 hover:text-stitch-secondary"
+      )}
     >
-      <span
-        className={cn(
-          "relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full transition-all duration-200 group-hover:-translate-y-0.5",
-          isSelected
-            ? "shadow-md ring-2 ring-stitch-primary ring-offset-2 ring-offset-surface"
-            : "shadow-sm ring-1 ring-outline-variant group-hover:ring-stitch-primary/40",
-          // photos sit on grey; icon tiles get a soft primary tint so they don't read as empty placeholders
-          imageUrl ? "bg-gray-100" : "bg-stitch-primary/10"
-        )}
-      >
-        {imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={imageUrl}
-            alt={label}
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = "none";
-            }}
-          />
-        ) : (
-          <span className="text-stitch-primary transition-colors">{icon}</span>
-        )}
-      </span>
+      {emoji ? (
+        <span className="text-[18px] leading-none">{emoji}</span>
+      ) : Icon ? (
+        <Icon
+          className={cn(
+            "h-[18px] w-[18px] shrink-0 stroke-[1.8]",
+            isSelected
+              ? "text-stitch-secondary"
+              : "text-gray-900 group-hover:text-stitch-secondary"
+          )}
+        />
+      ) : null}
+      <span>{label}</span>
 
-      <span
-        className={cn(
-          "line-clamp-2 text-center text-[11px] leading-tight transition-colors",
-          isSelected
-            ? "font-semibold text-stitch-primary"
-            : "font-medium text-on-surface-variant group-hover:text-on-surface"
-        )}
-      >
-        {label}
-      </span>
+      {isSelected && (
+        <span className="absolute bottom-0 left-2 right-2 h-[2px] rounded-full bg-stitch-secondary" />
+      )}
     </button>
   );
 }
 
-export function CategoryBar({ categories, selected, onSelect }: CategoryBarProps) {
+export function CategoryBar({ categories, selected, onSelect, onSubcategorySelect }: CategoryBarProps) {
+  const [activeMegaId, setActiveMegaId] = useState<string | null>(null);
+  const activeCategory = categories.find((cat) => cat.id === activeMegaId) ?? null;
+  const activeSubcategories = activeCategory?.subcategories ?? [];
+
   return (
-    <div className="no-scrollbar overflow-x-auto">
-      {/* w-max + mx-auto: centers the row when it fits, scrolls when it overflows */}
-      <div className="mx-auto flex w-max gap-5 px-4 py-3 sm:gap-6">
-        <CategoryTile
-          label="All"
-          isSelected={selected === null}
-          onClick={() => onSelect(null)}
-          icon={<LayoutGrid className="h-5 w-5" />}
-        />
-
-        <CategoryTile
-          label="Vendors"
-          isSelected={selected === VENDORS_TAB}
-          onClick={() => onSelect(VENDORS_TAB)}
-          icon={<Store className="h-5 w-5" />}
-        />
-
-        {categories.map((cat) => (
-          <CategoryTile
-            key={cat.id}
-            label={cat.name}
-            isSelected={selected === cat.id}
-            onClick={() => onSelect(cat.id)}
-            imageUrl={cat.image_url}
-            icon={<Store className="h-5 w-5" />}
+    <div
+      className="relative border-b border-gray-100 bg-white"
+      onMouseLeave={() => setActiveMegaId(null)}
+    >
+      <div className="no-scrollbar mx-auto flex max-w-container-max justify-center overflow-x-auto px-4 sm:px-6 lg:px-16">
+        <div className="flex min-w-max gap-3 sm:gap-5">
+          <CategoryTab
+            label="Top Deals"
+            isSelected={selected === null}
+            onClick={() => onSelect(null)}
+            onMouseEnter={() => setActiveMegaId(null)}
+            emoji={"\uD83D\uDD25"}
           />
-        ))}
+
+          {categories.map((cat) => (
+            <CategoryTab
+              key={cat.id}
+              label={cat.name}
+              isSelected={selected === cat.id}
+              onClick={() => onSelect(cat.id)}
+              onMouseEnter={() => setActiveMegaId(cat.subcategories?.length ? cat.id : null)}
+              icon={getCategoryIcon(cat.name)}
+            />
+          ))}
+        </div>
       </div>
+
+      {activeCategory && activeSubcategories.length > 0 && (
+        <div
+          className="absolute left-1/2 top-full z-50 mt-2 w-[min(700px,calc(100vw-2rem))] -translate-x-1/2 rounded-2xl bg-white p-8 shadow-[0_18px_60px_rgba(20,27,43,0.16)] ring-1 ring-black/5"
+          onMouseEnter={() => setActiveMegaId(activeCategory.id)}
+        >
+          <h3 className="mb-6 text-[20px] font-bold leading-tight text-gray-950">
+            {activeCategory.name}
+          </h3>
+          <div className="grid grid-cols-1 gap-x-12 gap-y-4 sm:grid-cols-2">
+            {activeSubcategories.map((sub) => (
+              <button
+                key={sub.id}
+                type="button"
+                onClick={() => {
+                  onSubcategorySelect?.(activeCategory.id, sub.id);
+                  setActiveMegaId(null);
+                }}
+                className="min-w-0 rounded-md py-1 text-left text-[15px] font-medium leading-6 text-gray-700 transition-colors hover:text-stitch-secondary focus:outline-none focus:ring-2 focus:ring-stitch-secondary/20"
+              >
+                {sub.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
