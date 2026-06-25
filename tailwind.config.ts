@@ -43,7 +43,7 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Brand color scale - replaces scattered #1a5c2a hex values
+        // Brand color scale — replaces scattered #1a5c2a hex values
         brand: {
           50:  "#f0f7f0",
           100: "#e8f5e9",
@@ -55,19 +55,19 @@ const config: Config = {
           800: "#14471f",
         },
         // Page-level background tint used in merchant + consumer shells
-        "page-bg": "#ffffff",
+        "page-bg": "#f4f9f4",
         // Stitch Material Design 3 color tokens
         "on-error-container": "#93000a",
         "secondary-fixed": "#6ffbbe",
         "on-secondary-fixed-variant": "#005236",
         "tertiary-container": "#424547",
-        "surface-container": "#ffffff",
+        "surface-container": "#e9edff",
         "on-error": "#ffffff",
-        "surface-container-low": "#ffffff",
-        "inverse-on-surface": "#ffffff",
+        "surface-container-low": "#f1f3ff",
+        "inverse-on-surface": "#edf0ff",
         "primary-fixed": "#b0f0d6",
         "on-primary": "#ffffff",
-        "surface-bright": "#ffffff",
+        "surface-bright": "#f9f9ff",
         "on-secondary": "#ffffff",
         "secondary-fixed-dim": "#4edea3",
         "on-surface": "#141b2b",
@@ -75,20 +75,20 @@ const config: Config = {
         "on-primary-fixed-variant": "#0b513d",
         "outline-variant": "#bfc9c3",
         "inverse-primary": "#95d3ba",
-        "surface-dim": "#ffffff",
+        "surface-dim": "#d3daef",
         "on-secondary-container": "#00714d",
         "secondary-container": "#6cf8bb",
         "surface-tint": "#2b6954",
-        "surface-container-highest": "#ffffff",
+        "surface-container-highest": "#dce2f7",
         "on-surface-variant": "#404944",
         "on-primary-container": "#80bea6",
-        "surface": "#ffffff",
+        "surface": "#f9f9ff",
         "stitch-primary": "#003527",
         "stitch-secondary": "#006c49",
-        "surface-container-high": "#ffffff",
+        "surface-container-high": "#e1e8fd",
         "on-background": "#141b2b",
         "outline": "#707974",
-        "surface-variant": "#ffffff",
+        "surface-variant": "#dce2f7",
         "error": "#ba1a1a",
         "error-container": "#ffdad6",
         "primary-fixed-dim": "#95d3ba",
@@ -147,4 +147,3 @@ const config: Config = {
 };
 
 export default config;
-

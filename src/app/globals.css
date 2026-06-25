@@ -4,19 +4,19 @@
 
 @layer base {
   :root {
-    /* Light theme - white app background */
-    --background: 0 0% 100%;        /* #ffffff */
+    /* Light theme — matches Stitch "Premium Web App Design System" */
+    --background: 40 33% 96%;        /* #f8f6f0 pearl white */
     --foreground: 220 47% 13%;       /* #141b2b */
     --card: 0 0% 100%;               /* #ffffff */
     --card-foreground: 220 47% 13%;
-    --surface: 0 0% 100%;           /* #ffffff */
+    --surface: 40 33% 96%;           /* #f8f6f0 pearl white */
     --popover: 0 0% 100%;
     --popover-foreground: 220 47% 13%;
     --primary: 160 100% 11%;         /* #003527 */
     --primary-foreground: 0 0% 100%;
     --secondary: 159 100% 21%;       /* #006c49 */
     --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 96%;              /* #f5f5f5 */
+    --muted: 237 50% 93%;            /* #e9edff */
     --muted-foreground: 163 7% 27%;  /* #404944 */
     --accent: 152 96% 59%;           /* #6ffbbe */
     --accent-foreground: 160 100% 11%;
@@ -37,7 +37,7 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-inter), 'Inter', sans-serif;
-    background-color: #ffffff;
+    background-color: #f8f6f0;
     color: #141b2b;
   }
 
@@ -47,13 +47,13 @@
   }
 
   ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: #f5f5f5; }
+  ::-webkit-scrollbar-track { background: #f0ede6; }
   ::-webkit-scrollbar-thumb { background: #bfc9c3; border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: #006c49; }
 }
 
 @layer utilities {
-  /* Single source of truth for the horizontal page grid - 16px / 24px / 64px */
+  /* Single source of truth for the horizontal page grid — 16px / 24px / 64px */
   .page-x {
     @apply px-4 sm:px-6 lg:px-16;
   }
@@ -96,11 +96,11 @@
   }
 }
 
-/* Skeleton shimmer
+/* ── Skeleton shimmer ──
    Defined at top level (outside @layer) so Tailwind never tree-shakes the
-   keyframes. A light band sweeps left-to-right by animating a translucent gradient
+   keyframes. A light band sweeps left→right by animating a translucent gradient
    layered over the placeholder's base color. Applied by the <Skeleton />
-   primitive. Pages should never hand-roll animate-pulse. */
+   primitive — pages should never hand-roll animate-pulse. */
 @keyframes shimmer {
   0% {
     background-position: -150% 0;
