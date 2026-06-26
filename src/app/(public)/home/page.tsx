@@ -12,6 +12,7 @@ import {
 } from "@/features/home/components/FiltersSidebar";
 import type { Offer } from "@/types";
 import { OfferSection } from "@/features/home/components/OfferSection";
+import { OffersMapView } from "@/features/home/components/OffersMapView";
 import { FeaturedVendors } from "@/features/home/components/FeaturedVendors";
 import { VendorCard } from "@/features/vendors/components/VendorCard";
 import { VendorCardSkeleton } from "@/features/vendors/components/VendorCardSkeleton";
@@ -21,7 +22,6 @@ import { useCategories } from "@/features/categories/hooks";
 import { useVendorsInfinite } from "@/features/vendors/hooks";
 import type { OfferSection as OfferSectionType } from "@/types";
 
-/** Client-side sort applied to a section's offers. "relevance" preserves API order. */
 function sortOffers(offers: Offer[], sort: SortOption): Offer[] {
   if (sort === "relevance") return offers;
   const sorted = [...offers];
@@ -45,9 +45,9 @@ export default function HomePage() {
   const [sort, setSort] = useState<SortOption>("relevance");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [filters, setFilters] = useState<OfferFilters>(EMPTY_FILTERS);
+  const [showMap, setShowMap] = useState(false);
 
   const isVendorsTab = selectedCategory === VENDORS_TAB;
-  // Default landing view â€” no filters active. Shows the rich hero + vendor showcase.
   const isLanding = !selectedCategory;
 
   const { data: categories = [], isPending: categoriesPending } = useCategories();
@@ -60,14 +60,12 @@ export default function HomePage() {
     isFetchingNextPage,
   } = useVendorsInfinite();
 
-  // Auto-fetch all pages sequentially until hasNextPage is false
   useEffect(() => {
     if (isVendorsTab && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
   }, [isVendorsTab, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Only send category_id to the API â€” subcategory filtering is done client-side
   const feedQuery = useMemo(() => {
     if (!selectedCategory || isVendorsTab) return undefined;
     return { category_id: selectedCategory };
@@ -75,7 +73,6 @@ export default function HomePage() {
 
   const { data, isPending, isError } = useHomeFeed(feedQuery);
 
-  // Subcategories for the active category tab
   const subcategories = useMemo(() => {
     if (!selectedCategory) return [];
     return categories.find((c) => c.id === selectedCategory)?.subcategories ?? [];
@@ -85,6 +82,7 @@ export default function HomePage() {
     setSelectedCategory(id);
     setSelectedSubcategory(null);
     setFilters(EMPTY_FILTERS);
+    setShowMap(false);
   }
 
   function handleSubcategorySelect(categoryId: string, subcategoryId: string) {
@@ -92,24 +90,11 @@ export default function HomePage() {
     setSelectedSubcategory(subcategoryId);
   }
 
-  /*
-   * Default feed (no category selected):
-   * Show sections returned by the API as-is (top_deals, recommended, etc.)
-   *
-   * Category selected, no subcategory:
-   * Group offers by subcategory â†’ one OfferSection per subcategory.
-   * Falls back to a single "All [category]" section if offers have no subcategory_id.
-   *
-   * Category + subcategory selected:
-   * Show a single filtered OfferSection.
-   */
   const displaySections = useMemo<OfferSectionType[]>(() => {
     if (!data) return [];
 
-    // Default feed â€” API sections + per-category grouped sections
     if (!selectedCategory) {
       const categoryNameById = new Map(categories.map((c) => [c.id, c.name]));
-      // Hide the "Recommended For You" section from the UI
       const apiSections = data.sections.filter((s) => s.type !== "recommended");
       const allOffers = apiSections.flatMap((s) => s.offers);
 
@@ -138,7 +123,6 @@ export default function HomePage() {
     const allOffers = data.sections.flatMap((s) => s.offers);
     if (allOffers.length === 0) return [];
 
-    // Subcategory selected â†’ filter offers client-side by subcategory_id
     if (selectedSubcategory) {
       const subcategoryName =
         subcategories.find((s) => s.id === selectedSubcategory)?.name ?? "Offers";
@@ -146,7 +130,6 @@ export default function HomePage() {
       return [{ type: "filtered", title: subcategoryName, parent_category: selectedCategory, offers: filtered }];
     }
 
-    // Category selected, no subcategory â†’ group by subcategory_id
     const subcategoryNameById = new Map(subcategories.map((s) => [s.id, s.name]));
     const grouped = new Map<string, typeof allOffers>();
     const noSubcat: typeof allOffers = [];
@@ -162,7 +145,6 @@ export default function HomePage() {
 
     const sections: OfferSectionType[] = [];
 
-    // Ordered by subcategory list from the API
     for (const sub of subcategories) {
       const offers = grouped.get(sub.id);
       if (!offers || offers.length === 0) continue;
@@ -174,7 +156,6 @@ export default function HomePage() {
       });
     }
 
-    // Offers with no subcategory_id go at the end under the category name
     if (noSubcat.length > 0) {
       const catName = categories.find((c) => c.id === selectedCategory)?.name ?? "Offers";
       sections.push({
@@ -185,7 +166,6 @@ export default function HomePage() {
       });
     }
 
-    // If there were no subcategory matches at all, show everything together
     if (sections.length === 0) {
       const catName = categories.find((c) => c.id === selectedCategory)?.name ?? "Offers";
       sections.push({
@@ -199,7 +179,6 @@ export default function HomePage() {
     return sections;
   }, [data, selectedCategory, selectedSubcategory, subcategories, categories]);
 
-  // Apply sidebar filters, then sort, to each section — dropping emptied sections.
   const sortedSections = useMemo<OfferSectionType[]>(() => {
     return displaySections.flatMap((s) => {
       const filtered = applyOfferFilters(s.offers, filters);
@@ -208,7 +187,12 @@ export default function HomePage() {
     });
   }, [displaySections, filters, sort]);
 
-  // Badge options + price bounds for the filters sidebar, derived from loaded offers.
+  // Flat offer list passed to the map view (respects active filters + sort).
+  const mapOffers = useMemo(
+    () => sortedSections.flatMap((s) => s.offers),
+    [sortedSections]
+  );
+
   const { badgeOptions, priceBounds } = useMemo(() => {
     const offers = displaySections.flatMap((s) => s.offers);
     const badges = new Set<string>();
@@ -231,8 +215,7 @@ export default function HomePage() {
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface">
 
-
-      {/* â”€â”€ Sticky filter header â”€â”€ */}
+      {/* Sticky filter header */}
       <div className="sticky top-16 z-30">
 
         {/* Main category tabs */}
@@ -248,7 +231,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Subcategory chips â€” only visible when a real category is active */}
+        {/* Subcategory chips — only visible when a real category is active */}
         {selectedCategory && !isVendorsTab && (
           <SubcategoryBar
             subcategories={subcategories}
@@ -259,11 +242,13 @@ export default function HomePage() {
             filtersOpen={filtersOpen}
             onToggleFilters={() => setFiltersOpen((v) => !v)}
             activeFilterCount={activeFilterCount}
+            showMap={showMap}
+            onToggleMap={() => setShowMap((v) => !v)}
           />
         )}
       </div>
 
-      {/* â”€â”€ Vendors tab â”€â”€ */}
+      {/* Vendors tab */}
       {isVendorsTab && (
         <div className="mx-auto max-w-container-max px-4 py-6">
           {vendorsPending && (
@@ -292,7 +277,6 @@ export default function HomePage() {
             </>
           )}
 
-          {/* Loading next pages */}
           {isFetchingNextPage && (
             <div className="mt-4">
               <VendorCardSkeleton count={4} className="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" />
@@ -301,85 +285,93 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* â”€â”€ Offer feed â€” filters sidebar pushes the cards right when open â”€â”€ */}
+      {/* Offer feed */}
       {!isVendorsTab && (
-        <div className="mx-auto flex max-w-container-max gap-5">
-          {filtersOpen && (
-            <aside className="hidden w-[280px] shrink-0 px-4 pt-6 lg:block">
-              <div className="sticky top-[140px] max-h-[calc(100vh-160px)] overflow-y-auto">
-                <FiltersSidebar
-                  filters={filters}
-                  onChange={setFilters}
-                  badgeOptions={badgeOptions}
-                  priceBounds={priceBounds}
-                  onClose={() => setFiltersOpen(false)}
-                />
-              </div>
-            </aside>
+        <>
+          {/* Map view — replaces card grid when showMap is active */}
+          {showMap && !isPending && !isError && (
+            <div className="mx-auto max-w-container-max px-4 pt-4 sm:px-6 lg:px-16">
+              <OffersMapView offers={mapOffers} />
+            </div>
           )}
 
-          <div className="min-w-0 flex-1">
-            {/* Loading skeleton */}
-            {isPending && (
-              <div className="divide-y divide-outline-variant/30 overflow-x-hidden">
-                {[1, 2, 3].map((i) => (
-                  <OfferSectionSkeleton key={i} />
-                ))}
-              </div>
-            )}
+          {/* Card list view */}
+          {!showMap && (
+            <div className="mx-auto flex max-w-container-max gap-5">
+              {filtersOpen && (
+                <aside className="hidden w-[280px] shrink-0 px-4 pt-6 lg:block">
+                  <div className="sticky top-[140px] max-h-[calc(100vh-160px)] overflow-y-auto">
+                    <FiltersSidebar
+                      filters={filters}
+                      onChange={setFilters}
+                      badgeOptions={badgeOptions}
+                      priceBounds={priceBounds}
+                      onClose={() => setFiltersOpen(false)}
+                    />
+                  </div>
+                </aside>
+              )}
 
-            {/* Error */}
-            {isError && (
-              <div className="px-4 py-16 text-center">
-                <p className="text-body-md text-on-surface-variant">Failed to load. Please try again.</p>
-              </div>
-            )}
+              <div className="min-w-0 flex-1">
+                {isPending && (
+                  <div className="divide-y divide-outline-variant/30">
+                    {[1, 2, 3].map((i) => (
+                      <OfferSectionSkeleton key={i} />
+                    ))}
+                  </div>
+                )}
 
-            {/* Empty state */}
-            {isEmpty && (
-              <div className="px-4 py-16 text-center">
-                <p className="text-body-md text-on-surface-variant">No offers found.</p>
-                {activeFilterCount > 0 ? (
-                  <button
-                    onClick={() => setFilters(EMPTY_FILTERS)}
-                    className="mt-3 text-label-md text-stitch-primary underline underline-offset-2"
-                  >
-                    Clear filters
-                  </button>
-                ) : (
-                  (selectedCategory || selectedSubcategory) && (
-                    <button
-                      onClick={() => handleCategorySelect(null)}
-                      className="mt-3 text-label-md text-stitch-primary underline underline-offset-2"
-                    >
-                      Reset
-                    </button>
-                  )
+                {isError && (
+                  <div className="px-4 py-16 text-center">
+                    <p className="text-body-md text-on-surface-variant">Failed to load. Please try again.</p>
+                  </div>
+                )}
+
+                {isEmpty && (
+                  <div className="px-4 py-16 text-center">
+                    <p className="text-body-md text-on-surface-variant">No offers found.</p>
+                    {activeFilterCount > 0 ? (
+                      <button
+                        onClick={() => setFilters(EMPTY_FILTERS)}
+                        className="mt-3 text-label-md text-stitch-primary underline underline-offset-2"
+                      >
+                        Clear filters
+                      </button>
+                    ) : (
+                      (selectedCategory || selectedSubcategory) && (
+                        <button
+                          onClick={() => handleCategorySelect(null)}
+                          className="mt-3 text-label-md text-stitch-primary underline underline-offset-2"
+                        >
+                          Reset
+                        </button>
+                      )
+                    )}
+                  </div>
+                )}
+
+                {!isPending && !isError && !isEmpty && (
+                  <div className="divide-y divide-outline-variant/30">
+                    {sortedSections.map((section) => (
+                      <OfferSection
+                        key={section.type}
+                        section={section}
+                        onCategorySelect={(categoryId, subcategoryId) => {
+                          setSelectedCategory(categoryId);
+                          setSelectedSubcategory(subcategoryId ?? null);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                      />
+                    ))}
+                  </div>
                 )}
               </div>
-            )}
-
-            {/* Feed sections (Top Deals etc.) */}
-            {!isPending && !isError && !isEmpty && (
-              <div className="divide-y divide-outline-variant/30 overflow-x-hidden">
-                {sortedSections.map((section) => (
-                  <OfferSection
-                    key={section.type}
-                    section={section}
-                    onCategorySelect={(categoryId, subcategoryId) => {
-                      setSelectedCategory(categoryId);
-                      setSelectedSubcategory(subcategoryId ?? null);
-                      window.scrollTo({ top: 0, behavior: "smooth" });
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+            </div>
+          )}
+        </>
       )}
 
-      {/* â”€â”€ Featured vendors showcase â€” landing view only, below the feed â”€â”€ */}
+      {/* Featured vendors showcase — landing view only */}
       {isLanding && !isVendorsTab && (
         <div className="mx-auto max-w-container-max">
           <FeaturedVendors />
@@ -388,5 +380,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-

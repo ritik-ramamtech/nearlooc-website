@@ -36,6 +36,8 @@ interface SubcategoryBarProps {
   filtersOpen: boolean;
   onToggleFilters: () => void;
   activeFilterCount?: number;
+  showMap?: boolean;
+  onToggleMap?: () => void;
 }
 
 /** Closes the popover when a click lands outside the returned ref. */
@@ -151,6 +153,8 @@ export function SubcategoryBar({
   filtersOpen,
   onToggleFilters,
   activeFilterCount = 0,
+  showMap = false,
+  onToggleMap,
 }: SubcategoryBarProps) {
   const [catOpen, setCatOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
@@ -244,8 +248,9 @@ export function SubcategoryBar({
           <div className="flex items-center gap-5">
             <FilterAction
               icon={Map}
-              label="Show on map"
-              className="hidden sm:flex"
+              label={showMap ? "Hide map" : "Show on map"}
+              onClick={onToggleMap}
+              className={cn("hidden sm:flex", showMap && "text-stitch-secondary")}
             />
 
             <div className="relative" ref={sortRef}>

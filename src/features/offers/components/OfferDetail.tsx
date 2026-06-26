@@ -15,6 +15,7 @@ import { OfferClaimBar } from "./OfferClaimBar";
 import { OfferDetailSkeleton } from "./OfferDetailSkeleton";
 import { useOffer, useRelatedOffers } from "../hooks";
 import { useToggleFavorite } from "@/features/favorites";
+import { LocationMap } from "@/components/LocationMap";
 
 interface OfferDetailProps {
   id: string;
@@ -181,6 +182,19 @@ export function OfferDetail({ id }: OfferDetailProps) {
                 </div>
               )}
 
+
+              {/* Store location map */}
+              {offer.latitude && offer.longitude && (
+                <div>
+                  <p className="mb-2 text-label-sm font-semibold text-on-surface-variant uppercase tracking-wide">
+                    Store Location
+                  </p>
+                  <LocationMap
+                    locations={[{ lat: offer.latitude, lng: offer.longitude, label: "Merchant store", isPrimary: true }]}
+                    height={180}
+                  />
+                </div>
+              )}
 
               {/* Desktop CTAs */}
               <div className="hidden space-y-2 md:block">

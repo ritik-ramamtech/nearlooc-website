@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   MapPin, Plus, Pencil, Trash2, Star, Bell, Search, X, Check,
 } from "lucide-react";
@@ -14,6 +14,7 @@ import { useMerchantProfile } from "@/features/merchant/profile/hooks";
 import { SkeletonList } from "@/components/ui/skeleton";
 import type { MerchantLocationData } from "@/types/merchant";
 import type { CreateLocationInput } from "@/features/merchant/locations/api";
+import { LocationPicker, type PickedLocation } from "@/features/merchant/locations/components/LocationPicker";
 
 const EMPTY_FORM: CreateLocationInput = {
   label: "",
@@ -40,6 +41,18 @@ export default function LocationsPage() {
 
   const set = (field: keyof CreateLocationInput, value: string | boolean | number | undefined) =>
     setForm((prev) => ({ ...prev, [field]: value }));
+
+  const handleLocationPicked = useCallback((loc: PickedLocation) => {
+    setForm((prev) => ({
+      ...prev,
+      latitude: loc.lat,
+      longitude: loc.lng,
+      ...(loc.street && { street: loc.street }),
+      ...(loc.city && { city: loc.city }),
+      ...(loc.state && { state: loc.state }),
+      ...(loc.postal_code && { postal_code: loc.postal_code }),
+    }));
+  }, []);
 
   const openAdd = () => {
     setEditing(null);
@@ -233,21 +246,20 @@ export default function LocationsPage() {
                     value={form.state}
                     onChange={(v) => set("state", v)}
                   />
-                  <div className="grid grid-cols-2 gap-3">
-                    <FormField
-                      label="Latitude (Optional)"
-                      placeholder="e.g. 15.2993"
-                      value={form.latitude?.toString() ?? ""}
-                      onChange={(v) => set("latitude", v ? parseFloat(v) : undefined)}
-                      type="number"
+
+                  <div>
+                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                      Pin on Map
+                    </p>
+                    <LocationPicker
+                      key={editing?.id ?? "new"}
+                      initialLat={form.latitude}
+                      initialLng={form.longitude}
+                      onLocationChange={handleLocationPicked}
                     />
-                    <FormField
-                      label="Longitude (Optional)"
-                      placeholder="e.g. 74.124"
-                      value={form.longitude?.toString() ?? ""}
-                      onChange={(v) => set("longitude", v ? parseFloat(v) : undefined)}
-                      type="number"
-                    />
+                    <p className="mt-1.5 text-[11px] text-gray-400">
+                      Search for an address or click anywhere on the map — coordinates and address fields will fill automatically.
+                    </p>
                   </div>
 
                   <label className="flex items-center gap-2.5 cursor-pointer">

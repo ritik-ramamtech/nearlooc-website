@@ -1,16 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
 import { VendorCard } from "@/features/vendors/components/VendorCard";
 import { VendorCardSkeleton } from "@/features/vendors/components/VendorCardSkeleton";
-import { useVendors } from "@/features/vendors/hooks";
+import { useVendorsInfinite } from "@/features/vendors/hooks";
 
 export default function VendorsPage() {
   const [search, setSearch] = useState("");
-  const { data, isPending, isError } = useVendors(
-    search ? { search } : undefined
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  const {
+    data,
+    isPending,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useVendorsInfinite(search ? { search } : undefined);
+
+  // Infinite scroll — load next page when sentinel enters the viewport
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { rootMargin: "200px" }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // Deduplicate across pages — backend may return the same item on adjacent pages
+  const vendors = Array.from(
+    new Map((data?.items ?? []).map((v) => [v.id, v])).values()
   );
+  const total = data?.meta.total ?? 0;
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface">
@@ -34,6 +65,7 @@ export default function VendorsPage() {
       </div>
 
       <div className="px-4 py-4">
+        {/* Initial loading skeleton */}
         {isPending && <VendorCardSkeleton />}
 
         {isError && (
@@ -42,24 +74,34 @@ export default function VendorsPage() {
           </p>
         )}
 
-        {data && data.items.length === 0 && (
+        {!isPending && vendors.length === 0 && (
           <p className="py-10 text-center text-body-sm text-on-surface-variant">
             No vendors found.
           </p>
         )}
 
-        {data && data.items.length > 0 && (
+        {vendors.length > 0 && (
           <>
             <p className="mb-3 text-label-sm text-on-surface-variant">
-              {data.meta.total} vendors found
+              {total} vendors found
             </p>
             <div className="grid grid-cols-2 gap-3">
-              {data.items.map((vendor) => (
+              {vendors.map((vendor) => (
                 <VendorCard key={vendor.id} vendor={vendor} />
               ))}
             </div>
           </>
         )}
+
+        {/* "Load more" skeleton shown while fetching next page */}
+        {isFetchingNextPage && (
+          <div className="mt-3">
+            <VendorCardSkeleton count={4} />
+          </div>
+        )}
+
+        {/* Invisible sentinel — triggers next-page fetch when scrolled into view */}
+        <div ref={sentinelRef} className="h-1" />
       </div>
     </div>
   );
