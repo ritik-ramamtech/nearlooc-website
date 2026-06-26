@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useMemo, useEffect } from "react";
 import { CategoryBar, VENDORS_TAB } from "@/features/home/components/CategoryBar";
@@ -50,7 +50,7 @@ export default function HomePage() {
   // Default landing view â€” no filters active. Shows the rich hero + vendor showcase.
   const isLanding = !selectedCategory;
 
-  const { data: categories = [] } = useCategories();
+  const { data: categories = [], isPending: categoriesPending } = useCategories();
   const {
     data: vendorsData,
     isPending: vendorsPending,
@@ -243,6 +243,7 @@ export default function HomePage() {
               selected={selectedCategory}
               onSelect={handleCategorySelect}
               onSubcategorySelect={handleSubcategorySelect}
+              isPending={categoriesPending}
             />
           </div>
         </div>
@@ -362,7 +363,15 @@ export default function HomePage() {
             {!isPending && !isError && !isEmpty && (
               <div className="divide-y divide-outline-variant/30 overflow-x-hidden">
                 {sortedSections.map((section) => (
-                  <OfferSection key={section.type} section={section} />
+                  <OfferSection
+                    key={section.type}
+                    section={section}
+                    onCategorySelect={(categoryId, subcategoryId) => {
+                      setSelectedCategory(categoryId);
+                      setSelectedSubcategory(subcategoryId ?? null);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                  />
                 ))}
               </div>
             )}

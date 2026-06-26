@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import {
@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const VENDORS_TAB = "vendors" as const;
 
@@ -19,6 +20,7 @@ interface CategoryBarProps {
   selected: string | null;
   onSelect: (id: string | null) => void;
   onSubcategorySelect?: (categoryId: string, subcategoryId: string) => void;
+  isPending?: boolean;
 }
 
 const CATEGORY_ICON_BY_NAME: Record<string, LucideIcon> = {
@@ -106,7 +108,7 @@ function CategoryTab({
   );
 }
 
-export function CategoryBar({ categories, selected, onSelect, onSubcategorySelect }: CategoryBarProps) {
+export function CategoryBar({ categories, selected, onSelect, onSubcategorySelect, isPending }: CategoryBarProps) {
   const [activeMegaId, setActiveMegaId] = useState<string | null>(null);
   const activeCategory = categories.find((cat) => cat.id === activeMegaId) ?? null;
   const activeSubcategories = activeCategory?.subcategories ?? [];
@@ -118,24 +120,41 @@ export function CategoryBar({ categories, selected, onSelect, onSubcategorySelec
     >
       <div className="no-scrollbar mx-auto flex max-w-container-max justify-center overflow-x-auto px-4 sm:px-6 lg:px-16">
         <div className="flex min-w-max gap-3 sm:gap-5">
-          <CategoryTab
-            label="Top Deals"
-            isSelected={selected === null}
-            onClick={() => onSelect(null)}
-            onMouseEnter={() => setActiveMegaId(null)}
-            emoji={"\uD83D\uDD25"}
-          />
+          {isPending ? (
+            <>
+              <div className="flex h-[54px] shrink-0 items-center justify-center gap-2 px-5">
+                <Skeleton className="h-[18px] w-[18px] rounded-full" />
+                <Skeleton className="h-4 w-[68px] rounded-md" />
+              </div>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="flex h-[54px] shrink-0 items-center justify-center gap-2 px-5">
+                  <Skeleton className="h-[18px] w-[18px] rounded-full" />
+                  <Skeleton className="h-4 w-20 rounded-md" />
+                </div>
+              ))}
+            </>
+          ) : (
+            <>
+              <CategoryTab
+                label="Top Deals"
+                isSelected={selected === null}
+                onClick={() => onSelect(null)}
+                onMouseEnter={() => setActiveMegaId(null)}
+                emoji={"\uD83D\uDD25"}
+              />
 
-          {categories.map((cat) => (
-            <CategoryTab
-              key={cat.id}
-              label={cat.name}
-              isSelected={selected === cat.id}
-              onClick={() => onSelect(cat.id)}
-              onMouseEnter={() => setActiveMegaId(cat.subcategories?.length ? cat.id : null)}
-              icon={getCategoryIcon(cat.name)}
-            />
-          ))}
+              {categories.map((cat) => (
+                <CategoryTab
+                  key={cat.id}
+                  label={cat.name}
+                  isSelected={selected === cat.id}
+                  onClick={() => onSelect(cat.id)}
+                  onMouseEnter={() => setActiveMegaId(cat.subcategories?.length ? cat.id : null)}
+                  icon={getCategoryIcon(cat.name)}
+                />
+              ))}
+            </>
+          )}
         </div>
       </div>
 

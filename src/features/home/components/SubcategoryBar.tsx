@@ -169,44 +169,45 @@ export function SubcategoryBar({
     <div className="border-b border-gray-100 bg-surface">
       <div className="mx-auto max-w-container-max px-4 sm:px-6 lg:px-16">
         {/* Subcategory pills — always visible */}
-        <div className="no-scrollbar flex items-center gap-2 overflow-x-auto py-3">
+        <div className="flex items-center gap-2 py-3">
           {/* Categories dropdown lead pill */}
-            <div className="relative shrink-0" ref={catRef}>
-              <button
-                onClick={() => setCatOpen((v) => !v)}
-                className="flex items-center gap-1.5 rounded-full bg-gray-100 px-4 py-2 text-[13px] font-semibold text-gray-700 transition-colors hover:bg-gray-200"
-              >
-                Categories
-                <ChevronDown
-                  className={cn("h-4 w-4 transition-transform", catOpen && "rotate-180")}
-                />
-              </button>
+          <div className="relative shrink-0" ref={catRef}>
+            <button
+              onClick={() => setCatOpen((v) => !v)}
+              className="flex items-center gap-1.5 rounded-full bg-gray-100 px-4 py-2 text-[13px] font-semibold text-gray-700 transition-colors hover:bg-gray-200"
+            >
+              Categories
+              <ChevronDown
+                className={cn("h-4 w-4 transition-transform", catOpen && "rotate-180")}
+              />
+            </button>
 
-              {catOpen && (
-                <div className="absolute left-0 top-full z-50 mt-2 max-h-72 w-56 overflow-y-auto rounded-xl border border-gray-100 bg-white p-1 shadow-lg ring-1 ring-black/5">
+            {catOpen && (
+              <div className="absolute left-0 top-full z-50 mt-2 max-h-72 w-56 overflow-y-auto rounded-xl border border-gray-100 bg-white p-1 shadow-lg ring-1 ring-black/5">
+                <DropdownItem
+                  label="All"
+                  active={selected === null}
+                  onClick={() => {
+                    onSelect(null);
+                    setCatOpen(false);
+                  }}
+                />
+                {subcategories.map((sub) => (
                   <DropdownItem
-                    label="All"
-                    active={selected === null}
+                    key={sub.id}
+                    label={sub.name}
+                    active={selected === sub.id}
                     onClick={() => {
-                      onSelect(null);
+                      onSelect(sub.id);
                       setCatOpen(false);
                     }}
                   />
-                  {subcategories.map((sub) => (
-                    <DropdownItem
-                      key={sub.id}
-                      label={sub.name}
-                      active={selected === sub.id}
-                      onClick={() => {
-                        onSelect(sub.id);
-                        setCatOpen(false);
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
+                ))}
+              </div>
+            )}
+          </div>
 
+          <div className="no-scrollbar flex flex-1 items-center gap-2 overflow-x-auto">
             <Pill
               label="All"
               isSelected={selected === null}
@@ -220,6 +221,7 @@ export function SubcategoryBar({
                 onClick={() => onSelect(selected === sub.id ? null : sub.id)}
               />
             ))}
+          </div>
         </div>
 
         {/* Filter row */}

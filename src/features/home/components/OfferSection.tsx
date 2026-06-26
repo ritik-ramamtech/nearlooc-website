@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
@@ -7,6 +7,7 @@ import type { OfferSection as OfferSectionType } from "@/types";
 
 interface OfferSectionProps {
   section: OfferSectionType;
+  onCategorySelect?: (categoryId: string, subcategoryId?: string) => void;
 }
 
 const NAMED_TYPES = ["top_deals", "recommended", "new_arrivals", "nearby"];
@@ -28,8 +29,18 @@ function getSeeAllHref(section: OfferSectionType): string {
   return `/offers?title=${encoded}`;
 }
 
-export function OfferSection({ section }: OfferSectionProps) {
+export function OfferSection({ section, onCategorySelect }: OfferSectionProps) {
   if (!section.offers.length) return null;
+
+  const handleSeeAll = (e: React.MouseEvent) => {
+    if (onCategorySelect && section.parent_category) {
+      e.preventDefault();
+      const subcategoryId = section.type.startsWith("subcat_")
+        ? section.type.replace("subcat_", "")
+        : undefined;
+      onCategorySelect(section.parent_category, subcategoryId);
+    }
+  };
 
   return (
     <section className="w-full bg-[#f7faf8] py-8">
@@ -47,6 +58,7 @@ export function OfferSection({ section }: OfferSectionProps) {
 
         <Link
           href={getSeeAllHref(section)}
+          onClick={handleSeeAll}
           className="flex shrink-0 items-center gap-1 pt-1 text-[13px] font-bold text-stitch-secondary hover:underline"
         >
           See All <ChevronRight className="h-4 w-4" />

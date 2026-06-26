@@ -1,8 +1,9 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { Star, Clock, Heart } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import type { Offer } from "@/types";
 import { useToggleFavorite } from "@/features/favorites";
@@ -14,6 +15,7 @@ interface OfferCardProps {
 }
 
 export function OfferCard({ offer, className, fluid }: OfferCardProps) {
+  const router = useRouter();
   const merchantName = offer.merchant?.name ?? offer.merchant_name ?? null;
   const categoryName = offer.category_name ?? offer.badge ?? null;
   const { toggle, isPending } = useToggleFavorite();
@@ -82,9 +84,19 @@ export function OfferCard({ offer, className, fluid }: OfferCardProps) {
           </p>
 
           {merchantName && (
-            <div className="mt-2 flex items-center gap-1.5 overflow-hidden">
+            <div 
+              className="mt-2 flex items-center gap-1.5 overflow-hidden z-10 cursor-pointer hover:opacity-80"
+              onClick={(e) => {
+                const merchantId = offer.merchant?.id ?? offer.merchant_id;
+                if (merchantId) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  router.push(`/vendors/${merchantId}/products`);
+                }
+              }}
+            >
               <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-600" />
-              <span className="truncate text-[11px] text-gray-500">{merchantName}</span>
+              <span className="truncate text-[11px] text-gray-500 hover:underline">{merchantName}</span>
             </div>
           )}
 
