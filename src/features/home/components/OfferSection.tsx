@@ -43,19 +43,17 @@ export function OfferSection({ section, onCategorySelect }: OfferSectionProps) {
   };
 
   return (
-    <section className="w-full bg-[#f7faf8] py-8">
-      <div className="mb-5 flex items-start justify-between gap-4 px-4 sm:px-6 lg:px-16">
+    <section className="py-6 w-full">
+      {/* Header — same responsive padding as container edges */}
+      <div className="mb-4 flex items-center justify-between px-4">
         <div>
-          <h2 className="text-[28px] font-extrabold leading-tight text-on-surface sm:text-[32px]">
-            {section.title}
-          </h2>
+          <h2 className="text-[16px] font-bold text-on-surface">{section.title}</h2>
           {section.type === "top_deals" && (
-            <p className="mt-2 text-[13px] text-on-surface-variant">
-              Limited time offers on top products - grab them before they&apos;re gone!
+            <p className="mt-0.5 text-[12px] text-on-surface-variant">
+              Limited time — grab before they&apos;re gone!
             </p>
           )}
         </div>
-
         <Link
           href={getSeeAllHref(section)}
           onClick={handleSeeAll}
@@ -65,14 +63,15 @@ export function OfferSection({ section, onCategorySelect }: OfferSectionProps) {
         </Link>
       </div>
 
+      {/* Scroll row — left edge aligns with header; right overflows for scroll */}
       <div
-        className="scrollbar-hide overflow-x-auto pb-3"
+        className="scrollbar-hide overflow-x-auto pb-2"
         style={{
           WebkitOverflowScrolling: "touch",
           scrollSnapType: "x mandatory",
         }}
       >
-        <div className="flex gap-4 px-4 sm:px-6 lg:px-16">
+        <div className="flex gap-4 px-4">
           {section.offers.map((offer) => (
             <div key={offer.id} style={{ scrollSnapAlign: "start", flexShrink: 0 }}>
               <OfferCard offer={offer} />

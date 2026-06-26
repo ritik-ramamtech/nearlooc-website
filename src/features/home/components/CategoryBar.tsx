@@ -1,14 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import {
-  ConciergeBell,
-  Flower,
-  Shirt,
-  Smartphone,
-  Sofa,
-  type LucideIcon,
-} from "lucide-react";
+import { Store } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -23,79 +15,43 @@ interface CategoryBarProps {
   isPending?: boolean;
 }
 
-const CATEGORY_ICON_BY_NAME: Record<string, LucideIcon> = {
-  electronics: Smartphone,
-  "home decore": Sofa,
-  "home decor": Sofa,
-  fashion: Shirt,
-  "beauty & spa": Flower,
-  beauty: Flower,
-  spa: Flower,
-  "food dinning": ConciergeBell,
-  "food dining": ConciergeBell,
-  food: ConciergeBell,
-};
-
-function getCategoryIcon(name: string) {
-  const normalizedName = name.trim().toLowerCase();
-
-  if (normalizedName.includes("food") || normalizedName.includes("dining") || normalizedName.includes("dinning")) {
-    return ConciergeBell;
-  }
-
-  if (normalizedName.includes("beauty") || normalizedName.includes("spa")) {
-    return Flower;
-  }
-
-  if (normalizedName.includes("fashion")) {
-    return Shirt;
-  }
-
-  if (normalizedName.includes("home")) {
-    return Sofa;
-  }
-
-  if (normalizedName.includes("electronic")) {
-    return Smartphone;
-  }
-
-  return CATEGORY_ICON_BY_NAME[normalizedName] ?? Smartphone;
-}
-
-function CategoryTab({
-  label,
-  isSelected,
-  onClick,
-  onMouseEnter,
-  icon: Icon,
-  emoji,
-}: {
-  label: string;
-  isSelected: boolean;
-  onClick: () => void;
-  onMouseEnter?: () => void;
-  icon?: LucideIcon;
-  emoji?: string;
-}) {
+export function CategoryBar({ categories, selected, onSelect }: CategoryBarProps) {
   return (
-    <button
-      onClick={onClick}
-      onMouseEnter={onMouseEnter}
-      onFocus={onMouseEnter}
-      className={cn(
-        "group relative flex h-[54px] shrink-0 items-center justify-center gap-2 px-5 text-[13px] font-semibold leading-none transition-colors whitespace-nowrap",
-        isSelected ? "text-stitch-secondary" : "text-gray-950 hover:text-stitch-secondary"
-      )}
-    >
-      {emoji ? (
-        <span className="text-[18px] leading-none">{emoji}</span>
-      ) : Icon ? (
-        <Icon
+    <div className="px-4 no-scrollbar flex gap-2 overflow-x-auto py-3">
+      <button
+        onClick={() => onSelect(null)}
+        className={cn(
+          "shrink-0 rounded-full px-4 py-1.5 text-label-md font-medium transition-colors",
+          selected === null
+            ? "bg-stitch-primary text-white"
+            : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container"
+        )}
+      >
+        All
+      </button>
+
+      <button
+        onClick={() => onSelect(VENDORS_TAB)}
+        className={cn(
+          "shrink-0 flex items-center gap-1.5 rounded-full px-4 py-1.5 text-label-md font-medium transition-colors",
+          selected === VENDORS_TAB
+            ? "bg-stitch-primary text-white"
+            : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container"
+        )}
+      >
+        <Store className="h-3.5 w-3.5" />
+        Vendors
+      </button>
+
+      {categories.map((cat) => (
+        <button
+          key={cat.id}
+          onClick={() => onSelect(cat.id)}
           className={cn(
-            "h-[18px] w-[18px] shrink-0 stroke-[1.8]",
-            isSelected
-              ? "text-stitch-secondary"
-              : "text-gray-900 group-hover:text-stitch-secondary"
+            "shrink-0 rounded-full px-4 py-1.5 text-label-md font-medium transition-colors",
+            selected === cat.id
+              ? "bg-stitch-primary text-white"
+              : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container"
           )}
         />
       ) : null}
@@ -163,26 +119,9 @@ export function CategoryBar({ categories, selected, onSelect, onSubcategorySelec
           className="absolute left-1/2 top-full z-50 mt-2 w-[min(700px,calc(100vw-2rem))] -translate-x-1/2 rounded-2xl bg-white p-8 shadow-[0_18px_60px_rgba(20,27,43,0.16)] ring-1 ring-black/5"
           onMouseEnter={() => setActiveMegaId(activeCategory.id)}
         >
-          <h3 className="mb-6 text-[20px] font-bold leading-tight text-gray-950">
-            {activeCategory.name}
-          </h3>
-          <div className="grid grid-cols-1 gap-x-12 gap-y-4 sm:grid-cols-2">
-            {activeSubcategories.map((sub) => (
-              <button
-                key={sub.id}
-                type="button"
-                onClick={() => {
-                  onSubcategorySelect?.(activeCategory.id, sub.id);
-                  setActiveMegaId(null);
-                }}
-                className="min-w-0 rounded-md py-1 text-left text-[15px] font-medium leading-6 text-gray-700 transition-colors hover:text-stitch-secondary focus:outline-none focus:ring-2 focus:ring-stitch-secondary/20"
-              >
-                {sub.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+          {cat.name}
+        </button>
+      ))}
     </div>
   );
 }

@@ -1,169 +1,16 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import {
-  ChevronDown,
-  SlidersHorizontal,
-  MapPin,
-  Map,
-  ArrowUpDown,
-  Check,
-} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Subcategory } from "@/types";
-
-export type SortOption =
-  | "relevance"
-  | "price_asc"
-  | "price_desc"
-  | "rating"
-  | "discount";
-
-export const SORT_OPTIONS: { value: SortOption; label: string }[] = [
-  { value: "relevance", label: "Relevance" },
-  { value: "price_asc", label: "Price: Low to High" },
-  { value: "price_desc", label: "Price: High to Low" },
-  { value: "rating", label: "Top rated" },
-  { value: "discount", label: "Biggest discount" },
-];
 
 interface SubcategoryBarProps {
   subcategories: Subcategory[];
   selected: string | null;
   onSelect: (id: string | null) => void;
-  sort: SortOption;
-  onSortChange: (sort: SortOption) => void;
-  filtersOpen: boolean;
-  onToggleFilters: () => void;
-  activeFilterCount?: number;
 }
 
-/** Closes the popover when a click lands outside the returned ref. */
-function useClickOutside<T extends HTMLElement>(onClose: () => void) {
-  const ref = useRef<T>(null);
-  useEffect(() => {
-    function handle(event: MouseEvent) {
-      if (ref.current && !ref.current.contains(event.target as Node)) onClose();
-    }
-    document.addEventListener("mousedown", handle);
-    return () => document.removeEventListener("mousedown", handle);
-  }, [onClose]);
-  return ref;
-}
-
-/** Grey rounded chip — white + outlined when active. */
-function Pill({
-  label,
-  isSelected,
-  onClick,
-}: {
-  label: string;
-  isSelected: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "shrink-0 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors",
-        isSelected
-          ? "border border-gray-300 bg-white text-gray-900"
-          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-      )}
-    >
-      <span className="whitespace-nowrap">{label}</span>
-    </button>
-  );
-}
-
-/** Single row inside a dropdown menu. */
-function DropdownItem({
-  label,
-  active,
-  onClick,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-[13px] transition-colors hover:bg-gray-50",
-        active ? "font-semibold text-stitch-secondary" : "text-gray-700"
-      )}
-    >
-      <span className="truncate">{label}</span>
-      {active && <Check className="h-4 w-4 shrink-0" />}
-    </button>
-  );
-}
-
-/** Underlined text control used in the filter row. */
-function FilterAction({
-  icon: Icon,
-  label,
-  onClick,
-  trailingChevron,
-  chevronOpen,
-  badge = 0,
-  className,
-}: {
-  icon: typeof MapPin;
-  label: string;
-  onClick?: () => void;
-  trailingChevron?: boolean;
-  chevronOpen?: boolean;
-  badge?: number;
-  className?: string;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "flex items-center gap-1.5 text-[13px] font-semibold text-gray-900 transition-colors hover:text-stitch-secondary",
-        className
-      )}
-    >
-      <Icon className="h-4 w-4" />
-      <span className="whitespace-nowrap underline underline-offset-4">{label}</span>
-      {badge > 0 && (
-        <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-stitch-secondary px-1 text-[11px] font-bold leading-none text-white">
-          {badge}
-        </span>
-      )}
-      {trailingChevron && (
-        <ChevronDown
-          className={cn("h-4 w-4 transition-transform", chevronOpen && "rotate-180")}
-        />
-      )}
-    </button>
-  );
-}
-
-export function SubcategoryBar({
-  subcategories,
-  selected,
-  onSelect,
-  sort,
-  onSortChange,
-  filtersOpen,
-  onToggleFilters,
-  activeFilterCount = 0,
-}: SubcategoryBarProps) {
-  const [catOpen, setCatOpen] = useState(false);
-  const [sortOpen, setSortOpen] = useState(false);
-
-  const catRef = useClickOutside<HTMLDivElement>(() => setCatOpen(false));
-  const sortRef = useClickOutside<HTMLDivElement>(() => setSortOpen(false));
-
+export function SubcategoryBar({ subcategories, selected, onSelect }: SubcategoryBarProps) {
   if (subcategories.length === 0) return null;
-
-  const sortLabel =
-    sort === "relevance"
-      ? "Sort by"
-      : SORT_OPTIONS.find((o) => o.value === sort)?.label ?? "Sort by";
 
   return (
     <div className="border-b border-gray-100 bg-surface">
@@ -272,8 +119,10 @@ export function SubcategoryBar({
                   ))}
                 </div>
               )}
-            </div>
-          </div>
+            >
+              {sub.name}
+            </button>
+          ))}
         </div>
       </div>
     </div>
