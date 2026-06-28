@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { Toaster } from "@/components/ui/toast";
+import { LocationOnboardingModal } from "@/features/user/components/LocationOnboardingModal";
 import "./globals.css";
 
 const inter = Inter({
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${inter.variable} font-sans antialiased bg-surface text-on-surface`}>
         <QueryProvider>
           <AuthProvider>{children}</AuthProvider>
+          <LocationOnboardingModal />
           <Toaster />
         </QueryProvider>
       </body>

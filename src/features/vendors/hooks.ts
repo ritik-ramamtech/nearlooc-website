@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
-import { getAllVendors, getVendorProducts, type VendorProductsNormalised } from "./api";
+import { getAllVendors, getVendorById, getVendorProducts, type VendorProductsNormalised } from "./api";
 import type { GetVendorsQuery, GetVendorProductsQuery } from "./types";
 
 
@@ -27,6 +27,14 @@ export function useVendorsInfinite(query?: Omit<GetVendorsQuery, "page">) {
       items: data.pages.flatMap((p) => p.data),
       meta: data.pages[data.pages.length - 1].meta,
     }),
+  });
+}
+
+export function useVendorById(id: string) {
+  return useQuery({
+    queryKey: ["vendors", "detail", id],
+    queryFn: () => getVendorById(id),
+    enabled: !!id,
   });
 }
 

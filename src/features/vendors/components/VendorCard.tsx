@@ -1,6 +1,7 @@
-﻿import Link from "next/link";
-import { Star, BadgeCheck, Package, MapPin } from "lucide-react";
+import Link from "next/link";
+import { Star, BadgeCheck, Package, MapPin, Globe, Image as ImageIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Vendor } from "../types";
 
@@ -81,6 +82,40 @@ export function VendorCard({ vendor, className }: VendorCardProps) {
             {vendor.product_count ?? 0} products
           </span>
         </div>
+
+        {/* Action Buttons */}
+        {(vendor.website || (vendor.stores_imgs_url && vendor.stores_imgs_url.length > 0)) && (
+          <div className="mt-4 flex items-center gap-2">
+            {vendor.website && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 h-8 px-2 text-[11px] sm:text-xs font-medium z-10 hover:bg-slate-50 transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  window.open(vendor.website!, "_blank", "noopener,noreferrer");
+                }}
+              >
+                <Globe className="mr-1.5 h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">Website</span>
+              </Button>
+            )}
+            {vendor.stores_imgs_url && vendor.stores_imgs_url.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 h-8 px-2 text-[11px] sm:text-xs font-medium z-10 hover:bg-slate-50 transition-colors"
+                onClick={() => {
+                  // The parent <Link> will handle the navigation to the vendor products page
+                }}
+              >
+                <ImageIcon className="mr-1.5 h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">Store</span>
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </Link>
   );

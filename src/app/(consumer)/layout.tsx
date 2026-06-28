@@ -5,4 +5,3 @@ export default function ConsumerLayout({ children }: { children: React.ReactNode
     </>
   );
 }
-

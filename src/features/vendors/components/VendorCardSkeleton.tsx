@@ -14,9 +14,9 @@ interface VendorCardSkeletonProps {
 export function VendorCardSkeleton({ count, className }: VendorCardSkeletonProps) {
   const { ref, count: fitCount } = useFitCount<HTMLDivElement>({
     axis: "grid",
-    itemWidth: 220,
+    itemWidth: 160,
     gap: 12,
-    rows: 2,
+    rows: 4,
   });
   const n = count ?? fitCount;
 
@@ -25,15 +25,16 @@ export function VendorCardSkeleton({ count, className }: VendorCardSkeletonProps
       {Array.from({ length: n }).map((_, i) => (
         <div
           key={i}
-          className="overflow-hidden rounded-2xl border border-outline-variant bg-surface-container-lowest"
+          className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_8px_22px_rgba(20,27,43,0.06)]"
         >
-          {/* Cover + logo */}
-          <div className="relative">
-            <Skeleton className="h-24 w-full rounded-none" />
-            <Skeleton className="absolute -bottom-5 left-3 h-12 w-12 rounded-xl border-2 border-surface-container-lowest" />
+          {/* Cover band */}
+          <div className="relative h-32 w-full bg-gray-100">
+            <div className="absolute -bottom-6 left-3">
+              <Skeleton className="h-14 w-14 rounded-xl border-2 border-white" />
+            </div>
           </div>
           {/* Content */}
-          <div className="space-y-2 px-3 pb-3 pt-7">
+          <div className="space-y-2 px-3 pb-3 pt-8">
             <Skeleton className="h-4 w-3/4" />
             <Skeleton className="h-3 w-1/2" />
             <div className="flex items-center gap-3 pt-1">

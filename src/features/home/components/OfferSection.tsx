@@ -43,8 +43,8 @@ export function OfferSection({ section, onCategorySelect }: OfferSectionProps) {
   };
 
   return (
-    <section className="w-full bg-[#f7faf8] py-8">
-      <div className="mb-5 flex items-start justify-between gap-4 px-4 sm:px-6 lg:px-16">
+    <section className="w-full bg-[#f7faf8] px-4 py-8 sm:px-6 lg:px-16">
+      <div className="mb-5 flex items-start justify-between gap-4">
         <div>
           <h2 className="text-[28px] font-extrabold leading-tight text-on-surface sm:text-[32px]">
             {section.title}
@@ -67,14 +67,11 @@ export function OfferSection({ section, onCategorySelect }: OfferSectionProps) {
 
       <div
         className="scrollbar-hide overflow-x-auto pb-3"
-        style={{
-          WebkitOverflowScrolling: "touch",
-          scrollSnapType: "x mandatory",
-        }}
+        style={{ WebkitOverflowScrolling: "touch", scrollSnapType: "x mandatory" }}
       >
-        <div className="flex gap-4 px-4 sm:px-6 lg:px-16">
+        <div className="flex gap-4">
           {section.offers.map((offer) => (
-            <div key={offer.id} style={{ scrollSnapAlign: "start", flexShrink: 0 }}>
+            <div key={offer.id} className="shrink-0" style={{ scrollSnapAlign: "start" }}>
               <OfferCard offer={offer} />
             </div>
           ))}

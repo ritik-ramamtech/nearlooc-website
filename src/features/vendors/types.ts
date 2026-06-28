@@ -15,22 +15,27 @@ export interface Vendor {
   business_name: string;
   bio: string | null;
   logo_url: string | null;
+  stores_imgs_url: string[];
   phone: string | null;
   website: string | null;
   category_id: string | null;
+  category_name: string | null;
   subcategory_id: string | null;
+  subcategory_name: string | null;
   rating: number;
   review_count: number;
   is_verified: boolean;
   product_count: number;
+  created_at: string;
   locations: VendorLocation[];
 }
 
-// Subset returned by GET /vendors/:id/products (no locations/bio/phone etc.)
+// Subset returned by GET /vendors/:id/products
 export interface VendorSummary {
   id: string;
   business_name: string;
   logo_url: string | null;
+  stores_imgs_url: string[];
   rating: number;
   review_count: number;
   is_verified: boolean;
