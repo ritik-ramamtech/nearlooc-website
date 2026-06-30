@@ -136,10 +136,27 @@ const config: Config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "sparkle-in": {
+          "0%":   { transform: "scale(0.3) rotate(-40deg)", opacity: "0" },
+          "60%":  { transform: "scale(1.3) rotate(10deg)",  opacity: "1" },
+          "100%": { transform: "scale(1)   rotate(0deg)",   opacity: "1" },
+        },
+        "pop-in": {
+          "0%":   { transform: "scale(0.3)", opacity: "0" },
+          "60%":  { transform: "scale(1.25)", opacity: "1" },
+          "100%": { transform: "scale(1)",    opacity: "1" },
+        },
+        "ai-glow": {
+          "0%, 100%": { boxShadow: "0 0 0 3px rgba(139,92,246,0.22)" },
+          "50%":      { boxShadow: "0 0 0 6px rgba(139,92,246,0.06)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
+        "accordion-up":   "accordion-up 0.2s ease-out",
+        "sparkle-in": "sparkle-in 0.38s cubic-bezier(0.34,1.56,0.64,1) both",
+        "pop-in":     "pop-in 0.3s cubic-bezier(0.34,1.56,0.64,1) both",
+        "ai-glow":    "ai-glow 2s ease-in-out infinite",
       },
     },
   },
