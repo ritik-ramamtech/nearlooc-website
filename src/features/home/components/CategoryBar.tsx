@@ -118,8 +118,8 @@ export function CategoryBar({ categories, selected, onSelect, onSubcategorySelec
       className="relative border-b border-gray-100 bg-white"
       onMouseLeave={() => setActiveMegaId(null)}
     >
-      <div className="no-scrollbar mx-auto flex max-w-container-max justify-center overflow-x-auto px-2 sm:px-6 lg:px-16">
-        <div className="flex min-w-max gap-1 sm:gap-5">
+      <div className="no-scrollbar mx-auto flex max-w-container-max overflow-x-auto px-2 sm:px-6 lg:px-16">
+        <div className="flex min-w-max gap-1 sm:gap-5 md:mx-auto">
           {isPending ? (
             <>
               <div className="flex h-[48px] shrink-0 items-center justify-center gap-1.5 px-3 sm:h-[54px] sm:gap-2 sm:px-5">
