@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Search, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, SlidersHorizontal } from "lucide-react";
 import { useOffers } from "@/features/offers/hooks";
 import { OfferCard } from "@/features/home/components/OfferCard";
 import { OfferCardSkeletonGrid } from "@/features/home/components/OfferCardSkeleton";
@@ -102,20 +102,9 @@ export function OffersView({ initialParams }: { initialParams: OffersInitialPara
           <h1 className="flex-1 text-[17px] font-bold text-on-surface">{pageTitle}</h1>
         </div>
 
-        <div className="flex gap-2 px-4 pb-3">
-          {/* Search */}
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-on-surface-variant" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search offers…"
-              className="h-9 w-full rounded-lg border border-outline-variant bg-surface-container-low pl-9 pr-3 text-[13px] text-on-surface placeholder:text-on-surface-variant focus:border-stitch-primary focus:outline-none"
-            />
-          </div>
-
+        <div className="flex px-4 pb-3">
           {/* Sort */}
-          <div className="relative">
+          <div className="relative ml-auto">
             <SlidersHorizontal className="pointer-events-none absolute left-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-on-surface-variant" />
             <select
               value={sort}
