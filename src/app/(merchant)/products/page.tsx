@@ -38,7 +38,7 @@ export default function ProductsPage() {
   return (
     <div className="min-h-screen bg-page-bg">
       {/* Top nav */}
-      <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20">
+      <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-20 sm:px-6">
         <div>
           <h1 className="text-lg font-bold text-gray-900">Product Inventory</h1>
           <p className="text-xs text-gray-400">View and manage all your products in one place</p>
@@ -63,7 +63,7 @@ export default function ProductsPage() {
       </header>
 
       {/* Tab bar */}
-      <div className="bg-white border-b border-gray-200 px-6 flex items-center justify-between">
+      <div className="bg-white border-b border-gray-200 px-4 flex items-center justify-between overflow-x-auto sm:px-6">
         <div className="flex gap-1">
           {(
             [
@@ -96,7 +96,7 @@ export default function ProductsPage() {
         </Link>
       </div>
 
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {isLoading ? (
           <SkeletonList itemHeight={96} itemClassName="rounded-xl" />
         ) : tab === "products" ? (

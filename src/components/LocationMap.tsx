@@ -15,10 +15,11 @@ export interface LocationPin {
 interface LocationMapProps {
   locations: LocationPin[];
   height?: number;
+  heightClass?: string;
   className?: string;
 }
 
-export function LocationMap({ locations, height = 200, className }: LocationMapProps) {
+export function LocationMap({ locations, height = 200, heightClass, className }: LocationMapProps) {
   const [mapError, setMapError] = useState(false);
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "";
@@ -41,15 +42,15 @@ export function LocationMap({ locations, height = 200, className }: LocationMapP
   if (keyMissing || mapError || validLocations.length === 0) return null;
 
   return (
-    <div className={cn("overflow-hidden rounded-xl border border-outline-variant", className)}>
+    <div className={cn("overflow-hidden rounded-xl border border-outline-variant", heightClass, className)}>
       <APIProvider apiKey={apiKey} onError={() => setMapError(true)}>
         <Map
           defaultCenter={center}
           defaultZoom={validLocations.length === 1 ? 15 : 13}
           gestureHandling="cooperative"
           disableDefaultUI
-          style={{ height }}
-          className="w-full"
+          style={{ height: heightClass ? "100%" : height }}
+          className={cn("w-full", heightClass && "h-full")}
         >
           {validLocations.map((loc, i) => (
             <AdvancedMarker key={i} position={{ lat: loc.lat, lng: loc.lng }}>

@@ -6,12 +6,12 @@ import { ArrowRight, User, MapPin, Bell } from "lucide-react";
 export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-page-bg">
-      <header className="bg-white border-b border-gray-200 px-6 py-3">
+      <header className="bg-white border-b border-gray-200 px-4 py-3 sm:px-6">
         <h1 className="text-lg font-bold text-gray-900">Settings</h1>
         <p className="text-xs text-gray-400">Manage your account preferences</p>
       </header>
 
-      <div className="p-6 max-w-2xl mx-auto space-y-3">
+      <div className="p-4 max-w-2xl mx-auto space-y-3 sm:p-6">
         {[
           { href: "/settings/profile", Icon: User, label: "Merchant Profile", desc: "Update business details and branding" },
           { href: "/locations", Icon: MapPin, label: "Store Locations", desc: "Manage your physical branches" },

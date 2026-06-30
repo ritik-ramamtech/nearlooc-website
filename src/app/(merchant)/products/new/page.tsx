@@ -89,9 +89,9 @@ export default function NewProductPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-page-bg overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-page-bg">
       {/* Sticky Header with actions */}
-      <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shrink-0 z-20">
+      <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shrink-0 z-20 sm:px-6">
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.back()}
@@ -126,12 +126,12 @@ export default function NewProductPage() {
         </div>
       </header>
 
-      {/* Two-column scrollable body */}
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="max-w-6xl mx-auto grid grid-cols-12 gap-5 h-full">
+      {/* Body */}
+      <div className="flex-1 p-4 sm:p-6">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 gap-5 md:grid-cols-12">
 
           {/* ── Left Column ── */}
-          <div className="col-span-4 flex flex-col gap-5">
+          <div className="flex flex-col gap-5 md:col-span-4">
 
             {/* Image Upload */}
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
@@ -209,13 +209,13 @@ export default function NewProductPage() {
           </div>
 
           {/* ── Right Column ── */}
-          <div className="col-span-8 flex flex-col gap-5">
+          <div className="flex flex-col gap-5 md:col-span-8">
 
             {/* Core Product Details */}
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 space-y-4">
               <p className="text-sm font-bold text-gray-900">Product Details</p>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label="Product Name *">
                   <input
                     value={form.name}
@@ -255,7 +255,7 @@ export default function NewProductPage() {
                 />
               </Field>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label="Category">
                   <select
                     value={form.category_id}

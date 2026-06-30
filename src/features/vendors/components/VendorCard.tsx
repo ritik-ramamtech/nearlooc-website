@@ -27,8 +27,8 @@ export function VendorCard({ vendor, className }: VendorCardProps) {
         className
       )}
     >
-      {/* Cover placeholder â€” backend has no cover_url */}
-      <div className="relative h-32 w-full overflow-hidden bg-gradient-to-br from-emerald-100 to-slate-100">
+      {/* Cover placeholder - no cover_url from backend */}
+      <div className="relative h-32 w-full bg-gradient-to-br from-emerald-100 to-slate-100">
         {/* Logo */}
         <div className="absolute -bottom-6 left-3 h-14 w-14 overflow-hidden rounded-xl border-2 border-surface-container-lowest bg-surface-container-low shadow-sm">
           {vendor.logo_url ? (
@@ -59,7 +59,7 @@ export function VendorCard({ vendor, className }: VendorCardProps) {
             )}
           </div>
           {vendor.is_verified && (
-            <Badge variant="secondary" className="shrink-0 text-label-sm">Verified</Badge>
+            <Badge variant="secondary" className="hidden shrink-0 text-label-sm sm:inline-flex">Verified</Badge>
           )}
         </div>
 
@@ -71,15 +71,16 @@ export function VendorCard({ vendor, className }: VendorCardProps) {
         )}
 
         {/* Stats */}
-        <div className="mt-auto flex items-center gap-3 pt-4 text-label-sm text-on-surface-variant">
+        <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-3 text-label-sm text-on-surface-variant">
           <span className="flex items-center gap-1">
             <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
             <span className="font-medium text-on-surface">{(vendor.rating ?? 0).toFixed(1)}</span>
-            <span>({vendor.review_count ?? 0})</span>
+            <span className="hidden sm:inline">({vendor.review_count ?? 0})</span>
           </span>
           <span className="flex items-center gap-1">
             <Package className="h-3.5 w-3.5" />
-            {vendor.product_count ?? 0} products
+            <span>{vendor.product_count ?? 0}</span>
+            <span className="hidden sm:inline">products</span>
           </span>
         </div>
 

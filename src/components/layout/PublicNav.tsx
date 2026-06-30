@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Search, Bell, User, Heart, Store, Smartphone, ChevronDown } from "lucide-react";
+import { Search, Bell, User, Heart, Store, Smartphone, ChevronDown, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/auth.store";
 import { useLogout } from "@/features/auth/hooks";
@@ -13,7 +13,9 @@ export function PublicNav() {
   const { isAuthenticated, merchant_id, user } = useAuthStore();
   const { mutate: logout, isPending } = useLogout();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const mobileSearchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -25,38 +27,82 @@ export function PublicNav() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  return (
-    <header className="fixed top-0 z-50 w-full border-b border-gray-100 bg-white px-4">
-      <div className="mx-auto flex h-16 max-w-container-max items-center justify-between gap-4">
-        {/* Left: Logo */}
-        <Link href={ROUTES.HOME} className="flex items-center shrink-0">
-          <Image src="/logo.svg" alt="Nearlooc" width={160} height={42} priority className="h-10 w-auto" />
-        </Link>
+  useEffect(() => {
+    if (searchOpen) {
+      setTimeout(() => mobileSearchRef.current?.focus(), 50);
+    }
+  }, [searchOpen]);
 
-        {/* Search Bar - close to logo */}
-        <div className="flex-1 max-w-[420px] ml-4 mr-auto hidden md:block">
-          <div className="relative flex items-center w-full">
-            <Search className="absolute left-4 h-4 w-4 text-gray-400" />
-            <input
-              className="w-full h-11 bg-gray-50/50 rounded-full border border-gray-200/80 py-2 pl-11 pr-12 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-stitch-secondary focus:ring-1 focus:ring-stitch-secondary transition-all"
-              placeholder="Search deals, vendors, products..."
-              type="text"
-            />
-            <button className="absolute right-1.5 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-stitch-secondary text-white hover:bg-stitch-primary transition-colors">
-              <Search className="h-4 w-4" />
+  return (
+    <>
+      {/* Mobile search overlay */}
+      {searchOpen && (
+        <div className="fixed inset-0 z-[60] flex flex-col bg-white md:hidden">
+          <div className="flex h-16 shrink-0 items-center gap-3 border-b border-gray-100 px-4">
+            <button
+              onClick={() => setSearchOpen(false)}
+              aria-label="Close search"
+              className="p-1.5 text-gray-500 hover:text-gray-900 transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5" />
             </button>
+            <div className="relative flex flex-1 items-center">
+              <Search className="absolute left-4 h-4 w-4 text-gray-400" />
+              <input
+                ref={mobileSearchRef}
+                className="w-full h-11 bg-gray-50/50 rounded-full border border-gray-200/80 py-2 pl-11 pr-12 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-stitch-secondary focus:ring-1 focus:ring-stitch-secondary transition-all"
+                placeholder="Search deals, vendors, products..."
+                type="text"
+              />
+              <button className="absolute right-1.5 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-stitch-secondary text-white hover:bg-stitch-primary transition-colors">
+                <Search className="h-4 w-4" />
+              </button>
+            </div>
           </div>
         </div>
+      )}
 
-        {/* Right: Actions */}
-        <div className="flex items-center gap-2 sm:gap-4">
-          {/* App link (desktop only) */}
+      <header className="fixed top-0 z-50 w-full border-b border-gray-100 bg-white px-4">
+        <div className="mx-auto flex h-16 max-w-container-max items-center justify-between gap-4">
+          {/* Left: Logo */}
+          <Link href={ROUTES.HOME} className="flex items-center shrink-0">
+            <Image src="/logo.svg" alt="Nearlooc" width={160} height={42} priority className="h-8 w-auto sm:h-10" />
+          </Link>
+
+          {/* Search Bar - desktop only */}
+          <div className="flex-1 max-w-[420px] ml-4 mr-auto hidden md:block">
+            <div className="relative flex items-center w-full">
+              <Search className="absolute left-4 h-4 w-4 text-gray-400" />
+              <input
+                className="w-full h-11 bg-gray-50/50 rounded-full border border-gray-200/80 py-2 pl-11 pr-12 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-stitch-secondary focus:ring-1 focus:ring-stitch-secondary transition-all"
+                placeholder="Search deals, vendors, products..."
+                type="text"
+              />
+              <button className="absolute right-1.5 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-stitch-secondary text-white hover:bg-stitch-primary transition-colors">
+                <Search className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Right: Actions */}
+          <div className="flex items-center gap-1.5 sm:gap-2 md:gap-4">
+          {/* Mobile search button */}
+          <button
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search"
+            className="p-1.5 text-gray-700 hover:text-stitch-secondary transition-colors md:hidden"
+          >
+            <Search className="h-5 w-5" />
+          </button>
+
+          {/* App link — icon on all screens, text on lg+ */}
           <Link
             href="#"
-            className="hidden lg:flex items-center gap-1.5 text-stitch-secondary font-semibold text-sm hover:opacity-80 transition-opacity"
+            className="flex items-center gap-1.5 text-stitch-secondary font-semibold text-sm hover:opacity-80 transition-opacity"
+            aria-label="Download mobile app"
           >
-            <Smartphone className="h-4.5 w-4.5 text-stitch-secondary" />
-            <span>App</span>
+            <Smartphone className="h-5 w-5 text-stitch-secondary" />
+            <span className="hidden lg:inline">App</span>
           </Link>
 
           {/* Sell on NearLooc (desktop only) - hidden if the user is already a merchant */}
@@ -158,20 +204,21 @@ export function PublicNav() {
             </div>
           ) : (
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <Link href={ROUTES.LOGIN}>
+              <Link href={ROUTES.LOGIN} className="hidden sm:block">
                 <Button variant="ghost" size="sm" className="text-gray-700 font-semibold text-sm">
                   Sign in
                 </Button>
               </Link>
               <Link href={ROUTES.REGISTER}>
-                <Button size="sm" className="bg-stitch-secondary text-white hover:bg-stitch-primary px-4 rounded-full font-semibold text-sm">
+                <Button size="sm" className="bg-stitch-secondary text-white hover:bg-stitch-primary px-3 sm:px-4 rounded-full font-semibold text-xs sm:text-sm">
                   Get started
                 </Button>
               </Link>
             </div>
           )}
         </div>
-      </div>
-    </header>
+        </div>
+      </header>
+    </>
   );
 }

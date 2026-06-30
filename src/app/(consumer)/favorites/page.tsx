@@ -84,17 +84,14 @@ export default function FavoritesPage() {
               ))}
             </div>
 
-            {/* Cards — same 240px fixed width as home feed, left-aligned, wrapping */}
             {filtered.length === 0 ? (
               <p className="py-10 text-center text-body-sm text-on-surface-variant">
                 No favorites in this category.
               </p>
             ) : (
-              <div className="flex flex-wrap gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                 {filtered.map((offer) => (
-                  <div key={offer.id} style={{ width: 240 }}>
-                    <OfferCard offer={{ ...offer, is_favorite: true }} />
-                  </div>
+                  <OfferCard key={offer.id} offer={{ ...offer, is_favorite: true }} fluid />
                 ))}
               </div>
             )}

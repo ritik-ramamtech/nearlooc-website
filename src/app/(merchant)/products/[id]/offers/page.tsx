@@ -95,9 +95,9 @@ export default function ProductOffersPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-page-bg overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-page-bg">
       {/* Sticky Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center gap-4 sticky top-0 z-20">
+      <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-4 sticky top-0 z-20 sm:px-6">
         <button onClick={() => router.back()} className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
           <ArrowLeft className="h-4 w-4 text-gray-600" />
         </button>
@@ -123,10 +123,10 @@ export default function ProductOffersPage() {
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-hidden p-6">
-        <div className="max-w-6xl mx-auto grid grid-cols-12 gap-6 h-full">
+      <div className="flex-1 p-4 sm:p-6">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 gap-6 md:grid-cols-12">
           {/* Left Column */}
-          <div className="col-span-4 flex flex-col gap-4 overflow-y-auto">
+          <div className="flex flex-col gap-4 md:col-span-4">
             {/* Product Summary */}
             {product && (
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex items-center gap-4 shrink-0">
@@ -194,7 +194,7 @@ export default function ProductOffersPage() {
           </div>
 
           {/* Right Column */}
-          <div className="col-span-8 flex flex-col gap-5 overflow-y-auto">
+          <div className="flex flex-col gap-5 md:col-span-8">
             {/* Create Offer Form */}
             {showForm ? (
               <div className="bg-white rounded-2xl border border-brand-500 shadow-sm p-6 space-y-4">
@@ -206,7 +206,7 @@ export default function ProductOffersPage() {
                 </div>
 
                 {/* Pricing */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div>
                     <label className={labelCls}>Discounted Price (₹) *</label>
                     <div className="relative">
@@ -237,7 +237,7 @@ export default function ProductOffersPage() {
                 </div>
 
                 {/* Promo */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <div>
                     <label className={labelCls}>Promo Price (₹)</label>
                     <input
