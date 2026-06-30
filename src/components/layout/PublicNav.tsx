@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, type FormEvent } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Search, Bell, User, Heart, Store, Smartphone, ChevronDown, ArrowLeft, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/auth.store";
@@ -10,8 +11,10 @@ import { useLogout } from "@/features/auth/hooks";
 import { ROUTES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-function SearchBar({ autoFocus, className }: { autoFocus?: boolean; className?: string }) {
+function SearchBar({ autoFocus, className, onSubmit: onSubmitProp }: { autoFocus?: boolean; className?: string; onSubmit?: () => void }) {
+  const router = useRouter();
   const [isAiMode, setIsAiMode] = useState(false);
+  const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -21,8 +24,20 @@ function SearchBar({ autoFocus, className }: { autoFocus?: boolean; className?: 
     }
   }, [autoFocus]);
 
+  function handleSubmit(e?: FormEvent) {
+    e?.preventDefault();
+    const q = query.trim();
+    if (!q) return;
+    onSubmitProp?.();
+    if (isAiMode) {
+      router.push(`/search?q=${encodeURIComponent(q)}`);
+    } else {
+      router.push(`/offers?search=${encodeURIComponent(q)}`);
+    }
+  }
+
   return (
-    <div className={cn("relative flex items-center w-full", className)}>
+    <form onSubmit={handleSubmit} className={cn("relative flex items-center w-full", className)}>
       {/* Left icon — swaps between Search and Sparkles with entrance animation */}
       <div className="absolute left-4 pointer-events-none">
         {isAiMode ? (
@@ -35,6 +50,8 @@ function SearchBar({ autoFocus, className }: { autoFocus?: boolean; className?: 
       <input
         ref={inputRef}
         type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
         className={cn(
           "w-full h-11 rounded-full border py-2 pl-11 pr-28 text-sm focus:outline-none transition-all duration-200",
           isAiMode
@@ -56,7 +73,7 @@ function SearchBar({ autoFocus, className }: { autoFocus?: boolean; className?: 
         className={cn(
           "absolute right-[46px] flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold tracking-wide transition-all duration-200",
           isAiMode
-            ? "bg-violet-600 text-white animate-ai-glow"
+            ? "bg-violet-600 text-white"
             : "bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700"
         )}
       >
@@ -66,7 +83,7 @@ function SearchBar({ autoFocus, className }: { autoFocus?: boolean; className?: 
 
       {/* Submit button */}
       <button
-        type="button"
+        type="submit"
         aria-label="Submit search"
         className={cn(
           "absolute right-1.5 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full text-white transition-all duration-200",
@@ -80,7 +97,7 @@ function SearchBar({ autoFocus, className }: { autoFocus?: boolean; className?: 
         : <Search   key="search-submit" className="h-4 w-4 animate-pop-in" />
       }
       </button>
-    </div>
+    </form>
   );
 }
 
@@ -114,7 +131,7 @@ export function PublicNav() {
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
-            <SearchBar autoFocus className="flex-1" />
+            <SearchBar autoFocus className="flex-1" onSubmit={() => setSearchOpen(false)} />
           </div>
         </div>
       )}
