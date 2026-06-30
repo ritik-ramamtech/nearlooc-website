@@ -93,7 +93,7 @@ export default function LocationsPage() {
   return (
     <div className="min-h-screen bg-page-bg">
       {/* Top nav */}
-      <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20">
+      <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-20 sm:px-6">
         <div>
           <h1 className="text-lg font-bold text-gray-900">Store Locations</h1>
           <p className="text-xs text-gray-400">Manage your physical store presence</p>
@@ -117,10 +117,10 @@ export default function LocationsPage() {
 
 
 
-      <div className="p-6">
-        <div className="flex gap-6">
+      <div className="p-4 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
           {/* Left stat card */}
-          <div className="w-56 shrink-0 space-y-4">
+          <div className="w-full shrink-0 space-y-4 sm:w-56">
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
               <div className="flex items-center justify-between mb-3">
                 <div className="h-9 w-9 rounded-lg bg-brand-50 flex items-center justify-center">

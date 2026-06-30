@@ -101,13 +101,14 @@ export function VendorProductList({ vendorId }: VendorProductListProps) {
         </p>
       )}
 
-      {/* Cards — exact same size/shape as home feed */}
+      {/* Cards — responsive grid */}
       {!isPending && filtered.length > 0 && data?.vendor && (
-        <div className="flex flex-wrap gap-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {filtered.map((product) => (
             <OfferCard
               key={product.id}
               offer={adaptToOffer(product, data.vendor, favoriteIds)}
+              fluid
             />
           ))}
         </div>

@@ -160,7 +160,7 @@ export default function MerchantProfilePage() {
   return (
     <div className="min-h-screen bg-page-bg">
       {/* Top nav */}
-      <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20">
+      <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-20 sm:px-6">
         <div>
           <h1 className="text-lg font-bold text-gray-900">Merchant Profile</h1>
           <p className="text-xs text-gray-400">Manage your business details and branding</p>
@@ -175,14 +175,14 @@ export default function MerchantProfilePage() {
         </div>
       </header>
 
-      <div className="p-6 max-w-4xl mx-auto space-y-6">
+      <div className="p-4 max-w-4xl mx-auto space-y-4 sm:p-6 sm:space-y-6">
         {/* Logo & branding card */}
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h2 className="text-base font-bold text-gray-900 mb-1">Brand Identity</h2>
           <p className="text-sm text-gray-400 mb-5">Your logo and store photos</p>
 
           {/* Logo upload */}
-          <div className="flex items-center gap-5 mb-6 pb-6 border-b border-gray-100">
+          <div className="flex flex-col items-start gap-4 mb-6 pb-6 border-b border-gray-100 sm:flex-row sm:items-center sm:gap-5">
             <div className="relative">
               <div className="relative h-20 w-20 rounded-xl bg-brand-50 border-2 border-dashed border-brand-200 flex items-center justify-center overflow-hidden">
                 {profile?.logo_url ? (
@@ -300,7 +300,7 @@ export default function MerchantProfilePage() {
             </div>
 
             {/* Category + subcategory */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label className="block text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5">
                   Business Category
@@ -352,7 +352,7 @@ export default function MerchantProfilePage() {
             </div>
 
             {/* Phone + Website */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label className="block text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5">
                   Phone Number

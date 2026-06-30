@@ -47,24 +47,26 @@ export default function VendorsPage() {
     <div className="min-h-[calc(100vh-4rem)] bg-surface">
       {/* Header */}
       <div className="bg-surface-container-lowest px-4 py-4">
-        <h1 className="text-headline-md font-bold text-on-surface">Vendors</h1>
-        <p className="mt-0.5 text-body-sm text-on-surface-variant">
-          Discover local businesses near you
-        </p>
+        <div className="mx-auto max-w-container-max">
+          <h1 className="text-headline-md font-bold text-on-surface">Vendors</h1>
+          <p className="mt-0.5 text-body-sm text-on-surface-variant">
+            Discover local businesses near you
+          </p>
 
-        {/* Search */}
-        <div className="relative mt-3">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-on-surface-variant" />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search vendors..."
-            className="w-full rounded-xl border border-outline-variant bg-surface-container-low py-2.5 pl-10 pr-4 text-body-sm focus:outline-none focus:ring-1 focus:ring-stitch-primary"
-          />
+          {/* Search */}
+          <div className="relative mt-3">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-on-surface-variant" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search vendors..."
+              className="w-full rounded-xl border border-outline-variant bg-surface-container-low py-2.5 pl-10 pr-4 text-body-sm focus:outline-none focus:ring-1 focus:ring-stitch-primary"
+            />
+          </div>
         </div>
       </div>
 
-      <div className="px-4 py-4">
+      <div className="mx-auto max-w-container-max px-4 py-4">
         {/* Initial loading skeleton */}
         {isPending && <VendorCardSkeleton />}
 
@@ -85,7 +87,7 @@ export default function VendorsPage() {
             <p className="mb-3 text-label-sm text-on-surface-variant">
               {total} vendors found
             </p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {vendors.map((vendor) => (
                 <VendorCard key={vendor.id} vendor={vendor} />
               ))}

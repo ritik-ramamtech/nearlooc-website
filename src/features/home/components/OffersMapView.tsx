@@ -141,8 +141,7 @@ export function OffersMapView({ offers }: { offers: Offer[] }) {
   if (keyMissing || mapError) {
     return (
       <div
-        className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-gray-200 bg-gray-50 text-center"
-        style={{ height: "calc(100svh - 13rem)" }}
+        className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-gray-200 bg-gray-50 text-center h-[60vh] sm:h-[calc(100svh-13rem)]"
       >
         <MapPin className="h-8 w-8 text-gray-300" />
         <p className="text-[14px] font-semibold text-gray-500">Map view unavailable</p>
@@ -159,7 +158,7 @@ export function OffersMapView({ offers }: { offers: Offer[] }) {
   }
 
   return (
-    <div className="relative" style={{ height: "calc(100svh - 13rem)" }}>
+    <div className="relative h-[60vh] sm:h-[calc(100svh-13rem)]">
       {hiddenCount > 0 && (
         <div className="absolute left-1/2 top-3 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-white/90 px-4 py-1.5 text-[12px] text-gray-600 shadow backdrop-blur-sm">
           {hiddenCount} offer{hiddenCount !== 1 ? "s" : ""} without a location are not shown

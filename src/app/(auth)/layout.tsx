@@ -10,7 +10,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             Discover the best deals near you
           </p>
         </div>
-        <div className="rounded-2xl bg-surface-container-lowest p-8 shadow-sm border border-outline-variant">
+        <div className="rounded-2xl bg-surface-container-lowest p-5 shadow-sm border border-outline-variant sm:p-8">
           {children}
         </div>
       </div>

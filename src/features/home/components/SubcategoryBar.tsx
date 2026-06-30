@@ -173,7 +173,7 @@ export function SubcategoryBar({
     <div className="border-b border-gray-100 bg-surface">
       <div className="mx-auto max-w-container-max px-4 sm:px-6 lg:px-16">
         {/* Subcategory pills — always visible */}
-        <div className="flex items-center gap-2 py-3">
+        <div className="flex items-center gap-2 py-2.5 sm:py-3">
           {/* Categories dropdown lead pill */}
           <div className="relative shrink-0" ref={catRef}>
             <button
@@ -229,8 +229,8 @@ export function SubcategoryBar({
         </div>
 
         {/* Filter row */}
-        <div className="flex items-center justify-between gap-4 border-t border-gray-100 py-3">
-          <div className="flex items-center gap-5">
+        <div className="flex items-center justify-between gap-2 border-t border-gray-100 py-2.5 sm:py-3">
+          <div className="flex items-center gap-3 sm:gap-5">
             <FilterAction
               icon={SlidersHorizontal}
               label={filtersOpen ? "Hide filters" : "Show filters"}
@@ -245,7 +245,7 @@ export function SubcategoryBar({
             />
           </div>
 
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-3 sm:gap-5">
             <FilterAction
               icon={Map}
               label={showMap ? "Hide map" : "Show on map"}

@@ -33,16 +33,16 @@ export default function ReviewsPage() {
   return (
     <div className="min-h-screen bg-page-bg">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-20">
+      <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-20 sm:px-6">
         <div>
           <h1 className="text-lg font-bold text-gray-900">Customer Reviews</h1>
           <p className="text-xs text-gray-400">All reviews across your products and offers</p>
         </div>
       </header>
 
-      <div className="p-6 max-w-3xl mx-auto space-y-5">
+      <div className="p-4 max-w-3xl mx-auto space-y-4 sm:p-6 sm:space-y-5">
         {/* Summary card */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 flex items-center gap-6">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6 sm:p-6">
           <div className="text-center shrink-0">
             <p className="text-4xl font-bold text-gray-900">
               {summary?.avg_rating ? summary.avg_rating.toFixed(1) : "—"}

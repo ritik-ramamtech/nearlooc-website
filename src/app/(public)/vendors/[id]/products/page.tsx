@@ -33,13 +33,11 @@ function StoreGallery({ images, businessName }: { images: string[]; businessName
         </span>
       </button>
 
-      {/* Lightbox */}
       {open && (
         <div
           className="fixed inset-0 z-50 flex flex-col bg-black"
           onClick={() => setOpen(false)}
         >
-          {/* Header */}
           <div
             className="flex items-center justify-between px-4 py-3"
             onClick={(e) => e.stopPropagation()}
@@ -55,7 +53,6 @@ function StoreGallery({ images, businessName }: { images: string[]; businessName
             </button>
           </div>
 
-          {/* Image */}
           <div
             className="relative flex flex-1 items-center justify-center overflow-hidden"
             onClick={(e) => e.stopPropagation()}
@@ -66,7 +63,6 @@ function StoreGallery({ images, businessName }: { images: string[]; businessName
               alt={`${businessName} store ${idx + 1}`}
               className="max-h-full max-w-full object-contain"
             />
-
             {images.length > 1 && (
               <>
                 <button
@@ -85,7 +81,6 @@ function StoreGallery({ images, businessName }: { images: string[]; businessName
             )}
           </div>
 
-          {/* Thumbnail strip */}
           {images.length > 1 && (
             <div
               className="flex gap-2 overflow-x-auto px-4 py-3 scrollbar-hide"
@@ -98,8 +93,9 @@ function StoreGallery({ images, businessName }: { images: string[]; businessName
                   src={src}
                   alt=""
                   onClick={() => setIdx(i)}
-                  className={`h-14 w-14 shrink-0 cursor-pointer rounded-lg object-cover transition-all ${i === idx ? "ring-2 ring-white opacity-100" : "opacity-50 hover:opacity-80"
-                    }`}
+                  className={`h-14 w-14 shrink-0 cursor-pointer rounded-lg object-cover transition-all ${
+                    i === idx ? "ring-2 ring-white opacity-100" : "opacity-50 hover:opacity-80"
+                  }`}
                 />
               ))}
             </div>
@@ -132,159 +128,159 @@ export default function VendorProductsPage({ params }: Props) {
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface">
 
-      {/* Skeleton */}
-      {isPending && (
-        <div>
-          <div className="h-44 w-full bg-gradient-to-br from-stitch-primary/20 to-stitch-secondary/10" />
-          <div className="px-4 py-4">
-            <div className="flex items-center gap-3">
-              <Skeleton className="h-14 w-14 shrink-0 rounded-xl" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-36" />
-                <Skeleton className="h-3 w-24" />
-              </div>
-            </div>
-            <div className="mt-3 space-y-2">
-              <Skeleton className="h-3 w-full" />
-              <Skeleton className="h-3 w-3/4" />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Cover — always full width */}
+      <div className="h-36 w-full bg-gradient-to-br from-stitch-primary/20 to-stitch-secondary/10 sm:h-44 md:h-52" />
 
-      {/* Vendor hero */}
-      {summary && (
-        <div>
-          {/* Cover — gradient only, no image */}
-          <div className="h-44 w-full bg-gradient-to-br from-stitch-primary/20 to-stitch-secondary/10" />
+      {/* Constrained content */}
+      <div className="mx-auto max-w-container-max px-4">
+        <div className="md:flex md:gap-8 md:items-start">
 
-          <div className="px-4 pt-4 pb-4">
-            {/* Logo + name row */}
-            <div className="flex items-center gap-3">
-              <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-outline-variant bg-surface-container-low shadow-sm">
-                {summary.logo_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={summary.logo_url}
-                    alt={summary.business_name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center bg-stitch-primary/10 text-lg font-bold text-stitch-primary">
-                    {summary.business_name.charAt(0)}
+          {/* ── Left: vendor info ── */}
+          <div className="py-4 md:w-72 md:shrink-0 md:py-6 md:sticky md:top-20">
+
+            {/* Skeleton */}
+            {isPending && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="h-14 w-14 shrink-0 rounded-xl" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-36" />
+                    <Skeleton className="h-3 w-24" />
                   </div>
-                )}
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-1">
-                  <h2 className="text-[15px] font-bold text-on-surface truncate">{summary.business_name}</h2>
-                  {summary.is_verified && (
-                    <BadgeCheck className="h-4 w-4 shrink-0 text-stitch-primary" />
-                  )}
                 </div>
-                <div className="flex items-center gap-1 text-[12px] text-on-surface-variant">
-                  <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-                  <span className="font-medium text-on-surface">{summary.rating.toFixed(1)}</span>
-                  <span>· {summary.review_count} reviews</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Bio */}
-            {fullVendor?.bio && (
-              <p className="mt-3 text-[13px] text-on-surface-variant leading-relaxed">
-                {fullVendor.bio}
-              </p>
-            )}
-
-            {/* Contact info */}
-            {(primaryLocation || fullVendor?.website || fullVendor?.phone) && (
-              <div className="mt-3 flex flex-col gap-2">
-                {primaryLocation && (
-                  <div className="flex items-start gap-2 text-[13px] text-on-surface-variant">
-                    <MapPin className="h-4 w-4 shrink-0 text-stitch-primary mt-0.5" />
-                    <span>
-                      {[
-                        primaryLocation.street,
-                        primaryLocation.city,
-                        primaryLocation.state,
-                        primaryLocation.postal_code,
-                      ]
-                        .filter(Boolean)
-                        .join(", ")}
-                    </span>
-                  </div>
-                )}
-
-                {fullVendor?.website && (
-                  <div className="flex items-center gap-2 text-[13px]">
-                    <Globe className="h-4 w-4 shrink-0 text-stitch-primary" />
-                    <a
-                      href={fullVendor.website.startsWith("http") ? fullVendor.website : `https://${fullVendor.website}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-stitch-primary hover:underline truncate"
-                    >
-                      {fullVendor.website.replace(/^https?:\/\//, "")}
-                    </a>
-                  </div>
-                )}
-
-                {fullVendor?.phone && (
-                  <div className="flex items-center gap-2 text-[13px] text-on-surface-variant">
-                    <Phone className="h-4 w-4 shrink-0 text-stitch-primary" />
-                    <a href={`tel:${fullVendor.phone}`} className="hover:text-stitch-primary">
-                      {fullVendor.phone}
-                    </a>
-                  </div>
-                )}
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-3/4" />
               </div>
             )}
 
-            {/* Additional locations */}
-            {fullVendor?.locations && fullVendor.locations.length > 1 && (
-              <div className="mt-3">
-                <p className="text-[12px] font-medium text-on-surface-variant mb-1.5">
-                  {fullVendor.locations.length} locations
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {fullVendor.locations.map((loc) => (
-                    <span
-                      key={loc.id}
-                      className="inline-flex items-center gap-1 rounded-full bg-surface-container-low px-2.5 py-1 text-[11px] text-on-surface-variant"
-                    >
-                      <MapPin className="h-3 w-3" />
-                      {loc.label ?? loc.city ?? loc.street ?? "Location"}
-                      {loc.is_primary && (
-                        <span className="ml-0.5 text-stitch-primary">· Primary</span>
+            {/* Vendor info */}
+            {summary && (
+              <div className="space-y-3">
+                {/* Logo + name */}
+                <div className="flex items-center gap-3">
+                  <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-outline-variant bg-surface-container-low shadow-sm">
+                    {summary.logo_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={summary.logo_url}
+                        alt={summary.business_name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center bg-stitch-primary/10 text-lg font-bold text-stitch-primary">
+                        {summary.business_name.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1">
+                      <h2 className="truncate text-[15px] font-bold text-on-surface sm:text-[17px]">
+                        {summary.business_name}
+                      </h2>
+                      {summary.is_verified && (
+                        <BadgeCheck className="h-4 w-4 shrink-0 text-stitch-primary" />
                       )}
-                    </span>
-                  ))}
+                    </div>
+                    <div className="flex items-center gap-1 text-[12px] text-on-surface-variant">
+                      <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                      <span className="font-medium text-on-surface">{summary.rating.toFixed(1)}</span>
+                      <span>· {summary.review_count} reviews</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
 
-            {/* Embedded location map */}
-            {locationPins.length > 0 && (
-              <div className="mt-3">
-                <LocationMap locations={locationPins} height={200} />
-              </div>
-            )}
+                {/* Bio */}
+                {fullVendor?.bio && (
+                  <p className="text-[13px] leading-relaxed text-on-surface-variant">
+                    {fullVendor.bio}
+                  </p>
+                )}
 
-            {/* Store Photos button — after location info */}
-            {storeImages.length > 0 && (
-              <div className="mt-3">
-                <StoreGallery images={storeImages} businessName={summary.business_name} />
+                {/* Contact info */}
+                {(primaryLocation || fullVendor?.website || fullVendor?.phone) && (
+                  <div className="flex flex-col gap-2">
+                    {primaryLocation && (
+                      <div className="flex items-start gap-2 text-[13px] text-on-surface-variant">
+                        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-stitch-primary" />
+                        <span>
+                          {[
+                            primaryLocation.street,
+                            primaryLocation.city,
+                            primaryLocation.state,
+                            primaryLocation.postal_code,
+                          ]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </span>
+                      </div>
+                    )}
+                    {fullVendor?.website && (
+                      <div className="flex items-center gap-2 text-[13px]">
+                        <Globe className="h-4 w-4 shrink-0 text-stitch-primary" />
+                        <a
+                          href={fullVendor.website.startsWith("http") ? fullVendor.website : `https://${fullVendor.website}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="truncate text-stitch-primary hover:underline"
+                        >
+                          {fullVendor.website.replace(/^https?:\/\//, "")}
+                        </a>
+                      </div>
+                    )}
+                    {fullVendor?.phone && (
+                      <div className="flex items-center gap-2 text-[13px] text-on-surface-variant">
+                        <Phone className="h-4 w-4 shrink-0 text-stitch-primary" />
+                        <a href={`tel:${fullVendor.phone}`} className="hover:text-stitch-primary">
+                          {fullVendor.phone}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Additional locations */}
+                {fullVendor?.locations && fullVendor.locations.length > 1 && (
+                  <div>
+                    <p className="mb-1.5 text-[12px] font-medium text-on-surface-variant">
+                      {fullVendor.locations.length} locations
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {fullVendor.locations.map((loc) => (
+                        <span
+                          key={loc.id}
+                          className="inline-flex items-center gap-1 rounded-full bg-surface-container-low px-2.5 py-1 text-[11px] text-on-surface-variant"
+                        >
+                          <MapPin className="h-3 w-3" />
+                          {loc.label ?? loc.city ?? loc.street ?? "Location"}
+                          {loc.is_primary && (
+                            <span className="ml-0.5 text-stitch-primary">· Primary</span>
+                          )}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Map */}
+                {locationPins.length > 0 && (
+                  <LocationMap locations={locationPins} heightClass="h-[160px] sm:h-[180px]" />
+                )}
+
+                {/* Store photos */}
+                {storeImages.length > 0 && (
+                  <StoreGallery images={storeImages} businessName={summary.business_name} />
+                )}
               </div>
             )}
           </div>
-        </div>
-      )}
 
-      {/* Products */}
-      <div className="border-t border-outline-variant px-4 py-4">
-        <h3 className="mb-4 text-[15px] font-semibold text-on-surface">All Products</h3>
-        <VendorProductList vendorId={id} />
+          {/* ── Right: products ── */}
+          <div className="flex-1 border-t border-outline-variant py-4 md:border-l md:border-t-0 md:pl-8 md:py-6">
+            <h3 className="mb-4 text-[15px] font-semibold text-on-surface">All Products</h3>
+            <VendorProductList vendorId={id} />
+          </div>
+
+        </div>
       </div>
     </div>
   );

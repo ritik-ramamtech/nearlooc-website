@@ -39,23 +39,23 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <div className="space-y-6 p-6">
+      <div className="space-y-4 p-4 sm:space-y-6 sm:p-6">
         {/* Welcome banner */}
         {loading ? (
           <Skeleton className="h-24 rounded-2xl" />
         ) : (
-          <div className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-brand-500 to-brand-400 p-6 text-white shadow-lg shadow-green-900/10">
+          <div className="flex flex-col gap-3 rounded-2xl bg-gradient-to-r from-brand-500 to-brand-400 p-4 text-white shadow-lg shadow-green-900/10 sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div>
               <p className="text-sm font-medium text-green-100/90">Welcome back,</p>
-              <p className="mt-1 text-2xl font-bold">{profile?.business_name}</p>
-              <p className="mt-2 text-sm text-green-100/90">
+              <p className="mt-1 text-xl font-bold sm:text-2xl">{profile?.business_name}</p>
+              <p className="mt-1 text-sm text-green-100/90 sm:mt-2">
                 {overview?.products.total === 0
                   ? "Start by adding your first product."
                   : `${overview?.products.active} active product${overview?.products.active !== 1 ? "s" : ""} · ${overview?.offers.active} active offer${overview?.offers.active !== 1 ? "s" : ""}`}
               </p>
             </div>
             {profile?.is_verified && (
-              <span className="hidden shrink-0 rounded-full border border-white/10 bg-white/20 px-4 py-1.5 text-xs font-semibold text-white shadow-sm backdrop-blur-sm sm:block">
+              <span className="self-start shrink-0 rounded-full border border-white/10 bg-white/20 px-4 py-1.5 text-xs font-semibold text-white shadow-sm backdrop-blur-sm sm:self-auto">
                 ✓ Verified
               </span>
             )}
@@ -91,7 +91,7 @@ export default function DashboardPage() {
         )}
 
         {/* Stat cards */}
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <StatCard
             icon={<Package className="h-5 w-5 text-brand-500" />}
             value={loading ? null : String(overview?.products.total ?? 0)}

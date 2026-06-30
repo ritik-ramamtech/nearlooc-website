@@ -225,8 +225,7 @@ export function LocationPicker({
         <PlacesInput onPlacePicked={handlePlacePicked} />
         <ReverseGeocoder pos={pendingGeoPos} onResult={handleGeoResult} />
         <div
-          className="relative overflow-hidden rounded-lg border border-gray-200"
-          style={{ height: 280 }}
+          className="relative h-[220px] overflow-hidden rounded-lg border border-gray-200 sm:h-[280px]"
         >
           <Map
             defaultCenter={defaultCenter}

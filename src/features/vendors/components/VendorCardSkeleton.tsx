@@ -16,19 +16,19 @@ export function VendorCardSkeleton({ count, className }: VendorCardSkeletonProps
     axis: "grid",
     itemWidth: 160,
     gap: 12,
-    rows: 4,
+    rows: 2,
   });
   const n = count ?? fitCount;
 
   return (
-    <div ref={ref} className={cn("grid gap-3", className ?? "grid-cols-2")}>
+    <div ref={ref} className={cn("grid gap-3", className ?? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4")}>
       {Array.from({ length: n }).map((_, i) => (
         <div
           key={i}
           className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-[0_8px_22px_rgba(20,27,43,0.06)]"
         >
           {/* Cover band */}
-          <div className="relative h-32 w-full bg-gray-100">
+          <div className="relative h-32 w-full rounded-t-2xl bg-gray-100">
             <div className="absolute -bottom-6 left-3">
               <Skeleton className="h-14 w-14 rounded-xl border-2 border-white" />
             </div>
