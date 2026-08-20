@@ -26,7 +26,10 @@ export function LoginForm() {
   const [googleError, setGoogleError] = useState(false);
 
   useEffect(() => {
-    setGoogleError(new URLSearchParams(window.location.search).get("error") === "google_login_failed");
+    setGoogleError(
+      new URLSearchParams(window.location.search).get("error") ===
+        "google_login_failed",
+    );
   }, []);
 
   return (
@@ -37,7 +40,9 @@ export function LoginForm() {
         </p>
       )}
       {serverError && (
-        <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{serverError}</p>
+        <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+          {serverError}
+        </p>
       )}
 
       <div className="space-y-1">
@@ -54,19 +59,35 @@ export function LoginForm() {
       </div>
 
       <div className="space-y-1">
-        <label className="text-label-md text-on-surface-variant">Password</label>
+        <div className="flex justify-between">
+          <label className="text-label-md text-on-surface-variant">
+            Password
+          </label>
+          <Link
+            href={ROUTES.FORGOT_PASSWORD}
+            className="text-sm text-secondary font-semibold hover:underline"
+          >
+            Forgot password?
+          </Link>
+        </div>
         <Input
           type="password"
-          placeholder="••••••••"
+          placeholder="password"
           autoComplete="current-password"
           {...register("password")}
         />
         {errors.password && (
-          <p className="text-label-sm text-bg-error">{errors.password.message}</p>
+          <p className="text-label-sm text-bg-error">
+            {errors.password.message}
+          </p>
         )}
       </div>
 
-      <Button type="submit" disabled={isPending} className="w-full bg-stitch-primary hover:bg-stitch-secondary text-white">
+      <Button
+        type="submit"
+        disabled={isPending}
+        className="w-full bg-stitch-primary hover:bg-stitch-secondary text-white"
+      >
         {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Sign In"}
       </Button>
 
@@ -80,7 +101,10 @@ export function LoginForm() {
 
       <p className="text-center text-body-sm text-on-surface-variant">
         Don&apos;t have an account?{" "}
-        <Link href={ROUTES.REGISTER} className="font-medium text-stitch-primary hover:underline">
+        <Link
+          href={ROUTES.REGISTER}
+          className="font-medium text-stitch-primary hover:underline"
+        >
           Create one
         </Link>
       </p>

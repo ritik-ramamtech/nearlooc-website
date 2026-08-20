@@ -10,6 +10,10 @@ export interface GetOffersQuery {
   limit?: number;
   latitude?: number;
   longitude?: number;
+  min_price?: number;
+  max_price?: number;
+  min_rating?: number;
+  merchant_name?: string;
 }
 
 export interface OffersListResponse {
@@ -24,6 +28,7 @@ export interface OfferDetailResponse extends Offer {
     name?: string;
     logo_url?: string;
   };
+  can_review: boolean;
 }
 
 // Actual shape the backend returns for GET /offers (meta is at the top level, not inside data)

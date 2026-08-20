@@ -69,7 +69,7 @@ export function OfferSection({ section, onCategorySelect }: OfferSectionProps) {
         className="scrollbar-hide overflow-x-auto pb-3"
         style={{ WebkitOverflowScrolling: "touch", scrollSnapType: "x mandatory" }}
       >
-        <div className="flex gap-4">
+        <div className="flex gap-2 md:gap-4">
           {section.offers.map((offer) => (
             <div key={offer.id} className="shrink-0" style={{ scrollSnapAlign: "start" }}>
               <OfferCard offer={offer} />

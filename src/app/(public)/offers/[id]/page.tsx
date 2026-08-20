@@ -13,7 +13,7 @@ export default async function OfferDetailPage({ params }: Props) {
   return (
     <>
       <TopBar title="Offer Details" />
-      <div className="pt-14">
+      <div className="md:pt-4 lg:pt-10">
         <OfferDetail id={id} />
       </div>
     </>

@@ -2,7 +2,8 @@ import axios from "axios";
 import { tokenStorage } from "./token";
 import { ROUTES } from "./constants";
 
-const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api/v1";
+const rawBaseUrl =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000/api/v1";
 
 let parsedUrl: URL;
 try {
@@ -10,7 +11,7 @@ try {
 } catch {
   throw new Error(
     `[api-client] NEXT_PUBLIC_API_URL is not a valid URL: "${rawBaseUrl}". ` +
-    `Check your .env file.`
+      `Check your .env file.`,
   );
 }
 
@@ -27,6 +28,19 @@ let failedQueue: Array<{
   resolve: (value: unknown) => void;
   reject: (reason?: unknown) => void;
 }> = [];
+let isRedirectingToLogin = false;
+
+const isAuthRequest = (url?: string) => {
+  if (!url) return false;
+
+  return [
+    "/auth/login",
+    "/auth/register",
+    "/auth/refresh",
+    "/auth/google",
+    "/auth/logout",
+  ].some((path) => url.includes(path));
+};
 
 const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach((p) => (error ? p.reject(error) : p.resolve(token)));
@@ -34,7 +48,8 @@ const processQueue = (error: unknown, token: string | null = null) => {
 };
 
 const redirectToLogin = () => {
-  if (typeof window !== "undefined") {
+  if (typeof window !== "undefined" && !isRedirectingToLogin && window.location.pathname !== ROUTES.LOGIN) {
+    isRedirectingToLogin = true;
     window.location.href = ROUTES.LOGIN;
   }
 };
@@ -58,7 +73,7 @@ apiClient.interceptors.response.use(
   async (error) => {
     const original = error.config;
 
-    if (error.response?.status !== 401 || original._retry) {
+    if (error.response?.status !== 401 || original._retry || isAuthRequest(original.url)) {
       return Promise.reject(error);
     }
 
@@ -87,7 +102,12 @@ apiClient.interceptors.response.use(
     try {
       const { data } = await axios.post(
         `${API_ORIGIN}${API_PREFIX}/auth/refresh`,
-        { refresh_token: refreshToken }
+        { refresh_token: refreshToken },
+        {
+          headers: {
+            "X-App-Version": APP_VERSION,
+          },
+        },
       );
       const { access_token, refresh_token } = data.data;
       tokenStorage.setTokens(access_token, refresh_token);
@@ -103,7 +123,7 @@ apiClient.interceptors.response.use(
     } finally {
       isRefreshing = false;
     }
-  }
+  },
 );
 
 export default apiClient;

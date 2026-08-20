@@ -1,6 +1,10 @@
-export { login, register, logout, refreshTokens } from "./api";
-export { useLogin, useRegister, useLogout } from "./hooks";
-export { loginSchema, registerSchema } from "./types";
-export type { LoginInput, RegisterInput } from "./types";
+export { login, register, logout, refreshTokens, forgotPassword, verifyOtp, resetPassword, verifyEmail, resendVerification } from "./api";
+export { useLogin, useRegister, useLogout, useForgotPassword, useVerifyOtp, useResetPassword, useVerifyEmail, useResendVerification } from "./hooks";
+export { loginSchema, registerSchema, forgotPasswordSchema, verifyOtpSchema, resetPasswordSchema, verifyEmailSchema } from "./types";
+export type { LoginInput, RegisterInput, ForgotPasswordInput, VerifyOtpInput, ResetPasswordInput, VerifyEmailInput } from "./types";
 export { LoginForm } from "./components/LoginForm";
 export { RegisterForm } from "./components/RegisterForm";
+export { ForgotPasswordForm } from "./components/ForgotPasswordForm";
+export { VerifyOtpForm } from "./components/VerifyOtpForm";
+export { ResetPasswordForm } from "./components/ResetPasswordForm";
+export { VerifyEmailForm } from "./components/VerifyEmailForm";

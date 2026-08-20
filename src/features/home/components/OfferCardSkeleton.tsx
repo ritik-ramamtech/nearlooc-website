@@ -16,8 +16,8 @@ export function OfferCardSkeleton({ fluid, className }: OfferCardSkeletonProps) 
   return (
     <div className={cn(!fluid && "w-[208px] sm:w-[224px]", fluid && "w-full", className)}>
       <div className="min-h-[318px] overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-gray-200">
-        {/* Image area — mirrors OfferCard's aspect-[224/148] with bg-[#f7faf8] */}
-        <div className="relative aspect-[224/148] overflow-hidden bg-[#f7faf8]">
+        {/* Image area — mirrors OfferCard's aspect-[4/3] with bg-[#f7faf8] */}
+        <div className="relative aspect-[4/3] overflow-hidden bg-[#f7faf8]">
           <Skeleton className="absolute inset-0 h-full w-full rounded-none" />
           {/* Discount badge */}
           <Skeleton className="absolute left-3 top-3 h-[18px] w-14 rounded-[5px]" />

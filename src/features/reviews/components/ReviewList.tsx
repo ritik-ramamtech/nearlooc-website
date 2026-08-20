@@ -1,62 +1,100 @@
-import { Star } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { formatLocalDateShort } from "@/lib/utils";
 import type { Review } from "@/types";
+import Link from "next/link";
+import { RatingSummary } from "../api";
+import { ReviewItem } from "./ReviewItem";
 
 interface ReviewListProps {
+  offerId: string;
   reviews: Review[];
+  total?: number;
+  averageRating?: number;
+  isLoading?: boolean;
+  isError?: boolean;
+  summary?: RatingSummary;
 }
 
-function ReviewItem({ review }: { review: Review }) {
-  return (
-    <div className="flex gap-3">
-      <Avatar className="h-8 w-8 shrink-0">
-        <AvatarImage src={review.user?.avatar_url ?? undefined} />
-        <AvatarFallback className="bg-stitch-primary/10 text-stitch-primary text-label-sm">
-          {review.user?.name?.charAt(0) ?? "U"}
-        </AvatarFallback>
-      </Avatar>
-      <div className="flex-1">
-        <div className="flex items-center justify-between">
-          <p className="text-body-sm font-semibold text-on-surface">
-            {review.user?.name ?? "Anonymous"}
-          </p>
-          <div className="flex items-center gap-0.5">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star
-                key={i}
-                className={`h-3.5 w-3.5 ${
-                  i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-on-surface-variant"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-        {review.comment && (
-          <p className="mt-1 text-body-sm text-on-surface-variant leading-relaxed">{review.comment}</p>
-        )}
-        <p className="mt-1 text-label-sm text-on-surface-variant">
-          {formatLocalDateShort(review.created_at)}
-        </p>
-      </div>
-    </div>
-  );
-}
 
-export function ReviewList({ reviews }: ReviewListProps) {
-  if (reviews.length === 0) {
+export function ReviewList({
+  reviews,
+  total,
+  averageRating,
+  isLoading,
+  isError,
+  summary,
+  offerId,
+}: ReviewListProps) {
+  const reviewCount = total ?? reviews.length;
+  const previewReviews = reviews.slice(0, 4);
+
+  if (isLoading) {
     return (
-      <p className="py-4 text-center text-body-sm text-on-surface-variant">
-        No reviews yet. Be the first!
-      </p>
+      <section className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-5">
+        <div className="h-5 w-28 rounded bg-outline-variant/40" />
+        <div className="mt-4 space-y-3">
+          {[1, 2].map((item) => (
+            <div
+              key={item}
+              className="rounded-xl border border-outline-variant bg-white p-4"
+            >
+              <div className="h-4 w-40 rounded bg-outline-variant/40" />
+              <div className="mt-3 h-4 w-full rounded bg-outline-variant/30" />
+              <div className="mt-2 h-4 w-2/3 rounded bg-outline-variant/30" />
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
+  if (isError) {
+    return (
+      <section className="rounded-2xl border border-outline-variant bg-surface-container-lowest p-5">
+        <h2 className="text-title-md font-bold text-on-surface">Reviews</h2>
+        <p className="mt-3 text-body-sm text-on-surface-variant">
+          Failed to load reviews. Please try again.
+        </p>
+      </section>
     );
   }
 
   return (
-    <div className="space-y-4">
-      {reviews.map((review) => (
-        <ReviewItem key={review.id} review={review} />
-      ))}
-    </div>
+    <section className="rounded-2xl border-outline-variant bg-surface-container-lowest">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-title-md font-bold text-on-surface">Reviews</h2>
+          <p className="mt-1 text-body-sm text-on-surface-variant">
+            What customers are saying about this offer
+          </p>
+        </div>
+      </div>
+
+      {previewReviews.length === 0 ? (
+        <div className="mt-5 rounded-xl border border-dashed border-outline-variant bg-white px-4 py-8 text-center">
+          <p className="text-body-sm font-medium text-on-surface">
+            No reviews yet
+          </p>
+          <p className="mt-1 text-body-sm text-on-surface-variant">
+            Reviews from customers will appear here once they are posted.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-5 space-y-3">
+          {previewReviews.map((review) => (
+            <ReviewItem key={review.id} review={review} />
+          ))}
+        </div>
+      )}
+
+      {reviewCount > 4 && (
+        <div className="mt-6 flex justify-center cursor-pointer">
+          <Link
+            href={`/customer-reviews/${offerId}`}
+            className="rounded-lg border border-outline-variant px-5 py-2.5 text-sm text-black font-medium transition-colors hover:bg-surface-container"
+          >
+            See all {reviewCount} reviews
+          </Link>
+        </div>
+      )}
+    </section>
   );
 }

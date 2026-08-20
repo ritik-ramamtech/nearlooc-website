@@ -1,7 +1,14 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { createReview, getReviewsByOffer, getMyReviews, type CreateReviewInput } from "./api";
+import {
+  createReview,
+  getReviewsByOffer,
+  getMyReviews,
+  type CreateReviewInput,
+} from "./api";
+import { Offer } from "@/types";
+import { OfferDetailResponse } from "../offers/api";
 
 export function useReviewsByOffer(offerId: string, page = 1) {
   return useQuery({
@@ -25,9 +32,19 @@ export function useCreateReview() {
   return useMutation({
     mutationFn: (data: CreateReviewInput) => createReview(data),
     onSuccess: (_, variables) => {
-      qc.invalidateQueries({ queryKey: ["reviews", "offer", variables.offer_id] });
+      qc.invalidateQueries({
+        queryKey: ["reviews", "offer", variables.offer_id],
+      });
       qc.invalidateQueries({ queryKey: ["reviews", "me"] });
-      qc.invalidateQueries({ queryKey: ["offers", "detail", variables.offer_id] });
+      qc.setQueryData(
+        ["offers", "detail", variables.offer_id],
+        (old: { data: OfferDetailResponse } | undefined) =>
+          old ? { ...old, data: { ...old.data, can_review: false } } : old,
+      );
+      qc.invalidateQueries({
+        queryKey: ["offers", "detail", variables.offer_id],
+      });
+      qc.invalidateQueries({ queryKey: ["home", "feed"] });
     },
   });
 }

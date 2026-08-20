@@ -2,19 +2,27 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Star, Clock, Heart } from "lucide-react";
+import { Star, Clock, Heart, MapPin, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import type { Offer } from "@/types";
 import { useToggleFavorite } from "@/features/favorites";
 
 interface OfferCardProps {
-  offer: Offer & { merchant?: { id: string; name: string; logo_url: string | null } };
+  offer: Offer & {
+    merchant?: { id: string; name: string; logo_url: string | null };
+  };
   className?: string;
   fluid?: boolean;
+  isFetching: boolean;
 }
 
-export function OfferCard({ offer, className, fluid }: OfferCardProps) {
+export function OfferCard({
+  offer,
+  className,
+  fluid,
+  isFetching,
+}: OfferCardProps) {
   const router = useRouter();
   const merchantName = offer.merchant?.name ?? offer.merchant_name ?? null;
   const categoryName = offer.category_name ?? offer.badge ?? null;
@@ -24,18 +32,24 @@ export function OfferCard({ offer, className, fluid }: OfferCardProps) {
   const hasDiscount = discount > 0;
 
   return (
-    <div className={cn(!fluid && "w-[208px] sm:w-[224px]", fluid && "w-full", className)}>
+    <div
+      className={cn(
+        !fluid && "w-[208px] sm:w-[224px]",
+        fluid && "w-full",
+        className,
+      )}
+    >
       <Link
         href={`/offers/${offer.id}`}
-        className="group relative flex h-full min-h-[318px] flex-col overflow-hidden rounded-xl bg-white shadow-[0_8px_22px_rgba(20,27,43,0.06)] ring-1 ring-gray-200 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(20,27,43,0.10)]"
+        className="group relative flex h-full min-h-[318px] flex-col overflow-hidden sm:rounded-xl bg-white shadow-[0_8px_22px_rgba(20,27,43,0.06)] ring-1 ring-gray-200 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_28px_rgba(20,27,43,0.10)]"
       >
-        <div className="relative flex aspect-[224/148] items-center justify-center overflow-hidden bg-[#f7faf8] px-4 pb-1 pt-8">
+        <div className="relative flex aspect-[4/3] sm:aspect-square items-center justify-center overflow-hidden bg-[#f7faf8]">
           {offer.image_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={offer.image_url}
               alt={offer.title}
-              className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
+              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = "none";
               }}
@@ -52,6 +66,18 @@ export function OfferCard({ offer, className, fluid }: OfferCardProps) {
             </span>
           )}
 
+          {offer.distance_km != null && (
+            <div className="absolute bottom-3 left-3 rounded-full bg-white/90 backdrop-blur px-2 py-1 shadow-sm">
+              <div className="flex items-center gap-1 text-[10px] font-medium text-gray-700">
+                <MapPin className="h-3 w-3 text-stitch-primary" />
+                {offer.distance_km} km
+                {isFetching && (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-gray-400" />
+                )}
+              </div>
+            </div>
+          )}
+
           <button
             onClick={(e) => {
               e.preventDefault();
@@ -66,26 +92,26 @@ export function OfferCard({ offer, className, fluid }: OfferCardProps) {
             <Heart
               className={cn(
                 "h-3.5 w-3.5 transition-[fill,color] duration-150",
-                isFav ? "fill-red-500 text-red-500" : "text-gray-500"
+                isFav ? "fill-red-500 text-red-500" : "text-gray-500",
               )}
             />
           </button>
         </div>
 
         <div className="flex flex-1 flex-col px-3 pb-3 pt-1">
-          {categoryName && (
+          {/* {categoryName && (
             <span className="mb-2 w-fit rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold leading-none text-emerald-700">
               {categoryName}
             </span>
-          )}
+          )} */}
 
-          <p className="line-clamp-2 min-h-[34px] text-[13px] font-bold leading-[17px] text-gray-950">
+          <p className="line-clamp-2 min-h-[34px] text-[13px] font-bold leading-[17px] text-gray-950 pt-1">
             {offer.title}
           </p>
 
           {merchantName && (
-            <div 
-              className="mt-2 flex items-center gap-1.5 overflow-hidden z-10 cursor-pointer hover:opacity-80"
+            <div
+              className="mt-1 flex items-center gap-1.5 overflow-hidden z-10 cursor-pointer hover:opacity-80"
               onClick={(e) => {
                 const merchantId = offer.merchant?.id ?? offer.merchant_id;
                 if (merchantId) {
@@ -96,14 +122,33 @@ export function OfferCard({ offer, className, fluid }: OfferCardProps) {
               }}
             >
               <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-600" />
-              <span className="truncate text-[11px] text-gray-500 hover:underline">{merchantName}</span>
+              <span className="truncate text-[11px] text-gray-600 font-semibold hover:underline">
+                {merchantName}
+              </span>
+              {/* {offer.distance_km != null && (
+                <span className="text-gray-300">•</span>
+              )} */}
+
+              {/* {offer.distance_km != null && (
+                <span className="flex items-center gap-1 whitespace-nowrap text-sm">
+                  <MapPin className="h-3 w-3" />
+                  {offer.distance_km < 1
+                    ? `${Math.round(offer.distance_km * 1000)} m`
+                    : `${offer.distance_km.toFixed(1)} km`}
+                </span>
+              )} */}
             </div>
           )}
 
           <div className="mt-2.5 flex items-center gap-1.5">
-            <Star className="h-3.5 w-3.5 shrink-0 fill-amber-400 text-amber-400" />
-            <span className="text-[11px] font-medium text-gray-700">{offer.rating.toFixed(1)}</span>
-            <span className="text-[11px] text-gray-500">({offer.review_count.toLocaleString()})</span>
+            <RatingStars rating={offer.rating} />
+            {/* <Star className="h-3.5 w-3.5 shrink-0 fill-amber-400 text-amber-400" /> */}
+            <span className="text-[11px] font-medium text-gray-700">
+              {offer.rating.toFixed(1)}
+            </span>
+            <span className="text-[11px] text-gray-500">
+              ({offer.review_count.toLocaleString()})
+            </span>
           </div>
 
           <div className="mt-3 flex items-end gap-2">
@@ -113,11 +158,6 @@ export function OfferCard({ offer, className, fluid }: OfferCardProps) {
             {offer.original_price > offer.discounted_price && (
               <span className="text-[11px] text-gray-400 line-through">
                 Rs {offer.original_price.toLocaleString()}
-              </span>
-            )}
-            {hasDiscount && (
-              <span className="ml-auto whitespace-nowrap rounded-md bg-emerald-50 px-2 py-1 text-[10px] font-bold leading-none text-emerald-700">
-                {discount}% off
               </span>
             )}
           </div>
@@ -141,6 +181,29 @@ export function OfferCard({ offer, className, fluid }: OfferCardProps) {
   );
 }
 
+function RatingStars({ rating }: { rating: number }) {
+  return (
+    <div className="flex gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => {
+        const fill = Math.max(0, Math.min(1, rating - i));
 
+        return (
+          <div key={i} className="relative h-3 w-3">
+            {/* Empty star */}
+            <Star className="absolute h-3 w-3 text-orange-400" />
 
-
+            {/* Filled portion */}
+            {fill > 0 && (
+              <div
+                className="absolute overflow-hidden"
+                style={{ width: `${fill * 100}%` }}
+              >
+                <Star className="h-3 w-3 fill-orange-400 text-orange-400" />
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}

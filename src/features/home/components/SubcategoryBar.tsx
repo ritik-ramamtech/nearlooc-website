@@ -58,23 +58,35 @@ function Pill({
   label,
   isSelected,
   onClick,
+  icon,
 }: {
   label: string;
   isSelected: boolean;
   onClick: () => void;
+  icon: string | null;
 }) {
   return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "shrink-0 rounded-full px-4 py-2 text-[13px] font-semibold transition-colors",
-        isSelected
-          ? "border border-gray-300 bg-white text-gray-900"
-          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-      )}
-    >
-      <span className="whitespace-nowrap">{label}</span>
-    </button>
+    // <div>
+      <button
+        onClick={onClick}
+        className={cn(
+          "shrink-0 px-4 py-2 text-[13px] font-medium transition-colors flex flex-col items-center gap-2",
+          isSelected
+            ? "text-green-600"
+            : " text-gray-700",
+        )}
+      >
+        <div className={cn("w-16 h-16 rounded-full", isSelected ? "border-2 border-green-600" : "")}>
+          {icon !== null && (
+            <img
+              src={icon}
+              className=" object-cover w-full h-full rounded-full"
+            />
+          )}
+        </div>
+        <span className={cn("whitespace-nowrap text-xs", isSelected ? "font-bold" : "")}>{label}</span>
+      </button>
+    // </div>
   );
 }
 
@@ -93,7 +105,7 @@ function DropdownItem({
       onClick={onClick}
       className={cn(
         "flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-[13px] transition-colors hover:bg-gray-50",
-        active ? "font-semibold text-stitch-secondary" : "text-gray-700"
+        active ? "font-semibold text-stitch-secondary" : "text-gray-700",
       )}
     >
       <span className="truncate">{label}</span>
@@ -125,11 +137,13 @@ function FilterAction({
       onClick={onClick}
       className={cn(
         "flex items-center gap-1.5 text-[13px] font-semibold text-gray-900 transition-colors hover:text-stitch-secondary",
-        className
+        className,
       )}
     >
       <Icon className="h-4 w-4" />
-      <span className="whitespace-nowrap underline underline-offset-4">{label}</span>
+      <span className="whitespace-nowrap underline underline-offset-4">
+        {label}
+      </span>
       {badge > 0 && (
         <span className="flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-stitch-secondary px-1 text-[11px] font-bold leading-none text-white">
           {badge}
@@ -137,7 +151,10 @@ function FilterAction({
       )}
       {trailingChevron && (
         <ChevronDown
-          className={cn("h-4 w-4 transition-transform", chevronOpen && "rotate-180")}
+          className={cn(
+            "h-4 w-4 transition-transform",
+            chevronOpen && "rotate-180",
+          )}
         />
       )}
     </button>
@@ -167,7 +184,7 @@ export function SubcategoryBar({
   const sortLabel =
     sort === "relevance"
       ? "Sort by"
-      : SORT_OPTIONS.find((o) => o.value === sort)?.label ?? "Sort by";
+      : (SORT_OPTIONS.find((o) => o.value === sort)?.label ?? "Sort by");
 
   return (
     <div className="border-b border-gray-100 bg-surface">
@@ -175,50 +192,54 @@ export function SubcategoryBar({
         {/* Subcategory pills — always visible */}
         <div className="flex items-center gap-2 py-2.5 sm:py-3">
           {/* Categories dropdown lead pill */}
-          <div className="relative shrink-0" ref={catRef}>
-            <button
-              onClick={() => setCatOpen((v) => !v)}
-              className="flex items-center gap-1.5 rounded-full bg-gray-100 px-4 py-2 text-[13px] font-semibold text-gray-700 transition-colors hover:bg-gray-200"
-            >
-              Categories
-              <ChevronDown
-                className={cn("h-4 w-4 transition-transform", catOpen && "rotate-180")}
-              />
-            </button>
-
-            {catOpen && (
-              <div className="absolute left-0 top-full z-50 mt-2 max-h-72 w-56 overflow-y-auto rounded-xl border border-gray-100 bg-white p-1 shadow-lg ring-1 ring-black/5">
-                <DropdownItem
-                  label="All"
-                  active={selected === null}
-                  onClick={() => {
-                    onSelect(null);
-                    setCatOpen(false);
-                  }}
+          {/* <div className="relative shrink-0" ref={catRef}>
+              <button
+                onClick={() => setCatOpen((v) => !v)}
+                className="flex items-center gap-1.5 rounded-full bg-gray-100 px-4 py-2 text-[13px] font-semibold text-gray-700 transition-colors hover:bg-gray-200"
+              >
+                Categories
+                <ChevronDown
+                  className={cn("h-4 w-4 transition-transform", catOpen && "rotate-180")}
                 />
-                {subcategories.map((sub) => (
+              </button>
+
+              {catOpen && (
+                <div className="absolute left-0 top-full z-50 mt-2 max-h-72 w-56 overflow-y-auto rounded-xl border border-gray-100 bg-white p-1 shadow-lg ring-1 ring-black/5">
                   <DropdownItem
-                    key={sub.id}
-                    label={sub.name}
-                    active={selected === sub.id}
+                    label="All"
+                    active={selected === null}
                     onClick={() => {
-                      onSelect(sub.id);
+                      onSelect(null);
                       setCatOpen(false);
                     }}
                   />
-                ))}
-              </div>
-            )}
-          </div>
+                  {subcategories.map((sub) => (
+                    <DropdownItem
+                      key={sub.id}
+                      label={sub.name}
+                      active={selected === sub.id}
+                      onClick={() => {
+                        onSelect(sub.id);
+                        setCatOpen(false);
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div> */}
 
-          <div className="no-scrollbar flex flex-1 items-center gap-2 overflow-x-auto">
+          <div className="no-scrollbar flex flex-1 items-center gap-4   overflow-x-auto">
             <Pill
               label="All"
               isSelected={selected === null}
               onClick={() => onSelect(null)}
+              icon={
+                "https://assets.architecturaldigest.in/photos/62026064b5d9eefa7e4e2ddf/16:9/w_1920,c_limit/How%20to%20furnish%20your%20home%20on%20a%20budget.jpg"
+              }
             />
             {subcategories.map((sub) => (
               <Pill
+                icon={sub.icon_key}
                 key={sub.id}
                 label={sub.name}
                 isSelected={selected === sub.id}
@@ -250,7 +271,10 @@ export function SubcategoryBar({
               icon={Map}
               label={showMap ? "Hide map" : "Show on map"}
               onClick={onToggleMap}
-              className={cn("hidden sm:flex", showMap && "text-stitch-secondary")}
+              className={cn(
+                "hidden sm:flex",
+                showMap && "text-stitch-secondary",
+              )}
             />
 
             <div className="relative" ref={sortRef}>

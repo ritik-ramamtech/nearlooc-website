@@ -22,3 +22,34 @@ export async function refreshTokens(refreshToken: string): Promise<ApiResponse<A
   });
   return res.data;
 }
+
+export async function forgotPassword(email: string) {
+  await apiClient.post("/auth/forgot-password", {
+    email
+  });
+}
+
+export async function verifyOtp(otp: string, email: string) {
+  await apiClient.post("/auth/verify-otp", {
+    email, otp
+  });
+}
+
+export async function resetPassword(email: string, otp: string, new_password: string, confirm_password: string) {
+  await apiClient.post("/auth/reset-password", {
+    email, otp, new_password, confirm_password
+  });
+}
+
+export async function verifyEmail(email: string, otp: string): Promise<ApiResponse<AuthData>> {
+  const res = await apiClient.post<ApiResponse<AuthData>>("/auth/verify-email", {
+    email, otp
+  });
+  return res.data;
+}
+
+export async function resendVerification(email: string) {
+  const res = await apiClient.post("/auth/resend-verification", {
+    email
+  });
+}
