@@ -1,5 +1,7 @@
 const ACCESS_TOKEN_KEY = "nearlooc_access_token";
 const REFRESH_TOKEN_KEY = "nearlooc_refresh_token";
+const LOCATION_KEY = "nearlooc-location";
+const LOCATION_SET_KEY = "nearlooc_location_set";
 
 function isBrowser(): boolean {
   try {
@@ -54,6 +56,8 @@ export const tokenStorage = {
   clearTokens: () => {
     safeRemove(ACCESS_TOKEN_KEY);
     safeRemove(REFRESH_TOKEN_KEY);
+    safeRemove(LOCATION_KEY);
+    safeRemove(LOCATION_SET_KEY);
     if (isBrowser()) {
       document.cookie = "nearlooc_auth=; path=/; max-age=0";
       document.cookie = "nearlooc_merchant=; path=/; max-age=0";

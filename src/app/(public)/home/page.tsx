@@ -1,15 +1,11 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { CategoryBar, VENDORS_TAB } from "@/features/home/components/CategoryBar";
-import { SubcategoryBar, type SortOption } from "@/features/home/components/SubcategoryBar";
 import {
-  FiltersSidebar,
-  EMPTY_FILTERS,
-  applyOfferFilters,
-  countActiveFilters,
-  type OfferFilters,
-} from "@/features/home/components/FiltersSidebar";
+  CategoryBar,
+  VENDORS_TAB,
+} from "@/features/home/components/CategoryBar";
+import { type SortOption } from "@/features/home/components/SubcategoryBar";
 import type { Offer } from "@/types";
 import { OfferSection } from "@/features/home/components/OfferSection";
 import { OffersMapView } from "@/features/home/components/OffersMapView";
@@ -21,6 +17,9 @@ import { useHomeFeed } from "@/features/home/hooks";
 import { useCategories } from "@/features/categories/hooks";
 import { useVendorsInfinite } from "@/features/vendors/hooks";
 import type { OfferSection as OfferSectionType } from "@/types";
+import { useRouter } from "next/navigation";
+import { useQueries } from "@tanstack/react-query";
+import { getHomeFeed } from "@/features/home";
 
 function sortOffers(offers: Offer[], sort: SortOption): Offer[] {
   if (sort === "relevance") return offers;
@@ -33,24 +32,29 @@ function sortOffers(offers: Offer[], sort: SortOption): Offer[] {
     case "rating":
       return sorted.sort((a, b) => b.rating - a.rating);
     case "discount":
-      return sorted.sort((a, b) => b.discount_percentage - a.discount_percentage);
+      return sorted.sort(
+        (a, b) => b.discount_percentage - a.discount_percentage,
+      );
     default:
       return offers;
   }
 }
 
 export default function HomePage() {
+  const router = useRouter();
+
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
-  const [sort, setSort] = useState<SortOption>("relevance");
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  const [filters, setFilters] = useState<OfferFilters>(EMPTY_FILTERS);
-  const [showMap, setShowMap] = useState(false);
+  // const [sort, setSort] = useState<SortOption>("relevance");
+  // const [filtersOpen, setFiltersOpen] = useState(false);
+  // const [filters, setFilters] = useState<OfferFilters>(EMPTY_FILTERS);
+  // const [showMap, setShowMap] = useState(false);
 
   const isVendorsTab = selectedCategory === VENDORS_TAB;
   const isLanding = !selectedCategory;
 
-  const { data: categories = [], isPending: categoriesPending } = useCategories();
+  const { data: categories = [], isPending: categoriesPending } =
+    useCategories();
   const {
     data: vendorsData,
     isPending: vendorsPending,
@@ -71,153 +75,187 @@ export default function HomePage() {
     return { category_id: selectedCategory };
   }, [selectedCategory, isVendorsTab]);
 
-  const { data, isPending, isError } = useHomeFeed(feedQuery);
+  const { data: feedData, isPending, isError } = useHomeFeed(feedQuery);
 
-  const subcategories = useMemo(() => {
-    if (!selectedCategory) return [];
-    return categories.find((c) => c.id === selectedCategory)?.subcategories ?? [];
-  }, [categories, selectedCategory]);
+  const categoryFeedQueries = useQueries({
+    queries: categories.map((category) => ({
+      queryKey: ["home", "feed", { category_id: category.id }],
+      queryFn: () => getHomeFeed({ category_id: category.id }),
+      enabled: categories.length > 0,
+    })),
+  });
+
+  const sections = useMemo<OfferSectionType[]>(() => {
+    const topDealSections =
+      feedData?.sections.filter((section) => section.type === "top_deals") ??
+      [];
+
+      //get top 10 deals for every category
+    const categorySections = categories.flatMap((category, index) => {
+      const categoryFeed = categoryFeedQueries[index]?.data;
+      if (!categoryFeed) return [];
+
+      const offers = categoryFeed.data.sections.flatMap((section) => section.offers);
+      const uniqueOffers = Array.from(
+        new Map(offers.map((offer) => [offer.id, offer])).values(),
+      ).slice(0, 10);
+
+      if (uniqueOffers.length === 0) return [];
+
+      return [
+        {
+          type: `category_${category.id}`,
+          title: category.name,
+          parent_category: category.id,
+          offers: uniqueOffers,
+        },
+      ];
+    });
+
+    return [...topDealSections, ...categorySections];
+  }, [feedData, categories, categoryFeedQueries]);
 
   function handleCategorySelect(id: string | null) {
     setSelectedCategory(id);
     setSelectedSubcategory(null);
-    setFilters(EMPTY_FILTERS);
-    setShowMap(false);
+    // setFilters(EMPTY_FILTERS);
+    // setShowMap(false);
+    router.push(`offers?category_id=${id}`);
   }
 
   function handleSubcategorySelect(categoryId: string, subcategoryId: string) {
     setSelectedCategory(categoryId);
     setSelectedSubcategory(subcategoryId);
+    
+    router.push(`offers?category_id=${categoryId}&subcategory_id=${subcategoryId}`)
   }
 
-  const displaySections = useMemo<OfferSectionType[]>(() => {
-    if (!data) return [];
+  // const displaySections = useMemo<OfferSectionType[]>(() => {
+  //   if (!data) return [];
 
-    if (!selectedCategory) {
-      const categoryNameById = new Map(categories.map((c) => [c.id, c.name]));
-      const apiSections = data.sections.filter((s) => s.type !== "recommended");
-      const allOffers = apiSections.flatMap((s) => s.offers);
+  //   if (!selectedCategory) {
+  //     const categoryNameById = new Map(categories.map((c) => [c.id, c.name]));
+  //     const apiSections = data.sections.filter((s) => s.type !== "recommended");
+  //     const allOffers = apiSections.flatMap((s) => s.offers);
 
-      const grouped = new Map<string, typeof allOffers>();
-      for (const offer of allOffers) {
-        if (!offer.category_id) continue;
-        if (!grouped.has(offer.category_id)) grouped.set(offer.category_id, []);
-        grouped.get(offer.category_id)!.push(offer);
-      }
+  //     const grouped = new Map<string, typeof allOffers>();
+  //     for (const offer of allOffers) {
+  //       if (!offer.category_id) continue;
+  //       if (!grouped.has(offer.category_id)) grouped.set(offer.category_id, []);
+  //       grouped.get(offer.category_id)!.push(offer);
+  //     }
 
-      const catSections: OfferSectionType[] = categories.flatMap((category) => {
-        const offers = grouped.get(category.id);
-        if (!offers || offers.length === 0) return [];
-        const uniqueOffers = Array.from(new Map(offers.map((o) => [o.id, o])).values());
-        return [{
-          type: `category_${category.id}`,
-          title: categoryNameById.get(category.id) ?? category.name,
-          parent_category: category.id,
-          offers: uniqueOffers,
-        }];
-      });
+  //     const catSections: OfferSectionType[] = categories.flatMap((category) => {
+  //       const offers = grouped.get(category.id);
+  //       if (!offers || offers.length === 0) return [];
+  //       const uniqueOffers = Array.from(new Map(offers.map((o) => [o.id, o])).values());
+  //       return [{
+  //         type: `category_${category.id}`,
+  //         title: categoryNameById.get(category.id) ?? category.name,
+  //         parent_category: category.id,
+  //         offers: uniqueOffers,
+  //       }];
+  //     });
 
-      return [...apiSections, ...catSections];
-    }
+  //     return [...apiSections, ...catSections];
+  //   }
 
-    const allOffers = data.sections.flatMap((s) => s.offers);
-    if (allOffers.length === 0) return [];
+  //   const allOffers = data.sections.flatMap((s) => s.offers);
+  //   if (allOffers.length === 0) return [];
 
-    if (selectedSubcategory) {
-      const subcategoryName =
-        subcategories.find((s) => s.id === selectedSubcategory)?.name ?? "Offers";
-      const filtered = allOffers.filter((o) => o.subcategory_id === selectedSubcategory);
-      return [{ type: "filtered", title: subcategoryName, parent_category: selectedCategory, offers: filtered }];
-    }
+  //   if (selectedSubcategory) {
+  //     const subcategoryName =
+  //       subcategories.find((s) => s.id === selectedSubcategory)?.name ?? "Offers";
+  //     const filtered = allOffers.filter((o) => o.subcategory_id === selectedSubcategory);
+  //     return [{ type: "filtered", title: subcategoryName, parent_category: selectedCategory, offers: filtered }];
+  //   }
 
-    const subcategoryNameById = new Map(subcategories.map((s) => [s.id, s.name]));
-    const grouped = new Map<string, typeof allOffers>();
-    const noSubcat: typeof allOffers = [];
+  //   const subcategoryNameById = new Map(subcategories.map((s) => [s.id, s.name]));
+  //   const grouped = new Map<string, typeof allOffers>();
+  //   const noSubcat: typeof allOffers = [];
 
-    for (const offer of allOffers) {
-      if (offer.subcategory_id) {
-        if (!grouped.has(offer.subcategory_id)) grouped.set(offer.subcategory_id, []);
-        grouped.get(offer.subcategory_id)!.push(offer);
-      } else {
-        noSubcat.push(offer);
-      }
-    }
+  //   for (const offer of allOffers) {
+  //     if (offer.subcategory_id) {
+  //       if (!grouped.has(offer.subcategory_id)) grouped.set(offer.subcategory_id, []);
+  //       grouped.get(offer.subcategory_id)!.push(offer);
+  //     } else {
+  //       noSubcat.push(offer);
+  //     }
+  //   }
 
-    const sections: OfferSectionType[] = [];
+  //   const sections: OfferSectionType[] = [];
 
-    for (const sub of subcategories) {
-      const offers = grouped.get(sub.id);
-      if (!offers || offers.length === 0) continue;
-      sections.push({
-        type: `subcat_${sub.id}`,
-        title: subcategoryNameById.get(sub.id) ?? sub.name,
-        parent_category: selectedCategory,
-        offers,
-      });
-    }
+  //   for (const sub of subcategories) {
+  //     const offers = grouped.get(sub.id);
+  //     if (!offers || offers.length === 0) continue;
+  //     sections.push({
+  //       type: `subcat_${sub.id}`,
+  //       title: subcategoryNameById.get(sub.id) ?? sub.name,
+  //       parent_category: selectedCategory,
+  //       offers,
+  //     });
+  //   }
 
-    if (noSubcat.length > 0) {
-      const catName = categories.find((c) => c.id === selectedCategory)?.name ?? "Offers";
-      sections.push({
-        type: `cat_other_${selectedCategory}`,
-        title: catName,
-        parent_category: selectedCategory,
-        offers: noSubcat,
-      });
-    }
+  //   if (noSubcat.length > 0) {
+  //     const catName = categories.find((c) => c.id === selectedCategory)?.name ?? "Offers";
+  //     sections.push({
+  //       type: `cat_other_${selectedCategory}`,
+  //       title: catName,
+  //       parent_category: selectedCategory,
+  //       offers: noSubcat,
+  //     });
+  //   }
 
-    if (sections.length === 0) {
-      const catName = categories.find((c) => c.id === selectedCategory)?.name ?? "Offers";
-      sections.push({
-        type: `cat_all_${selectedCategory}`,
-        title: catName,
-        parent_category: selectedCategory,
-        offers: allOffers,
-      });
-    }
+  //   if (sections.length === 0) {
+  //     const catName = categories.find((c) => c.id === selectedCategory)?.name ?? "Offers";
+  //     sections.push({
+  //       type: `cat_all_${selectedCategory}`,
+  //       title: catName,
+  //       parent_category: selectedCategory,
+  //       offers: allOffers,
+  //     });
+  //   }
 
-    return sections;
-  }, [data, selectedCategory, selectedSubcategory, subcategories, categories]);
+  //   return sections;
+  // }, [data, selectedCategory, selectedSubcategory, subcategories, categories]);
 
-  const sortedSections = useMemo<OfferSectionType[]>(() => {
-    return displaySections.flatMap((s) => {
-      const filtered = applyOfferFilters(s.offers, filters);
-      if (filtered.length === 0) return [];
-      return [{ ...s, offers: sortOffers(filtered, sort) }];
-    });
-  }, [displaySections, filters, sort]);
+  // const sortedSections = useMemo<OfferSectionType[]>(() => {
+  //   return displaySections.flatMap((s) => {
+  //     const filtered = applyOfferFilters(s.offers, filters);
+  //     if (filtered.length === 0) return [];
+  //     return [{ ...s, offers: sortOffers(filtered, sort) }];
+  //   });
+  // }, [displaySections, filters, sort]);
 
   // Flat offer list passed to the map view (respects active filters + sort).
-  const mapOffers = useMemo(
-    () => sortedSections.flatMap((s) => s.offers),
-    [sortedSections]
-  );
+  // const mapOffers = useMemo(
+  //   () => sortedSections.flatMap((s) => s.offers),
+  //   [sortedSections]
+  // );
 
-  const { badgeOptions, priceBounds } = useMemo(() => {
-    const offers = displaySections.flatMap((s) => s.offers);
-    const badges = new Set<string>();
-    let min = Infinity;
-    let max = 0;
-    for (const o of offers) {
-      if (o.badge) badges.add(o.badge);
-      min = Math.min(min, o.discounted_price);
-      max = Math.max(max, o.discounted_price);
-    }
-    return {
-      badgeOptions: Array.from(badges).sort(),
-      priceBounds: offers.length ? { min: Math.floor(min), max: Math.ceil(max) } : { min: 0, max: 0 },
-    };
-  }, [displaySections]);
+  // const { badgeOptions, priceBounds } = useMemo(() => {
+  //   const offers = displaySections.flatMap((s) => s.offers);
+  //   const badges = new Set<string>();
+  //   let min = Infinity;
+  //   let max = 0;
+  //   for (const o of offers) {
+  //     if (o.badge) badges.add(o.badge);
+  //     min = Math.min(min, o.discounted_price);
+  //     max = Math.max(max, o.discounted_price);
+  //   }
+  //   return {
+  //     badgeOptions: Array.from(badges).sort(),
+  //     priceBounds: offers.length ? { min: Math.floor(min), max: Math.ceil(max) } : { min: 0, max: 0 },
+  //   };
+  // }, [displaySections]);
 
-  const activeFilterCount = countActiveFilters(filters);
-  const isEmpty = !isPending && !isError && sortedSections.every((s) => s.offers.length === 0);
+  // const activeFilterCount = countActiveFilters(filters);
+  // const isEmpty = !isPending && !isError && sortedSections.every((s) => s.offers.length === 0);
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface">
-
       {/* Sticky filter header */}
       <div className="sticky top-16 z-30">
-
         {/* Main category tabs */}
         <div className="bg-surface">
           <div className="mx-auto max-w-container-max">
@@ -230,23 +268,51 @@ export default function HomePage() {
             />
           </div>
         </div>
-
-        {/* Subcategory chips — only visible when a real category is active */}
-        {selectedCategory && !isVendorsTab && (
-          <SubcategoryBar
-            subcategories={subcategories}
-            selected={selectedSubcategory}
-            onSelect={setSelectedSubcategory}
-            sort={sort}
-            onSortChange={setSort}
-            filtersOpen={filtersOpen}
-            onToggleFilters={() => setFiltersOpen((v) => !v)}
-            activeFilterCount={activeFilterCount}
-            showMap={showMap}
-            onToggleMap={() => setShowMap((v) => !v)}
-          />
-        )}
       </div>
+
+      <main className="mx-auto max-w-container-max">
+        {isPending && (
+          <div className="divide-y divide-outline-variant/30">
+            {[1, 2, 3].map((i) => (
+              <OfferSectionSkeleton key={i} />
+            ))}
+          </div>
+        )}
+
+        {isError && (
+          <div className="px-4 py-16 text-center">
+            <p className="text-body-md text-on-surface-variant">
+              Failed to load. Please try again.
+            </p>
+          </div>
+        )}
+
+        {!isPending && !isError && sections.length === 0 && (
+          <div className="px-4 py-16 text-center">
+            <p className="text-body-md text-on-surface-variant">
+              No offers found.
+            </p>
+          </div>
+        )}
+
+        {!isPending && !isError && sections.length > 0 && (
+          <div className="divide-y divide-outline-variant/30">
+            {sections.map((section) => (
+              <OfferSection
+                key={section.type}
+                section={section}
+                onCategorySelect={(categoryId, subcategoryId) => {
+                  const query = subcategoryId
+                    ? `?subcategory_id=${subcategoryId}`
+                    : "";
+
+                  router.push(`/offers?category_id=${categoryId}${query}`);
+                }}
+              />
+            ))}
+          </div>
+        )}
+      </main>
 
       {/* Vendors tab */}
       {isVendorsTab && (
@@ -270,7 +336,9 @@ export default function HomePage() {
           {vendorsData && vendorsData.items.length > 0 && (
             <>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                {Array.from(new Map(vendorsData.items.map((v) => [v.id, v])).values()).map((vendor) => (
+                {Array.from(
+                  new Map(vendorsData.items.map((v) => [v.id, v])).values(),
+                ).map((vendor) => (
                   <VendorCard key={vendor.id} vendor={vendor} />
                 ))}
               </div>
@@ -279,7 +347,10 @@ export default function HomePage() {
 
           {isFetchingNextPage && (
             <div className="mt-4">
-              <VendorCardSkeleton count={4} className="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" />
+              <VendorCardSkeleton
+                count={4}
+                className="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"
+              />
             </div>
           )}
         </div>
@@ -289,14 +360,14 @@ export default function HomePage() {
       {!isVendorsTab && (
         <>
           {/* Map view — replaces card grid when showMap is active */}
-          {showMap && !isPending && !isError && (
+          {/* {showMap && !isPending && !isError && (
             <div className="mx-auto max-w-container-max px-4 pt-4 sm:px-6 lg:px-16">
               <OffersMapView offers={mapOffers} />
             </div>
-          )}
+          )} */}
 
           {/* Card list view */}
-          {!showMap && (
+          {/* {!showMap && (
             <div className="mx-auto flex max-w-container-max gap-5">
               {filtersOpen && (
                 <aside className="hidden w-[280px] shrink-0 px-4 pt-6 lg:block">
@@ -367,7 +438,7 @@ export default function HomePage() {
                 )}
               </div>
             </div>
-          )}
+          )} */}
         </>
       )}
 

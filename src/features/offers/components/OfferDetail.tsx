@@ -3,7 +3,17 @@
 import type React from "react";
 import { useState } from "react";
 import Link from "next/link";
-import { Star, Clock, Shield, MapPin, Tag, Timer, Heart, Share2, Check } from "lucide-react";
+import {
+  Star,
+  Clock,
+  Shield,
+  MapPin,
+  Tag,
+  Timer,
+  Heart,
+  Share2,
+  Check,
+} from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { PriceBlock } from "./PriceBlock";
@@ -16,6 +26,8 @@ import { OfferDetailSkeleton } from "./OfferDetailSkeleton";
 import { useOffer, useRelatedOffers } from "../hooks";
 import { useToggleFavorite } from "@/features/favorites";
 import { LocationMap } from "@/components/LocationMap";
+import { ReviewForm, ReviewList, useReviewsByOffer } from "@/features/reviews";
+import { ReviewSummary } from "@/features/reviews/components/ReviewSummary";
 
 interface OfferDetailProps {
   id: string;
@@ -24,6 +36,11 @@ interface OfferDetailProps {
 export function OfferDetail({ id }: OfferDetailProps) {
   const { data: offer, isPending, isError } = useOffer(id);
   const { data: related = [] } = useRelatedOffers(id, 6);
+  const {
+    data: reviewsData,
+    isPending: reviewsPending,
+    isError: reviewsError,
+  } = useReviewsByOffer(id);
   const { toggle: toggleFavorite } = useToggleFavorite();
   const [copied, setCopied] = useState(false);
 
@@ -39,7 +56,8 @@ export function OfferDetail({ id }: OfferDetailProps) {
     );
   }
 
-  const images: string[] = offer.images ?? (offer.image_url ? [offer.image_url] : []);
+  const images: string[] =
+    offer.images ?? (offer.image_url ? [offer.image_url] : []);
 
   const handleShare = async () => {
     const url = typeof window !== "undefined" ? window.location.href : "";
@@ -69,21 +87,27 @@ export function OfferDetail({ id }: OfferDetailProps) {
     offer.promo_end_at
       ? { icon: Shield, label: "Limited Time", sub: "Promo pricing active" }
       : null,
-    (offer.latitude && offer.longitude)
+    offer.latitude && offer.longitude
       ? { icon: MapPin, label: "Location-based", sub: "Deal near you" }
       : null,
     offer.discount_percentage > 0
-      ? { icon: Tag, label: `${Math.round(offer.discount_percentage)}% Off`, sub: "On original price" }
+      ? {
+          icon: Tag,
+          label: `${Math.round(offer.discount_percentage)}% Off`,
+          sub: "On original price",
+        }
       : null,
-  ].filter(Boolean) as { icon: React.ElementType; label: string; sub: string }[];
+  ].filter(Boolean) as {
+    icon: React.ElementType;
+    label: string;
+    sub: string;
+  }[];
 
   return (
     <>
       <div className="pb-28 md:pb-12">
-
-        <div className="md:mx-auto md:max-w-6xl md:px-8 md:py-8">
-          <div className="md:grid md:grid-cols-[1fr_420px] md:gap-10 md:items-start">
-
+        <div className=" md:mx-auto md:max-w-6xl sm:px-4 sm:py-4 md:px-8 md:py-8">
+          <div className="sm:grid-cols-[0.85fr_1.15fr] sm:gap-6 sm:grid md:grid-cols-[0.9fr_1.1fr] lg:grid-cols-[1fr_1fr] md:gap-10 sm:items-start">
             {/* Left — Image gallery */}
             <div className="md:sticky md:top-20">
               <OfferImageGallery
@@ -96,7 +120,6 @@ export function OfferDetail({ id }: OfferDetailProps) {
 
             {/* Right — Info + CTAs */}
             <div className="space-y-5 px-4 pt-5 md:px-0 md:pt-0">
-
               {offer.category_name && (
                 <p className="text-label-sm font-semibold uppercase tracking-widest text-stitch-secondary">
                   {offer.category_name}
@@ -112,16 +135,23 @@ export function OfferDetail({ id }: OfferDetailProps) {
                   {/* Like */}
                   <button
                     onClick={() => toggleFavorite(offer, !!offer.is_favorite)}
-                    aria-label={offer.is_favorite ? "Remove from favorites" : "Save offer"}
+                    aria-label={
+                      offer.is_favorite ? "Remove from favorites" : "Save offer"
+                    }
                     aria-pressed={!!offer.is_favorite}
                     className={cn(
                       "flex h-10 w-10 items-center justify-center rounded-full border transition-all active:scale-95",
                       offer.is_favorite
                         ? "border-red-200 bg-red-50 text-red-500"
-                        : "border-outline-variant bg-white text-on-surface-variant hover:border-red-200 hover:text-red-500"
+                        : "border-outline-variant bg-white text-on-surface-variant hover:border-red-200 hover:text-red-500",
                     )}
                   >
-                    <Heart className={cn("h-5 w-5 transition-all", offer.is_favorite && "fill-red-500")} />
+                    <Heart
+                      className={cn(
+                        "h-5 w-5 transition-all",
+                        offer.is_favorite && "fill-red-500",
+                      )}
+                    />
                   </button>
 
                   {/* Share */}
@@ -130,7 +160,11 @@ export function OfferDetail({ id }: OfferDetailProps) {
                     aria-label="Share offer"
                     className="flex h-10 w-10 items-center justify-center rounded-full border border-outline-variant bg-white text-on-surface-variant transition-all hover:border-stitch-primary hover:text-stitch-primary active:scale-95"
                   >
-                    {copied ? <Check className="h-5 w-5 text-green-600" /> : <Share2 className="h-5 w-5" />}
+                    {copied ? (
+                      <Check className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <Share2 className="h-5 w-5" />
+                    )}
                   </button>
                 </div>
               </div>
@@ -174,14 +208,17 @@ export function OfferDetail({ id }: OfferDetailProps) {
                     >
                       <Icon className="mt-0.5 h-4 w-4 shrink-0 text-stitch-secondary" />
                       <div>
-                        <p className="text-label-sm font-semibold text-on-surface">{label}</p>
-                        <p className="text-[11px] text-on-surface-variant">{sub}</p>
+                        <p className="text-label-sm font-semibold text-on-surface">
+                          {label}
+                        </p>
+                        <p className="text-[11px] text-on-surface-variant">
+                          {sub}
+                        </p>
                       </div>
                     </div>
                   ))}
                 </div>
               )}
-
 
               {/* Store location map */}
               {offer.latitude && offer.longitude && (
@@ -190,7 +227,14 @@ export function OfferDetail({ id }: OfferDetailProps) {
                     Store Location
                   </p>
                   <LocationMap
-                    locations={[{ lat: offer.latitude, lng: offer.longitude, label: "Merchant store", isPrimary: true }]}
+                    locations={[
+                      {
+                        lat: offer.latitude,
+                        lng: offer.longitude,
+                        label: "Merchant store",
+                        isPrimary: true,
+                      },
+                    ]}
                     height={180}
                   />
                 </div>
@@ -228,6 +272,46 @@ export function OfferDetail({ id }: OfferDetailProps) {
             features={offer.features}
             highlights={offer.highlights}
             terms={offer.terms}
+          />
+        </div>
+
+        <div className="mt-6 md:mx-auto px-4 md:max-w-7xl md:px-24 grid lg:grid-cols-[400px_1fr_480px]">
+          <div>
+            {reviewsData?.summary && (
+              <ReviewSummary
+                total_reviews={reviewsData?.summary.total_reviews}
+                avg_rating={reviewsData?.summary.avg_rating}
+                distribution={reviewsData?.summary.distribution}
+              />
+            )}
+
+            {offer.can_review && (
+              <div className="flex flex-col gap-2 mt-4 pt-5 pb-8 border-y border-y-gray-300">
+                <span className=" text-xl font-semibold">
+                  {" "}
+                  Review this product
+                </span>
+                <span className=" text-gray-800">
+                  Share your thoughts with other customers.
+                </span>
+                <Link
+                  href={`/offers/${id}/create-review`}
+                  className="border border-gray-500 rounded-2xl px-4 py-1 text-center"
+                >
+                  Write a review
+                </Link>
+              </div>
+            )}
+          </div>
+          <div />
+
+          <ReviewList
+            reviews={reviewsData?.items ?? []}
+            total={reviewsData?.meta?.total ?? offer.review_count}
+            averageRating={offer.rating}
+            isLoading={reviewsPending}
+            isError={reviewsError}
+            offerId={offer.id}
           />
         </div>
 

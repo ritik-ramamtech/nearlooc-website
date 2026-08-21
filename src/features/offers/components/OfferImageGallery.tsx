@@ -59,7 +59,7 @@ export function OfferImageGallery({
               key={i}
               onClick={() => scrollToIndex(i)}
               className={cn(
-                "w-[72px] h-[72px] rounded-lg overflow-hidden border-2 transition-all shrink-0",
+                "w-[72px] h-[72px] rounded-lg border-2 transition-all shrink-0",
                 activeIndex === i
                   ? "border-stitch-primary shadow-sm"
                   : "border-outline-variant hover:border-stitch-primary/50"
@@ -89,7 +89,7 @@ export function OfferImageGallery({
           {images.map((src, i) => (
             <div
               key={i}
-              className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-surface-container-low md:rounded-xl"
+              className="relative aspect-[1/1] w-full shrink-0 overflow-hidden bg-surface-container-low sm:rounded-xl"
               style={{ scrollSnapAlign: "start" }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}

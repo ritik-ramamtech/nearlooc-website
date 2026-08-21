@@ -1,13 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, SlidersHorizontal } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useOffers } from "@/features/offers/hooks";
-import { OfferCard } from "@/features/home/components/OfferCard";
-import { OfferCardSkeletonGrid } from "@/features/home/components/OfferCardSkeleton";
-import { EmptyState } from "@/components/ui/empty-state";
-import type { Offer } from "@/types";
+import { useCategories } from "@/features/categories/hooks";
+import {
+  FiltersSidebar,
+  FiltersSidebarSkeleton,
+  applyOfferFilters,
+  type OfferFilters,
+  Sort,
+} from "@/features/home/components/FiltersSidebar";
+import { CategoryOffersResults } from "@/features/home/components/CategoryOffersResult";
+import { OffersMapView } from "@/features/home/components/OffersMapView";
+import { MobileFilterModal } from "@/features/home/components/MobileFilterModal";
+import { useProfile } from "@/features/user";
+import { useLocationStore } from "@/store/location.store";
 
 export interface OffersInitialParams {
   type?: string;
@@ -20,7 +28,7 @@ export interface OffersInitialParams {
 
 const TYPE_SORT: Record<string, string> = {
   top_deals: "discount",
-  recommended: "rating",
+  recommended: "recommended",
 };
 
 const TYPE_TITLE: Record<string, string> = {
@@ -28,136 +36,271 @@ const TYPE_TITLE: Record<string, string> = {
   recommended: "Recommended",
 };
 
-// Values must match backend GetOffersDto sort enum
-const SORT_OPTIONS = [
-  { label: "Best Discount", value: "discount" },
-  { label: "Highest Rated", value: "rating" },
-  { label: "Price: Low → High", value: "price_low_to_high" },
-  { label: "Price: High → Low", value: "price_high_to_low" },
-];
-
-export function OffersView({ initialParams }: { initialParams: OffersInitialParams }) {
+export function OffersView({
+  initialParams,
+}: {
+  initialParams: OffersInitialParams;
+}) {
   const router = useRouter();
-  const { type = "", category_id, subcategory_id } = initialParams;
+  const searchParams = useSearchParams();
+  const { type = "recommended" } = initialParams;
+  const { location } = useLocationStore();
 
-  const pageTitle =
-    initialParams.title ?? TYPE_TITLE[type] ?? "All Offers";
   const defaultSort = initialParams.sort ?? TYPE_SORT[type] ?? "";
 
-  const [search, setSearch] = useState(initialParams.search ?? "");
-  const [sort, setSort] = useState(defaultSort);
+  const urlSearch = searchParams.get("search") ?? initialParams.search ?? "";
+  const [search, setSearch] = useState(urlSearch);
   const [page, setPage] = useState(1);
   const [debouncedSearch, setDebouncedSearch] = useState(search);
-  const [allItems, setAllItems] = useState<Offer[]>([]);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+  const [filtersChanged, setFiltersChanged] = useState(false);
 
-  // Debounce search
-  useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(search), 400);
-    return () => clearTimeout(t);
-  }, [search]);
+  const selectedCategoryId =
+    searchParams.get("category_id") ?? initialParams.category_id ?? null;
 
-  // Reset page + accumulated items whenever the query filters change
-  const filtersKey = `${debouncedSearch}|${sort}|${category_id ?? ""}|${subcategory_id ?? ""}`;
-  const prevFiltersKey = useRef(filtersKey);
-  useEffect(() => {
-    if (prevFiltersKey.current === filtersKey) return;
-    prevFiltersKey.current = filtersKey;
-    setPage(1);
-    setAllItems([]);
-  }, [filtersKey]);
+  // Read filters from search params
+  const filters: OfferFilters = {
+    priceMin: searchParams.get("min_price")
+      ? Number(searchParams.get("min_price"))
+      : null,
+    priceMax: searchParams.get("max_price")
+      ? Number(searchParams.get("max_price"))
+      : null,
+    minRating: Number(searchParams.get("min_rating") ?? 0),
+    minDiscount: Number(searchParams.get("min_discount") ?? 0),
+    badges: searchParams.getAll("badge"),
+    limitedTimeOnly: searchParams.get("limited_time_only") === "true",
+    giftableOnly: searchParams.get("giftable_only") === "true",
+    subcategoryId:
+      searchParams.get("subcategory_id") ??
+      initialParams.subcategory_id ??
+      null,
+    sort:
+      (searchParams.get("sort") as Sort | null) ??
+      (defaultSort as Sort | null) ??
+      null,
+    merchantname: searchParams.get("merchant_name") ?? null,
+  };
 
-  const { data, isPending, isFetching } = useOffers({
-    category_id,
-    subcategory_id,
+  const updateFilters = (
+    patch: Partial<OfferFilters>,
+    categoryId: string | null,
+  ) => {
+    const next = { ...filters, ...patch };
+    const params = new URLSearchParams(searchParams.toString());
+
+    const categoryChanges = categoryId !== selectedCategoryId; //check against current catgeory id state in url and the next state we are trying to change to.
+
+    if (categoryChanges) {
+      next.subcategoryId = null;
+      next.merchantname = null;
+    }
+
+    applyCategoryToParams(params, categoryId);
+
+    setParam(params, "min_price", next.priceMin);
+    setParam(params, "max_price", next.priceMax);
+    setParam(params, "min_rating", next.minRating || null);
+    setParam(params, "min_discount", next.minDiscount || null);
+    setParam(params, "limited_time_only", next.limitedTimeOnly ? "true" : null);
+    setParam(params, "giftable_only", next.giftableOnly ? "true" : null);
+    setParam(params, "subcategory_id", next.subcategoryId);
+    setParam(params, "sort", next.sort);
+    setParam(params, "merchant_name", next.merchantname);
+
+    params.delete("badge");
+    next.badges.forEach((badge) => params.append("badge", badge));
+
+    router.replace(`/offers?${params.toString()}`);
+  };
+
+  const clearFilters = () => {
+    router.replace(`/offers`);
+  };
+
+  const toggleMap = () => {
+    setShowMap((prev) => !prev);
+  };
+
+  const applyCategoryToParams = (
+    params: URLSearchParams,
+    categoryId: string | null,
+  ) => {
+    setParam(params, "category_id", categoryId);
+
+    // category change resets these
+    params.delete("subcategory_id");
+    params.delete("merchant_name");
+  };
+
+  // Fetch categories & subcategories
+  const { data: categories = [], isLoading: categoriesLoading } =
+    useCategories();
+  const { data, isPending, isFetching, isError, isPlaceholderData } = useOffers({
+    category_id: selectedCategoryId ?? undefined,
+    subcategory_id: filters.subcategoryId ?? undefined,
     query: debouncedSearch || undefined,
-    sort: sort || undefined,
+    sort: filters.sort ?? undefined,
+    min_price: filters.priceMin ?? undefined,
+    max_price: filters.priceMax ?? undefined,
+    min_rating: filters.minRating || undefined,
+    merchant_name: filters.merchantname ?? undefined,
     page,
     limit: 20,
+    latitude: location?.latitude,
+    longitude: location?.longitude
   });
+  const selectedCategory = categories.find((c) => c.id === selectedCategoryId);
+  const subCategories = selectedCategory?.subcategories ?? [];
+  const offers = applyOfferFilters(data?.items ?? [], filters);
 
-  // Accumulate pages; page 1 always replaces
+  const pageTitle =
+    initialParams.title ??
+    selectedCategory?.name ??
+    TYPE_TITLE[type] ??
+    "All Offers";
+
+  // Reset page + accumulated items whenever the query parameters/filters change
+  const filtersKey = `${debouncedSearch}|${selectedCategoryId ?? ""}|${filters.priceMin ?? ""}|${filters.priceMax ?? ""}|${filters.minRating ?? ""}|${filters.badges.join(",")}|${filters.subcategoryId ?? ""}|${filters.sort ?? ""}|${filters.merchantname ?? ""}`;
+  const prevFiltersKey = useRef(filtersKey);
+
+
+
   useEffect(() => {
-    if (!data?.items) return;
-    setAllItems((prev) => (page === 1 ? data.items : [...prev, ...data.items]));
-  // page is intentionally omitted — data change is the trigger, page is read inside
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
+    if (prevFiltersKey.current !== filtersKey) {
+      prevFiltersKey.current = filtersKey;
+      setFiltersChanged(true);
+      setPage(1);
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    }
+  }, [filtersKey]);
 
-  const isFirstLoad = isPending && page === 1 && allItems.length === 0;
-  const isLoadingMore = isFetching && page > 1;
-  const hasMore = data?.meta?.has_more ?? false;
+  // Keep local search in sync when the URL changes from outside this component
+  // (e.g. a new query submitted from the nav bar search box)
+  useEffect(() => {
+    setSearch(urlSearch);
+  }, [urlSearch]);
+
+  // Sync debounced search to URL query param
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(search);
+      const params = new URLSearchParams(searchParams.toString());
+      if (search) {
+        params.set("search", search);
+      } else {
+        params.delete("search");
+      }
+      router.replace(`/offers?${params.toString()}`);
+    }, 400);
+    return () => clearTimeout(t);
+    // searchParams intentionally omitted — router.replace() produces a new
+    // searchParams object every time, which would re-trigger this effect and
+    // loop forever. Only a real change to `search` should restart the debounce.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, router]);
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }, [page]);
+
+  useEffect(() => {
+    if(!isPlaceholderData) {
+      setFiltersChanged(false);
+    }
+  }, [isPlaceholderData]);
+
+  const isFirstLoad = isPending && page === 1 && offers.length === 0;
+  const showSkeleton = filtersChanged && isPlaceholderData;
+  const showSpinner = !filtersChanged && isPlaceholderData;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-surface pb-10">
-      {/* Filter header */}
-      <div className="bg-surface">
-       <div className="mx-auto max-w-container-max">
-        <div className="flex items-center gap-3 px-4 py-3">
-          <button
-            onClick={() => router.back()}
-            className="rounded-full p-1.5 hover:bg-surface-variant"
-          >
-            <ArrowLeft className="h-5 w-5 text-on-surface" />
-          </button>
-          <h1 className="flex-1 text-[17px] font-bold text-on-surface">{pageTitle}</h1>
-        </div>
-
-        <div className="flex px-4 pb-3">
-          {/* Sort */}
-          <div className="relative ml-auto">
-            <SlidersHorizontal className="pointer-events-none absolute left-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-on-surface-variant" />
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              className="h-9 rounded-lg border border-outline-variant bg-surface-container-low pl-8 pr-2 text-[12px] text-on-surface focus:border-stitch-primary focus:outline-none"
-            >
-              <option value="">Sort</option>
-              {SORT_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-       </div>
-      </div>
-
-      <div className="mx-auto max-w-container-max px-4 py-6">
-        {/* First-load skeleton */}
-        {isFirstLoad && (
-          <OfferCardSkeletonGrid className="justify-center" />
-        )}
-
-        {/* Empty */}
-        {!isFirstLoad && allItems.length === 0 && (
-          <EmptyState
-            title="No offers found"
-            subtitle="Try a different search or sort."
-          />
-        )}
-
-        {/* Results */}
-        {!isFirstLoad && allItems.length > 0 && (
-          <>
-            <div className="grid grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(200px,240px))] gap-4 justify-center">
-              {allItems.map((offer) => (
-                <OfferCard key={offer.id} offer={offer} fluid />
-              ))}
-            </div>
-
-            {hasMore && (
-              <button
-                onClick={() => setPage((p) => p + 1)}
-                disabled={isLoadingMore}
-                className="mt-5 w-full rounded-xl border border-outline-variant py-3 text-[13px] font-semibold text-stitch-primary hover:bg-surface-variant disabled:opacity-60"
-              >
-                {isLoadingMore ? "Loading…" : "Load more"}
-              </button>
+    <div className="min-h-[calc(100vh-4rem)] bg-surface">
+      <div className="max-w-container-max">
+        <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] lg:grid-cols-[240px_1fr] 2xl:grid-cols-[280px_1fr] gap-2 2xl:gap-6">
+          {/* Desktop Filters Sidebar */}
+          <aside className="hidden md:block">
+            {categoriesLoading ? (
+              <FiltersSidebarSkeleton />
+            ) : (
+              <FiltersSidebar
+                filters={filters}
+                onChange={updateFilters}
+                onClear={clearFilters}
+                badgeOptions={[]}
+                priceBounds={{ min: 0, max: 5000 }}
+                subCategories={subCategories}
+                categories={categories}
+                selectedCategoryId={selectedCategoryId}
+              />
             )}
-          </>
-        )}
+          </aside>
+          <CategoryOffersResults
+            offers={offers}
+            title={pageTitle}
+            isFirstLoad={isFirstLoad}
+            onOpenMobileFilters={() => setMobileFiltersOpen(true)}
+            meta={data?.meta}
+            isError={isError}
+            sort={filters.sort}
+            onSortChange={(sort) => updateFilters({ sort }, selectedCategoryId)}
+            page={page}
+            setPage={setPage}
+            isFetching={isFetching}
+            showSkeleton={showSkeleton}
+            showSpinner={showSpinner}
+            // isFetchingNextPage={isFetchingNextPage}
+            // hasNextPage={hasNextPage}
+          />
+        </div>
       </div>
+
+      {/* Mobile filters drawer */}
+      {mobileFiltersOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/50 lg:hidden">
+          <div className="fixed inset-x-0 bottom-0 top-20 overflow-y-auto bg-white animate-in slide-in-from-bottom-0 duration-200">
+            <MobileFilterModal
+              filters={filters}
+              onChange={updateFilters}
+              onClear={clearFilters}
+              badgeOptions={[]}
+              priceBounds={{ min: 0, max: 5000 }}
+              subCategories={subCategories}
+              categories={categories}
+              selectedCategoryId={selectedCategoryId}
+              onClose={() => setMobileFiltersOpen(false)}
+              sort={filters.sort}
+              onSortChange={(sort) =>
+                updateFilters({ sort }, selectedCategoryId)
+              }
+            />
+          </div>
+          {/* Click outside to close */}
+          <div
+            className="absolute inset-0 -z-10"
+            onClick={() => setMobileFiltersOpen(false)}
+          />
+        </div>
+      )}
     </div>
   );
+}
+
+function setParam(
+  params: URLSearchParams,
+  key: string,
+  value: string | number | null | undefined,
+) {
+  if (value === null || value === undefined || value === "") {
+    params.delete(key);
+  } else {
+    params.set(key, String(value));
+  }
 }

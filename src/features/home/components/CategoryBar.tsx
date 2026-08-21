@@ -160,13 +160,13 @@ export function CategoryBar({ categories, selected, onSelect, onSubcategorySelec
 
       {activeCategory && activeSubcategories.length > 0 && (
         <div
-          className="absolute left-1/2 top-full z-50 mt-2 w-[min(700px,calc(100vw-2rem))] -translate-x-1/2 rounded-2xl bg-white p-4 shadow-[0_18px_60px_rgba(20,27,43,0.16)] ring-1 ring-black/5 sm:p-8"
+          className="absolute left-1/2 top-full z-50 mt-2 w-[min(600px,calc(100vw-2rem))] -translate-x-1/2 rounded-2xl bg-white p-4 shadow-[0_18px_60px_rgba(20,27,43,0.16)] ring-1 ring-black/5 sm:px-8 sm:py-4"
           onMouseEnter={() => setActiveMegaId(activeCategory.id)}
         >
-          <h3 className="mb-3 text-base font-bold leading-tight text-gray-950 sm:mb-6 sm:text-[20px]">
+          <h3 className="mb-3 text-base font-bold leading-tight text-gray-950 sm:mb-4 sm:text-[20px]">
             {activeCategory.name}
           </h3>
-          <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 sm:gap-x-12 sm:gap-y-4">
+          <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 sm:gap-x-14 ">
             {activeSubcategories.map((sub) => (
               <button
                 key={sub.id}
@@ -175,7 +175,7 @@ export function CategoryBar({ categories, selected, onSelect, onSubcategorySelec
                   onSubcategorySelect?.(activeCategory.id, sub.id);
                   setActiveMegaId(null);
                 }}
-                className="min-w-0 truncate rounded-md py-1 text-left text-[13px] font-medium leading-5 text-gray-700 transition-colors hover:text-stitch-secondary focus:outline-none focus:ring-2 focus:ring-stitch-secondary/20 sm:text-[15px] sm:leading-6"
+                className="min-w-0 truncate rounded-md py-1 text-left text-[13spx] font-medium leading-5 text-gray-700 transition-colors hover:text-stitch-secondary hover:font-bold focus:outline-none focus:ring-2 focus:ring-stitch-secondary/20 sm:text-[14px] sm:leading-6"
               >
                 {sub.name}
               </button>

@@ -18,6 +18,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   setAuth: (user, merchant_id, accessToken, refreshToken) => {
     tokenStorage.setTokens(accessToken, refreshToken);
+    tokenStorage.setMerchantCookie(!!merchant_id);
     set({ user, merchant_id, isAuthenticated: true });
   },
 

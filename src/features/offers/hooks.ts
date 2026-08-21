@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { getOfferById, getOffers, getRelatedOffers, type GetOffersQuery, type OfferDetailResponse } from "./api";
 
 export function useOffer(id: string) {
@@ -24,7 +24,21 @@ export function useOffers(query?: GetOffersQuery) {
   return useQuery({
     queryKey: ["offers", "list", query],
     queryFn: () => getOffers(query),
+    placeholderData: keepPreviousData
   });
+}
+
+export function useOffersInfinite(query?: GetOffersQuery) {
+  return useInfiniteQuery({
+    queryKey: ["offers", "infinite", query],
+    queryFn: ({pageParam}) => getOffers({...query, page: pageParam as number}),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.meta.has_more ?  lastPage.meta.page + 1 : undefined,
+    select: (data) => ({
+      items: data.pages.flatMap((p) => p.items),
+      meta: data.pages[data.pages.length - 1].meta
+    })
+  })
 }
 
 export function useRelatedOffers(id: string, limit = 10) {
