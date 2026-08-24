@@ -1,5 +1,5 @@
 import apiClient from "@/lib/api-client";
-import type { Product } from "@/types/merchant";
+import type { MerchantOfferDetailResponse, Product, ProductActivity, ProductSummaryResponse, ProductSummaryStats } from "@/types/merchant";
 
 interface ApiResponse<T> { message: string; data: T }
 interface PaginatedResponse<T> { data: T[]; meta: { total: number; page: number; limit: number; total_pages: number } }
@@ -20,7 +20,7 @@ export interface CreateProductInput {
 export type UpdateProductInput = Partial<CreateProductInput> & { is_active?: boolean };
 
 export async function getMerchantProducts(params?: {
-  page?: number; limit?: number; is_active?: boolean;
+  page?: number; limit?: number; is_active?: boolean; category_id?: string; subcategory_id?: string;
 }): Promise<PaginatedResponse<Product>> {
   const res = await apiClient.get<PaginatedResponse<Product> & { message: string }>("/merchant/products", { params });
   return res.data;
@@ -41,6 +41,12 @@ export async function deactivateProduct(id: string): Promise<ApiResponse<Product
   return res.data;
 }
 
+export async function getProduct(productId: string) {
+  const res = await apiClient.get<ApiResponse<Product> & { summary: ProductSummaryStats } & { activities: ProductActivity[] }>(`/merchant/products/${productId}`);
+
+  return res.data;
+}
+
 export async function uploadProductImage(productId: string, file: File): Promise<{ success: boolean; url: string }> {
   const fd = new FormData();
   fd.append("file", file);
@@ -49,5 +55,11 @@ export async function uploadProductImage(productId: string, file: File): Promise
     fd,
     { headers: { "Content-Type": "multipart/form-data" } }
   );
+  return res.data;
+}
+
+export async function deactivateProductAtLocation(id: string, locationId: string, is_active: boolean) {
+  const res = await apiClient.patch(`/merchant/products/${id}/locations/${locationId}/toggle`, {is_active});
+
   return res.data;
 }
