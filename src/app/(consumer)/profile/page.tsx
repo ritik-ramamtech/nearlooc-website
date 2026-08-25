@@ -86,7 +86,7 @@ export default function ProfilePage() {
     profile.membership_type.charAt(0).toUpperCase() + profile.membership_type.slice(1);
 
   return (
-    <div className="flex min-h-screen flex-col bg-page-bg lg:h-screen lg:flex-row lg:overflow-hidden">
+    <div className="flex  flex-col bg-page-bg lg:flex-row lg:overflow-hidden">
 
       {/* ── Mobile top bar ── */}
       <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-gray-100 bg-white px-4 lg:hidden">
@@ -97,15 +97,7 @@ export default function ProfilePage() {
       </header>
 
       {/* ── Left Sidebar (desktop only) ── */}
-      <aside className="hidden lg:flex lg:w-72 lg:shrink-0 lg:flex-col overflow-y-auto border-r border-gray-100 bg-white">
-
-        {/* App branding */}
-        <div className="flex items-center gap-2.5 px-6 py-5 border-b border-gray-100">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500">
-            <span className="text-xs font-bold text-white">N</span>
-          </div>
-          <span className="text-sm font-bold text-gray-900">Nearlooc</span>
-        </div>
+      <aside className="hidden lg:flex lg:w-72 lg:shrink-0 lg:flex-col overflow-y-auto border-r border-gray-200 bg-white">
 
         {/* Identity block */}
         <div className="flex flex-col items-center gap-3 px-6 pb-6 pt-6">
@@ -113,7 +105,7 @@ export default function ProfilePage() {
 
           <div className="text-center">
             <p className="text-base font-bold leading-tight text-gray-900">{profile.name}</p>
-            <p className="mt-0.5 text-xs text-gray-400">{profile.email}</p>
+            <p className="mt-0.5 text-xs text-gray-500">{profile.email}</p>
           </div>
 
           <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold ring-1 ${isPremium ? "bg-amber-50 text-amber-700 ring-amber-200" : "bg-brand-50 text-brand-700 ring-brand-200"}`}>

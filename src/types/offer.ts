@@ -27,6 +27,7 @@ export interface Offer {
   latitude: number | null;
   longitude: number | null;
   is_favorite?: boolean;
+  distance_km?: number;
 }
 
 export interface OfferSection {
