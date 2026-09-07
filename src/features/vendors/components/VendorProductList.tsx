@@ -61,7 +61,7 @@ function adaptToOffer(
 
 export function VendorProductList({ vendorId }: VendorProductListProps) {
   const [search, setSearch] = useState("");
-  const { data, isPending, isError } = useVendorProducts(vendorId);
+  const { data, isPending, isError, isFetching } = useVendorProducts(vendorId);
   const { data: favData } = useFavorites();
 
   const favoriteIds = useMemo(() => {
@@ -69,7 +69,9 @@ export function VendorProductList({ vendorId }: VendorProductListProps) {
     return new Set(items.map((o) => o.id));
   }, [favData]);
 
-  const filtered = data?.products?.filter((p) =>
+  const productWithActiveOffers = data?.products.filter((p) => p.active_offer !== null) ?? [];
+
+  const filtered = productWithActiveOffers.filter((p) =>
     (p.title ?? p.name).toLowerCase().includes(search.toLowerCase())
   ) ?? [];
 
@@ -109,6 +111,7 @@ export function VendorProductList({ vendorId }: VendorProductListProps) {
               key={product.id}
               offer={adaptToOffer(product, data.vendor, favoriteIds)}
               fluid
+              isFetching={isFetching}
             />
           ))}
         </div>
@@ -116,7 +119,7 @@ export function VendorProductList({ vendorId }: VendorProductListProps) {
 
       {data && data.products.length > 0 && (
         <p className="py-1 text-center text-[11px] text-on-surface-variant">
-          Showing {filtered.length} of {data.meta.total} products
+          Showing {filtered.length} of {data.meta.total} active deals
         </p>
       )}
     </div>
