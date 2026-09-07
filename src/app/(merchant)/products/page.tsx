@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { Suspense } from "react";
 import { ROUTES } from "@/lib/constants";
-import { Package, Plus, Search, Bell, Tag, History } from "lucide-react";
+import { Package, Plus, Bell, Tag, History } from "lucide-react";
 import { useDeactivateProduct } from "@/features/merchant/products/hooks";
 import { useDeactivateOffer } from "@/features/merchant/sales/hooks";
 import { useMerchantProfile } from "@/features/merchant/profile/hooks";
@@ -15,14 +15,19 @@ import { useRouter, useSearchParams } from "next/navigation";
 type Tab = "products" | "active" | "history";
 
 export default function ProductsPage() {
+  return (
+    <Suspense fallback={null}>
+      <ProductsPageContent />
+    </Suspense>
+  );
+}
+
+function ProductsPageContent() {
   const searchParams = useSearchParams();
   const tab = searchParams.get("tab" as Tab) ?? 'products';
 
-  const [search, setSearch] = useState("");
-
   const router = useRouter();
 
-  const { data: profile } = useMerchantProfile();
   const { mutate: deactivateProduct } = useDeactivateProduct();
   const { mutate: deactivateOffer } = useDeactivateOffer();
   const { data: catgeories = [] } = useCategories();
@@ -45,26 +50,18 @@ export default function ProductsPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2">
-            <Search className="h-4 w-4 text-gray-400" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search products..."
-              className="bg-transparent text-sm outline-none text-gray-700 w-36"
-            />
-          </div>
-          <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
-            <Bell className="h-5 w-5 text-gray-500" />
-          </button>
-          <div className="h-8 w-8 rounded-full bg-brand-500 flex items-center justify-center text-white text-sm font-bold">
-            {profile?.business_name?.[0]?.toUpperCase() ?? "M"}
-          </div>
+          <Link
+            href={ROUTES.PRODUCTS_NEW}
+            className="flex items-center gap-1.5 px-4 py-2 bg-brand-500 hover:bg-brand-800 text-white rounded-lg text-sm font-semibold transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            Add Product
+          </Link>
         </div>
       </header>
 
       {/* Tab bar */}
-      <div className="border-b border-gray-200 bg-white px-4 flex items-center justify-between overflow-x-auto sm:px-6">
+      <div className="border-b border-gray-200 bg-white px-4 flex items-center overflow-x-auto sm:px-6  ">
         <div className="flex gap-1">
           {(
             [
@@ -87,17 +84,9 @@ export default function ProductsPage() {
             </button>
           ))}
         </div>
-
-        <Link
-          href={ROUTES.PRODUCTS_NEW}
-          className="flex items-center gap-1.5 px-4 py-2 bg-brand-500 hover:bg-brand-800 text-white rounded-lg text-sm font-semibold transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          Add New Product
-        </Link>
       </div>
 
-      <div className="p-4 sm:p-6">
+      <div className="p-4 sm:p-2 lg:p-6">
         {tab === "products" ? (
           <ProductsTab
             onDeactivate={(id) => deactivateProduct(id)}

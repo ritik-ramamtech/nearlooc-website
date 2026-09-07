@@ -1,16 +1,14 @@
 import { Category, Product } from "@/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMerchantProducts } from "../hooks";
-import { Package, Pencil, Plus, Power, Table } from "lucide-react";
-import { ROUTES } from "@/lib/constants";
+import { ChevronRight, Package, Pencil, Power } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { ProductsTabSkeleton } from "./ProductsTabSkeleton";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import ConfirmDialog from "./ConfirmDialog";
 import InventoryFilters from "./InventoryFilters";
-import { TableSkeleton } from "./SalesTab";
+import { TableSkeleton, CardListSkeleton } from "./SalesTab";
 import { EmptyState } from "@/components/ui";
 
 export default function ProductsTab({
@@ -30,6 +28,33 @@ export default function ProductsTab({
   const selectedSubCategoryId = searchParams.get("subcategory_id") ?? "";
   const search = searchParams.get("search") ?? "";
   const isActive = searchParams.get("is_active") ?? null;
+
+  // Local state drives the input for instant feedback; the URL is updated on a
+  // debounce so holding a key doesn't fire a router.replace() per keystroke.
+  const [searchInput, setSearchInput] = useState(search);
+
+  // Keep the input in sync when `search` changes from outside (back/forward nav).
+  useEffect(() => {
+    setSearchInput(search);
+  }, [search]);
+
+  // Debounce the local search value into the URL query param.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (searchInput) {
+        params.set("search", searchInput);
+      } else {
+        params.delete("search");
+      }
+      router.replace(`?${params.toString()}`);
+    }, 350);
+    return () => clearTimeout(t);
+    // searchParams intentionally omitted — router.replace() produces a new
+    // searchParams object every time, which would re-trigger this effect and
+    // loop forever. Only a real change to `searchInput` should restart the debounce.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchInput, router]);
 
   const updateParams = (updates: Record<string, string>) => {
     const params = new URLSearchParams(searchParams);
@@ -56,7 +81,7 @@ export default function ProductsTab({
   const { data: productsData, isPending } = useMerchantProducts(query);
 
   const products = (productsData?.data ?? []).filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()),
+    p.name.toLowerCase().includes(searchInput.toLowerCase()),
   );
 
   const selectedCategories = categories.find(
@@ -65,10 +90,10 @@ export default function ProductsTab({
   const subCategories = selectedCategories?.subcategories;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 shadow-sm">
+    <div className="overflow-hidden rounded-2xl md:border md:border-gray-200 md:bg-gray-50 md:shadow-sm">
       <InventoryFilters
-        search={search}
-        onSearchChange={(value) => updateParams({ search: value })}
+        search={searchInput}
+        onSearchChange={setSearchInput}
         categories={categories}
         selectedCategoryId={selectedCategoryId}
         onCategoryChange={(value) =>
@@ -85,7 +110,7 @@ export default function ProductsTab({
       />
 
       <>
-        <table className="w-full">
+        <table className="hidden w-full md:table">
           <thead className="bg-gray-50">
             <tr className="text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
               <th className="px-6 py-4">Product</th>
@@ -104,7 +129,7 @@ export default function ProductsTab({
               products.map((p) => (
                 <tr key={p.id} className="transition-colors hover:bg-gray-50">
                   {/* Product */}
-                  <td className="w-[40%] px-6 py-4">
+                  <td className="w-[40%] px-4 py-4">
                     <div className="flex items-center gap-4">
                       <div className="h-14 w-14 overflow-hidden rounded-xl bg-brand-50">
                         {p.image_url || p.images.length > 0 ? (
@@ -125,7 +150,7 @@ export default function ProductsTab({
                       <div className="min-w-0 flex-1">
                         <Link
                           href={`/products/${p.id}`}
-                          className="font-semibold text-gray-900 hover:text-brand-500 line-clamp-2 block"
+                          className="font-semibold text-gray-900 hover:text-brand-500 line-clamp-2"
                         >
                           {p.name}
                         </Link>
@@ -178,7 +203,7 @@ export default function ProductsTab({
                   </td>
 
                   {/* Actions */}
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-4">
                     <div className="flex justify-end gap-2">
                       <Link
                       href={`/products/${p.id}/edit`}
@@ -216,6 +241,59 @@ export default function ProductsTab({
             )}
           </tbody>
         </table>
+
+        {/* Mobile card list */}
+        <div className="space-y-2 md:hidden">
+          {isPending ? (
+            <CardListSkeleton rows={6} />
+          ) : products.length > 0 ? (
+            products.map((p) => (
+              <Link
+                key={p.id}
+                href={`/products/${p.id}`}
+                className="flex items-center gap-3 px-4 py-4 active:bg-gray-50 bg-white rounded-xl shadow-sm border border-gray-300"
+              >
+                <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-brand-50">
+                  {p.image_url || p.images.length > 0 ? (
+                    <Image
+                      src={p.image_url || p.images[0]}
+                      alt={p.name}
+                      width={56}
+                      height={56}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center">
+                      <Package className="h-5 w-5 text-gray-300" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-semibold text-gray-900">
+                    {p.name}
+                  </p>
+                  <p className="truncate text-sm text-gray-500">
+                    {p.category_name ?? "-"}
+                  </p>
+                </div>
+
+                <div className="flex shrink-0 items-center gap-1">
+                  <span className="font-semibold text-gray-900">
+                    ₹{p.base_price.toLocaleString("en-IN")}
+                  </span>
+                  <ChevronRight className="h-4 w-4 text-gray-400" />
+                </div>
+              </Link>
+            ))
+          ) : (
+            <EmptyState
+              title="No products yet"
+              subtitle="Start building your catalog..."
+            />
+          )}
+        </div>
+
         <ConfirmDialog
           open={open}
           onOpenChange={setOpen}

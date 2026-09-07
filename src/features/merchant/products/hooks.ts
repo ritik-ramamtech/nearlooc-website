@@ -39,7 +39,10 @@ export function useCreateProduct() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: CreateProductInput) => createProduct(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: QK }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: QK });
+      qc.invalidateQueries({ queryKey: ["merchant", "overview"] });
+    },
   });
 }
 
@@ -51,6 +54,7 @@ export function useUpdateProduct() {
     onSuccess: (_, { id }) => {
       qc.invalidateQueries({ queryKey: [...QK, id] });
       qc.invalidateQueries({ queryKey: QK });
+      qc.invalidateQueries({ queryKey: ["merchant", "overview"] });
     },
   });
 }
@@ -59,7 +63,10 @@ export function useDeactivateProduct() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deactivateProduct(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: QK }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: QK });
+      qc.invalidateQueries({ queryKey: ["merchant", "overview"] });
+    },
   });
 }
 
@@ -67,6 +74,9 @@ export function useDeactivateProductAtLocation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({id, locationId, is_active}: {id: string, locationId: string, is_active: boolean}) => deactivateProductAtLocation(id, locationId, is_active),
-    onSuccess: (_, { id }) => qc.invalidateQueries({ queryKey: [...QK, id]})
+    onSuccess: (_, { id }) => {
+      qc.invalidateQueries({ queryKey: [...QK, id]});
+      qc.invalidateQueries({ queryKey: ["merchant", "overview"] });
+    }
   })
 }
