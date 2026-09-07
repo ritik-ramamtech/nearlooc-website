@@ -3,7 +3,13 @@ import { ForgotPasswordForm } from "@/features/auth/components/ForgotPasswordFor
 
 export const metadata: Metadata = { title: "Forgot Password" };
 
-export default function ForgotPasswordPage() {
+interface Props {
+  searchParams: Promise<{ email?: string }>;
+}
+
+export default async function ForgotPasswordPage({ searchParams }: Props) {
+  const { email } = await searchParams;
+
   return (
     <>
       <h2 className="mb-2 text-headline-sm font-semibold text-on-surface">
@@ -13,7 +19,7 @@ export default function ForgotPasswordPage() {
         Enter the email associated with your account and we&apos;ll send you a code to reset
         your password.
       </p>
-      <ForgotPasswordForm />
+      <ForgotPasswordForm defaultEmail={email} />
     </>
   );
 }
