@@ -1,5 +1,5 @@
 import { Category, Subcategory } from "@/types";
-import { EMPTY_FILTERS, OfferFilters, Sort } from "./FiltersSidebar";
+import { DISTANCE_OPTIONS, EMPTY_FILTERS, OfferFilters, Sort } from "./FiltersSidebar";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { PriceRangeSlider } from "./PriceRangeFilter";
@@ -11,7 +11,6 @@ interface FiltersSidebarProps {
   onChange: (filters: Partial<OfferFilters>, categoryId: string | null) => void;
   badgeOptions: string[];
   priceBounds: { min: number; max: number };
-  location?: string | null;
   onClose?: () => void;
   onClear: () => void;
   subCategories: Subcategory[];
@@ -19,9 +18,10 @@ interface FiltersSidebarProps {
   selectedCategoryId?: string | null;
   sort: Sort | null;
   onSortChange: (sort: Sort | null) => void;
+  hasCoordinates?: boolean;
 }
 
-const sections = [
+const BASE_SECTIONS = [
   "Sort",
   "Category",
   "Price",
@@ -97,13 +97,16 @@ export function MobileFilterModal({
   filters,
   onChange,
   priceBounds,
-  location,
   subCategories,
   categories,
   selectedCategoryId,
   onSortChange,
   onClose,
+  hasCoordinates,
 }: FiltersSidebarProps) {
+  const sections = hasCoordinates
+    ? [...BASE_SECTIONS, "Distance"]
+    : BASE_SECTIONS;
   const sentinelRef = useRef(null);
   const [activeSection, setActiveSection] = useState("Sort");
   const [draftFilters, setDraftFilters] = useState(filters);
@@ -323,6 +326,23 @@ export function MobileFilterModal({
                     minDiscount: discount ?? 0,
                   })
                 }
+              />
+            </div>
+          )}
+
+          {activeSection === "Distance" && (
+            <div className="space-y-6">
+              <div>
+                <h4 className="text-lg font-semibold">Distance</h4>
+                <p className="text-sm text-gray-500">
+                  Only show offers within a certain distance.
+                </p>
+              </div>
+
+              <FilterPills
+                value={draftFilters.maxDistanceKm}
+                options={DISTANCE_OPTIONS}
+                onChange={(maxDistanceKm) => set({ maxDistanceKm })}
               />
             </div>
           )}

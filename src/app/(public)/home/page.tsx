@@ -18,8 +18,6 @@ import { useCategories } from "@/features/categories/hooks";
 import { useVendorsInfinite } from "@/features/vendors/hooks";
 import type { OfferSection as OfferSectionType } from "@/types";
 import { useRouter } from "next/navigation";
-import { useQueries } from "@tanstack/react-query";
-import { getHomeFeed } from "@/features/home";
 
 function sortOffers(offers: Offer[], sort: SortOption): Offer[] {
   if (sort === "relevance") return offers;
@@ -72,48 +70,41 @@ export default function HomePage() {
 
   const feedQuery = useMemo(() => {
     if (!selectedCategory || isVendorsTab) return undefined;
-    return { category_id: selectedCategory };
   }, [selectedCategory, isVendorsTab]);
 
   const { data: feedData, isPending, isError } = useHomeFeed(feedQuery);
 
-  const categoryFeedQueries = useQueries({
-    queries: categories.map((category) => ({
-      queryKey: ["home", "feed", { category_id: category.id }],
-      queryFn: () => getHomeFeed({ category_id: category.id }),
-      enabled: categories.length > 0,
-    })),
-  });
-
   const sections = useMemo<OfferSectionType[]>(() => {
-    const topDealSections =
-      feedData?.sections.filter((section) => section.type === "top_deals") ??
-      [];
+    if (!feedData) return [];
 
-      //get top 10 deals for every category
-    const categorySections = categories.flatMap((category, index) => {
-      const categoryFeed = categoryFeedQueries[index]?.data;
-      if (!categoryFeed) return [];
+    const topDealsSection: OfferSectionType[] =
+      feedData.top_deals.length > 0
+        ? [
+            {
+              type: "top_deals",
+              title: "Top Deals",
+              parent_category: "",
+              offers: feedData.top_deals,
+            },
+          ]
+        : [];
 
-      const offers = categoryFeed.data.sections.flatMap((section) => section.offers);
-      const uniqueOffers = Array.from(
-        new Map(offers.map((offer) => [offer.id, offer])).values(),
-      ).slice(0, 10);
+    const categorySections: OfferSectionType[] = feedData.category_sections.flatMap(
+      (section) =>
+        section.offers.length === 0
+          ? []
+          : [
+              {
+                type: `category_${section.category_id}`,
+                title: section.category_name,
+                parent_category: section.category_id,
+                offers: section.offers,
+              },
+            ],
+    );
 
-      if (uniqueOffers.length === 0) return [];
-
-      return [
-        {
-          type: `category_${category.id}`,
-          title: category.name,
-          parent_category: category.id,
-          offers: uniqueOffers,
-        },
-      ];
-    });
-
-    return [...topDealSections, ...categorySections];
-  }, [feedData, categories, categoryFeedQueries]);
+    return [...topDealsSection, ...categorySections];
+  }, [feedData]);
 
   function handleCategorySelect(id: string | null) {
     setSelectedCategory(id);
