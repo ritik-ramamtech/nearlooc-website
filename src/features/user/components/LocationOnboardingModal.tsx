@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { MapPin, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useUpdateLocation } from "@/features/user/hooks";
+import { useSavedAddresses, useUpdateLocation } from "@/features/user/hooks";
 import { useAuthStore } from "@/store/auth.store";
+import { useLocationStore } from "@/store/location.store";
+import {reverseGeocode} from "@/lib/location";
 
-const AUTH_ROUTES = ["/login", "/register"];
+const AUTH_ROUTES = ["/login", "/register", "/forgot-password", "/verify-otp", "/reset-password", "/verify-email"];
 
 const STORAGE_KEY = "nearlooc_location_set";
 
@@ -15,16 +17,20 @@ export function LocationOnboardingModal() {
   const pathname = usePathname();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { mutate: updateLocation, isPending } = useUpdateLocation();
+  const { data: addresses = []} = useSavedAddresses(isAuthenticated);
+  const { location, setLocation } = useLocationStore();
 
   const [visible, setVisible] = useState(false);
   const [detecting, setDetecting] = useState(false);
   const [geoError, setGeoError] = useState<string | null>(null);
 
+  const activeAddress = addresses.find((a) => a.is_active);
+
   useEffect(() => {
-    if (localStorage.getItem(STORAGE_KEY)) return;
+    if (localStorage.getItem(STORAGE_KEY) || location) return;
     const timer = setTimeout(() => setVisible(true), 5000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [location]);
 
   if (!visible || AUTH_ROUTES.includes(pathname)) return null;
 
@@ -41,26 +47,67 @@ export function LocationOnboardingModal() {
     setDetecting(true);
     setGeoError(null);
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setDetecting(false);
-        localStorage.setItem(STORAGE_KEY, "set");
-        if (isAuthenticated) {
-          updateLocation(
-            { latitude: pos.coords.latitude, longitude: pos.coords.longitude },
-            { onSuccess: () => setVisible(false) }
+      async (pos) => {
+        try {
+          const location = await reverseGeocode(
+            pos.coords.latitude,
+            pos.coords.longitude,
           );
-        } else {
-          localStorage.setItem(
-            "nearlooc_guest_location",
-            JSON.stringify({ lat: pos.coords.latitude, lng: pos.coords.longitude })
-          );
-          setVisible(false);
+          setLocation({
+            latitude: location.latitude,
+            longitude: location.longitude,
+            display_name: location.displayName,
+            address: [location.street, location.city, location.state, location.postalCode].join(", "),
+            source: "gps"
+          });
+          localStorage.setItem(STORAGE_KEY, "set");
+          if (isAuthenticated) {
+            updateLocation(
+              {
+                latitude: pos.coords.latitude,
+                longitude: pos.coords.longitude,
+                display_name: location.displayName,
+
+              },
+              { onSuccess: () => setVisible(false) },
+            );
+          } else {
+            setVisible(false);
+          }
+        } catch {
+          setGeoError("Couldn't detect your location. Please try again.");
+        } finally {
+          setDetecting(false);
         }
       },
-      () => {
+      async () => {
         setDetecting(false);
-        setGeoError("Could not detect location. Please allow location access and try again.");
-      }
+        if(activeAddress) {
+          setLocation({
+            latitude: activeAddress.latitude,
+            longitude: activeAddress.longitude,
+            display_name: activeAddress.label,
+            address: [activeAddress.street, activeAddress.city, activeAddress.state].join(", "),
+            source: "saved",
+            address_id: activeAddress.id
+          })
+
+          localStorage.setItem(STORAGE_KEY, "address");
+          setVisible(false);
+          return;
+        }
+
+        localStorage.setItem(STORAGE_KEY, "dismissed");
+        setVisible(false);
+        // setGeoError(
+        //   "Could not detect location. Please allow location access and try again.",
+        // );
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 5 * 60 * 1000, // reuse GPS for 5 mins if available
+      },
     );
   };
 

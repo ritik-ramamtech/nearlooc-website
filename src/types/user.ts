@@ -17,7 +17,10 @@ export interface UserProfile extends User {
 export interface PreferredLocation {
   latitude: number;
   longitude: number;
+  display_name: string;
   address?: string;
+  address_id?: string | null;
+  source: "gps" | "saved"
 }
 
 export interface AuthTokens {

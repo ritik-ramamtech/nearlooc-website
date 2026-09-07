@@ -26,6 +26,7 @@ export interface Favorite {
 export interface Review {
   id: string;
   user_id: string;
+  product_id: string;
   offer_id: string;
   rating: number;
   comment: string | null;
@@ -34,6 +35,15 @@ export interface Review {
     name: string;
     avatar_url: string | null;
   };
+  offer: {
+    id: string;
+    title: string;
+  };
+  product: {
+    id: string;
+    name: string;
+    image_url: string
+  }
 }
 
 export interface Address {
@@ -42,6 +52,11 @@ export interface Address {
   address: string;
   latitude: number;
   longitude: number;
+  street: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  is_active: boolean;
 }
 
 export interface LocationSearchResult {
