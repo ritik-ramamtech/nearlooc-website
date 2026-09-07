@@ -15,7 +15,6 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import { useLogout } from "@/features/auth/hooks";
-import { useMerchantProfile } from "@/features/merchant/profile/hooks";
 import { ROUTES } from "@/lib/constants";
 
 const NAV_ITEMS = [
@@ -30,12 +29,10 @@ export function MerchantSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { mutate: logout, isPending: loggingOut } = useLogout();
-  const { data: profile } = useMerchantProfile();
-
   return (
-    <aside className="fixed left-0 top-0 z-30 flex h-screen w-52 flex-col border-r border-brand-200 bg-brand-100">
+    <aside className="fixed left-0 top-0 z-30 flex h-screen w-52 flex-col border-r border-brand-200 bg-slate-50">
       {/* Header */}
-      <div className="border-b border-brand-200 px-4 py-5">
+      <div className="border-b border-brand-200/50 px-4 py-5">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500">
             <Store className="h-4 w-4 text-white" />
@@ -45,13 +42,10 @@ export function MerchantSidebar() {
             <p className="text-[11px] leading-tight text-gray-500">Manage your business</p>
           </div>
         </div>
-        {profile && (
-          <p className="mt-2 truncate text-xs font-medium text-brand-500">{profile.business_name}</p>
-        )}
       </div>
 
       {/* Nav items */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-2">
         {NAV_ITEMS.map(({ href, label, Icon }) => {
           const active = pathname === href || pathname.startsWith(href + "/");
           return (
@@ -61,7 +55,7 @@ export function MerchantSidebar() {
               className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                 active
                   ? "bg-brand-500 text-white"
-                  : "text-gray-600 hover:bg-brand-200 hover:text-gray-900"
+                  : "text-gray-600 hover:bg-brand-100 hover:text-gray-900"
               }`}
             >
               <Icon className="h-4 w-4 shrink-0" />

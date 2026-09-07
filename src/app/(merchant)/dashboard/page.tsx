@@ -18,6 +18,7 @@ import { useMerchantOverview } from "@/features/merchant/analytics/hooks";
 import { ROUTES } from "@/lib/constants";
 import { formatLocalDateShort } from "@/lib/utils";
 import { DashboardSkeleton } from "@/features/merchant/analytics/components/DashboardSkeleton";
+import { RatingDistributionBars } from "@/components/rating/rating-distribution-bars";
 
 const greeting = () => {
   const hour = new Date().getHours();
@@ -162,39 +163,37 @@ export default function DashboardPage() {
             />
           </div>
 
-          {!loading && overview && (overview.top_offers.length > 0 || overview.reviews.total > 0) && (
+          {!loading && overview && (
             <div className="grid gap-4 xl:grid-cols-2">
-              {overview.top_offers.length > 0 && (
+              <div className="relative overflow-hidden rounded-[28px] border border-stone-200/80 bg-[#FBFAF6] px-4 pt-2 shadow-sm hover:shadow-[0_8px_24px_-12px_rgba(16,24,40,0.08)] group">
                 <div
-                  className={`relative overflow-hidden rounded-[28px] border border-stone-200/80 bg-[#FBFAF6] px-4 pt-2 shadow-sm hover:shadow-[0_8px_24px_-12px_rgba(16,24,40,0.08)] group ${overview.reviews.total === 0 ? "xl:col-span-2" : ""}`}
-                >
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-400 via-green-400 to-teal-300"
-                  />
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute -left-10 top-16 h-56 w-56 rounded-full bg-emerald-300/30 blur-3xl"
-                  />
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 opacity-[0.35] [background-image:radial-gradient(rgba(16,185,129,0.12)_1px,transparent_1px)] [background-size:18px_18px]"
-                  />
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-400 via-green-400 to-teal-300"
+                />
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute -left-10 top-16 h-56 w-56 rounded-full bg-emerald-300/30 blur-3xl"
+                />
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 opacity-[0.35] [background-image:radial-gradient(rgba(16,185,129,0.12)_1px,transparent_1px)] [background-size:18px_18px]"
+                />
 
-                  <div className="relative z-10">
-                    <div className="mb-2 flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-bold text-gray-900">
-                          Top Performing Offer
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          Highest rated offer
-                        </p>
-                      </div>
+                <div className="relative z-10">
+                  <div className="mb-2 flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-bold text-gray-900">
+                        Top Performing Offer
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Highest rated offer
+                      </p>
                     </div>
+                  </div>
 
+                  {overview.top_offers.length > 0 ? (
                     <div className="flex rounded-2xl gap-2">
-                      <div className="w-32 h-30 rounded-2xl overflow-hidden shadow-[0_12px_28px_-10px_rgba(6,95,70,0.35)] transition-transform duration-500 ease-out group-hover:-translate-y-1 group-hover:-rotate-2">
+                      <div className="w-40 h-36 rounded-2xl overflow-hidden shadow-[0_12px_28px_-10px_rgba(6,95,70,0.35)] transition-transform duration-500 ease-out group-hover:-translate-y-1 group-hover:-rotate-2 shrink-0">
                         <img
                           src={overview.top_offers[0].image_url}
                           className=" object-cover rounded-2xl w-full h-full"
@@ -202,7 +201,7 @@ export default function DashboardPage() {
                       </div>
 
                       <div className="px-2 py-2">
-                        <h3 className="mt-2 text-lg font-bold text-gray-900">
+                        <h3 className="mt-2 text-lg font-bold text-gray-900 line-clamp-2">
                           {overview.top_offers[0].title}
                         </h3>
 
@@ -237,53 +236,41 @@ export default function DashboardPage() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="flex items-center gap-3 py-4">
+                      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/70">
+                        <Package className="h-6 w-6 text-gray-300" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-700">
+                          No active offers yet
+                        </p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          Launch a sale to see your top performer here
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
 
-              {overview.reviews.total > 0 && (
-                <div
-                  className={`rounded-2xl border border-gray-200 bg-white p-5 shadow-sm ${overview.top_offers.length === 0 ? "xl:col-span-2" : ""}`}
-                >
-                  <div className="mb-4 flex items-center justify-between">
-                    <p className="text-sm font-bold text-gray-900">
-                      Rating Breakdown
-                    </p>
-                    <Link
-                      href={ROUTES.REVIEWS}
-                      className="flex items-center gap-1 text-xs font-semibold text-brand-500 hover:underline"
-                    >
-                      All reviews <ArrowRight className="h-3 w-3" />
-                    </Link>
-                  </div>
-                  <div className="space-y-2">
-                    {([5, 4, 3, 2, 1] as const).map((star) => {
-                      const count = overview.reviews.distribution[star] ?? 0;
-                      const pct =
-                        overview.reviews.total > 0
-                          ? (count / overview.reviews.total) * 100
-                          : 0;
-                      return (
-                        <div key={star} className="flex items-center gap-3">
-                          <span className="w-4 text-right text-xs text-gray-500">
-                            {star}
-                          </span>
-                          <Star className="h-3 w-3 shrink-0 fill-yellow-400 text-yellow-400" />
-                          <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
-                            <div
-                              className="h-full rounded-full bg-yellow-400 transition-all"
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
-                          <span className="w-5 text-right text-xs text-gray-400">
-                            {count}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
+              <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                <div className="mb-4 flex items-center justify-between">
+                  <p className="text-sm font-bold text-gray-900">
+                    Rating Breakdown
+                  </p>
+                  <Link
+                    href={ROUTES.REVIEWS}
+                    className="flex items-center gap-1 text-xs font-semibold text-brand-500 hover:underline"
+                  >
+                    All reviews <ArrowRight className="h-3 w-3" />
+                  </Link>
                 </div>
-              )}
+                <RatingDistributionBars
+                  distribution={overview.reviews.distribution}
+                  totalReviews={overview.reviews.total}
+                />
+              </div>
             </div>
           )}
 
