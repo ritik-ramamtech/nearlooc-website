@@ -1,15 +1,15 @@
 import apiClient from "@/lib/api-client";
-import type { ApiResponse, Notification } from "@/types";
+import type { ApiResponse, Notification, PaginationMeta } from "@/types";
 
-export interface NotificationsListResponse {
-  items: Notification[];
-  meta: { page: number; limit: number; total: number; has_more: boolean };
+export interface NotificationsResponse extends ApiResponse<Notification[]> {
+  meta: PaginationMeta;
 }
 
-export async function getNotifications(page = 1, limit = 20): Promise<ApiResponse<NotificationsListResponse>> {
-  const res = await apiClient.get<ApiResponse<NotificationsListResponse>>("/notifications", {
+export async function getNotifications(page = 1, limit = 20): Promise<NotificationsResponse> {
+  const res = await apiClient.get<NotificationsResponse>("/notifications", {
     params: { page, limit },
   });
+
   return res.data;
 }
 

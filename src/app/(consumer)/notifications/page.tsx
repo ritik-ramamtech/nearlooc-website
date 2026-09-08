@@ -11,7 +11,7 @@ export default function NotificationsPage() {
   const { data, isPending, isError } = useNotifications();
   const { mutate: markAll, isPending: marking } = useMarkAllAsRead();
 
-  const hasUnread = data?.items.some((n) => !n.is_read);
+  const hasUnread = data?.some((n) => !n.is_read);
 
   return (
     <>
@@ -37,11 +37,11 @@ export default function NotificationsPage() {
           </p>
         )}
 
-        {data && data.items.length === 0 && (
+        {data && data.length === 0 && (
           <EmptyState title="All caught up!" subtitle="No notifications yet." />
         )}
 
-        {data?.items.map((n) => (
+        {data?.map((n) => (
           <NotificationItem key={n.id} notification={n} />
         ))}
       </div>

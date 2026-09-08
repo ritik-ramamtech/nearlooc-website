@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, Star, X, Clock, Gift, Check } from "lucide-react";
+import { Star, X, Clock, Gift, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Offer, Subcategory, Category } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -31,6 +31,7 @@ export interface OfferFilters {
   subcategoryId: string | null;
   sort: Sort | null;
   merchantname: string | null;
+  maxDistanceKm: number | null; // null = any distance
 }
 
 export const EMPTY_FILTERS: OfferFilters = {
@@ -44,6 +45,7 @@ export const EMPTY_FILTERS: OfferFilters = {
   subcategoryId: null,
   sort: null,
   merchantname: null,
+  maxDistanceKm: null,
 };
 
 /** Filters an offer list down to those matching every active criterion. */
@@ -71,8 +73,16 @@ export function countActiveFilters(f: OfferFilters): number {
   if (f.limitedTimeOnly) n++;
   if (f.giftableOnly) n++;
   if (f.subcategoryId) n++;
+  if (f.maxDistanceKm !== null) n++;
   return n;
 }
+
+export const DISTANCE_OPTIONS = [
+  { label: "Within 5 km", value: 5 },
+  { label: "Within 10 km", value: 10 },
+  { label: "Within 25 km", value: 25 },
+  { label: "Within 50 km", value: 50 },
+];
 
 const RATING_OPTIONS = [
   { label: "4.5 & up", value: 4.5 },
@@ -240,12 +250,12 @@ interface FiltersSidebarProps {
   onChange: (filters: Partial<OfferFilters>, categoryId: string | null) => void;
   badgeOptions: string[];
   priceBounds: { min: number; max: number };
-  location?: string | null;
   onClose?: () => void;
   onClear: () => void;
   subCategories: Subcategory[];
   categories?: Category[];
   selectedCategoryId?: string | null;
+  hasCoordinates?: boolean;
 }
 
 export function FiltersSidebar({
@@ -253,12 +263,12 @@ export function FiltersSidebar({
   onChange,
   badgeOptions,
   priceBounds,
-  location,
   onClose,
   onClear,
   subCategories,
   categories,
   selectedCategoryId,
+  hasCoordinates,
 }: FiltersSidebarProps) {
   const [showMerchantModal, setShowMerchantModal] = useState(false);
   const [limit, setLimit] = useState();
@@ -345,18 +355,25 @@ export function FiltersSidebar({
         </div>
       </div>
 
-      {/* Your Location — display only until geolocation + backend radius are wired */}
-      <Section title="Your Location">
-        <div className="flex items-center gap-2 rounded-full bg-gray-50 px-3 py-2">
-          <MapPin className="h-4 w-4 shrink-0 text-gray-500" />
-          <span className="truncate text-[13px] text-gray-700">
-            {location || "Set your location"}
-          </span>
-          <button className="ml-auto shrink-0 text-[12px] font-semibold text-stitch-secondary underline underline-offset-2">
-            Change
-          </button>
-        </div>
-      </Section>
+      {hasCoordinates && (
+        <Section title="Distance">
+          <div className="space-y-2.5">
+            <RadioRow
+              label="Any distance"
+              active={filters.maxDistanceKm === null}
+              onClick={() => set({ maxDistanceKm: null })}
+            />
+            {DISTANCE_OPTIONS.map((opt) => (
+              <RadioRow
+                key={opt.value}
+                label={opt.label}
+                active={filters.maxDistanceKm === opt.value}
+                onClick={() => set({ maxDistanceKm: opt.value })}
+              />
+            ))}
+          </div>
+        </Section>
+      )}
 
       {categories && categories.length > 0 && (
         <Section title="Categories">
@@ -470,6 +487,7 @@ export function FiltersSidebar({
                   {/* Search */}
                   <input
                     type="search"
+                    onChange={(e) => setSearch(e.target.value)}
                     placeholder="Search brands"
                     className="rounded-lg border border-gray-300 px-4 py-1 outline-none focus:border-stitch-secondary"
                   />
@@ -675,15 +693,6 @@ export function FiltersSidebarSkeleton() {
         <Skeleton className="h-6 w-20" />
         <Skeleton className="h-4 w-14" />
       </div>
-
-      <section className="border-t border-gray-100 py-4">
-        <Skeleton className="mb-3 h-4 w-24" />
-        <div className="flex items-center gap-2 rounded-full bg-gray-50 px-3 py-2">
-          <Skeleton className="h-4 w-4 shrink-0 rounded-full" />
-          <Skeleton className="h-3.5 flex-1" />
-          <Skeleton className="h-3 w-12" />
-        </div>
-      </section>
 
       <SkeletonFilterSection rows={4} />
       <SkeletonFilterSection withInputs />

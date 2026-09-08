@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { getMerchantReviews, type GetMerchantReviewsParams } from "./api";
 
 export function useMerchantReviews(params?: GetMerchantReviewsParams) {
@@ -8,5 +8,6 @@ export function useMerchantReviews(params?: GetMerchantReviewsParams) {
     queryKey: ["merchant", "reviews", params],
     queryFn: () => getMerchantReviews(params),
     staleTime: 30_000,
+    placeholderData: keepPreviousData,
   });
 }

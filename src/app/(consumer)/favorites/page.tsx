@@ -9,7 +9,7 @@ import { useFavorites } from "@/features/favorites/hooks";
 import { useCategories } from "@/features/categories/hooks";
 
 export default function FavoritesPage() {
-  const { data, isPending, isError } = useFavorites();
+  const { data, isPending, isError, isFetching } = useFavorites();
   const { data: categories = [] } = useCategories();
   const [activeCategory, setActiveCategory] = useState("All");
 
@@ -91,7 +91,7 @@ export default function FavoritesPage() {
             ) : (
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
                 {filtered.map((offer) => (
-                  <OfferCard key={offer.id} offer={{ ...offer, is_favorite: true }} fluid />
+                  <OfferCard key={offer.id} offer={{ ...offer, is_favorite: true }} fluid isFetching={isFetching}/>
                 ))}
               </div>
             )}

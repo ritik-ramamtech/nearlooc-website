@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Star, MessageSquare } from "lucide-react";
 import { useMyReviews } from "@/features/reviews/hooks";
-import { TopBar } from "@/components/layout/TopBar";
 import { SkeletonList } from "@/components/ui/skeleton";
 
 export default function MyReviewsPage() {
@@ -12,36 +11,70 @@ export default function MyReviewsPage() {
 
   return (
     <div className="min-h-screen bg-page-bg">
-      <TopBar title="My Reviews" />
+      {/* <TopBar title="My Reviews" /> */}
 
-      <div className="mx-auto max-w-2xl space-y-4 px-4 py-6">
-        {isPending && <SkeletonList itemHeight={96} itemClassName="rounded-2xl" />}
+      <div className="max-w-screen space-y-4 px-10 py-6 mt-16">
+        {isPending && (
+          <div className="grid grid-cols-3">
+            <SkeletonList itemHeight={96} itemClassName="rounded-2xl" />
+          </div>
+        )}
 
         {!isPending && (data?.items?.length ?? 0) === 0 && (
           <div className="flex flex-col items-center gap-3 py-20 text-center">
             <MessageSquare className="h-10 w-10 text-gray-300" />
-            <p className="text-sm font-medium text-gray-500">You haven&apos;t written any reviews yet.</p>
+            <p className="text-sm font-medium text-gray-500">
+              You haven&apos;t written any reviews yet.
+            </p>
           </div>
         )}
 
-        {!isPending && data?.items?.map((review) => (
-          <div key={review.id} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-            <div className="flex items-center gap-1 mb-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-4 w-4 ${i < review.rating ? "fill-amber-400 text-amber-400" : "text-gray-200"}`}
-                />
-              ))}
-            </div>
-            {review.comment && (
-              <p className="text-sm text-gray-700">{review.comment}</p>
-            )}
-            <p className="mt-2 text-xs text-gray-400">
-              {new Date(review.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
-            </p>
-          </div>
-        ))}
+        <div className="grid grid-cols-3 gap-4  w-full">
+          {!isPending &&
+            data?.items?.map((review) => (
+              <div
+                key={review.id}
+                className="rounded-2xl border border-gray-300 bg-white p-5 shadow-md"
+              >
+                <div className="flex items-end gap-4 mb-2 w-full">
+                  <div className="w-24 h-24">
+                    <img src={review.product.image_url} className="w-full h-full object-contain"/>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <p className="text-md font-semibold">
+                      {review.offer.title}
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      Reviewed on{" "}
+                      {new Date(review.created_at).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 mb-2">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-4 w-4 ${i < review.rating ? "fill-amber-400 text-amber-400" : "text-gray-200"}`}
+                    />
+                  ))}
+                </div>
+                {review.comment && (
+                  <p className="text-sm text-gray-700">{review.comment}</p>
+                )}
+                <p className="mt-2 text-xs text-gray-400">
+                  {new Date(review.created_at).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </p>
+              </div>
+            ))}
+        </div>
 
         {!isPending && data?.meta && data.meta.total > data.meta.limit && (
           <div className="flex justify-center gap-2 pt-2">

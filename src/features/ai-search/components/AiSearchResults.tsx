@@ -73,7 +73,7 @@ export function AiSearchResults({ query, data, isPending, isError, onRetry }: Pr
       ) : (
         <div className="flex flex-wrap gap-3">
           {offers.map((offer) => (
-            <OfferCard key={offer.id} offer={offer} />
+            <OfferCard key={offer.id} offer={offer} isFetching={isPending}/>
           ))}
         </div>
       )}

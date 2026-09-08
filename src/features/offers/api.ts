@@ -14,6 +14,7 @@ export interface GetOffersQuery {
   max_price?: number;
   min_rating?: number;
   merchant_name?: string;
+  max_distance_km?: number;
 }
 
 export interface OffersListResponse {

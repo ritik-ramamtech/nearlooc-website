@@ -37,9 +37,16 @@ export interface OfferSection {
   offers: Offer[];
 }
 
+export interface HomeCategorySection {
+  category_id: string;
+  category_name: string;
+  offers: Offer[];
+}
+
 export interface HomeFeed {
-  categories?: Category[];
-  sections: OfferSection[];
+  categories: Category[];
+  top_deals: Offer[];
+  category_sections: HomeCategorySection[];
 }
 
 export interface Subcategory {

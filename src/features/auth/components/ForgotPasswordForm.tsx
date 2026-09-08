@@ -12,7 +12,7 @@ import { ROUTES } from "@/lib/constants";
 import { useForgotPassword } from "../hooks";
 import { forgotPasswordSchema, type ForgotPasswordInput } from "../types";
 
-export function ForgotPasswordForm() {
+export function ForgotPasswordForm({ defaultEmail }: { defaultEmail?: string }) {
   const router = useRouter();
   const { mutate, isPending, error } = useForgotPassword();
 
@@ -20,7 +20,10 @@ export function ForgotPasswordForm() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ForgotPasswordInput>({ resolver: zodResolver(forgotPasswordSchema) });
+  } = useForm<ForgotPasswordInput>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: { email: defaultEmail ?? "" },
+  });
 
   const serverError = getServerError(error);
 

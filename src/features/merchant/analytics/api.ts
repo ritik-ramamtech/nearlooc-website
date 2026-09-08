@@ -26,8 +26,29 @@ export interface MerchantOverviewData {
     rating: number;
     review_count: number;
     badge: string | null;
-    product: { id: string; name: string };
+    product: { id: string; name: string, original_price: number; };
+    image_url: string;
+    fav_count: number;
   }[];
+  offers_expiring_soon: {
+    id: string;
+    title: string;
+    discounted_price: number;
+    discounted_percentage: number;
+    rating: number;
+    review_count: number;
+    product: { id: string, name: string, original_price: number};
+    image_url: string;
+    fav_count: number;
+  },
+  fav_count: number;
+  product_with_no_offer_count: number;
+  ratingTrend: {
+    historicalRating: number;
+    currentRating: number;
+    difference: number;
+    direction: "up" | "down"
+  }
 }
 
 interface OverviewResponse {

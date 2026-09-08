@@ -72,7 +72,7 @@ export function AvatarUpload({ name, avatarUrl }: AvatarUploadProps) {
       {validationError ? (
         <p className="text-label-sm text-red-500">{validationError}</p>
       ) : (
-        <p className="text-label-sm text-gray-400">Tap to change photo</p>
+        <p className="text-label-sm text-gray-500">Tap to change photo</p>
       )}
     </div>
   );

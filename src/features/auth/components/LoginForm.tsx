@@ -19,10 +19,15 @@ export function LoginForm() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<LoginInput>({ resolver: zodResolver(loginSchema) });
 
   const serverError = getServerError(error);
+  const email = watch("email");
+  const forgotPasswordHref = email
+    ? `${ROUTES.FORGOT_PASSWORD}?email=${encodeURIComponent(email)}`
+    : ROUTES.FORGOT_PASSWORD;
   const [googleError, setGoogleError] = useState(false);
 
   useEffect(() => {
@@ -64,7 +69,7 @@ export function LoginForm() {
             Password
           </label>
           <Link
-            href={ROUTES.FORGOT_PASSWORD}
+            href={forgotPasswordHref}
             className="text-sm text-secondary font-semibold hover:underline"
           >
             Forgot password?

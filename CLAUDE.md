@@ -55,22 +55,40 @@ client/
 │   │   ├── home/page.tsx                   GET /home/feed
 │   │   ├── vendors/
 │   │   │   ├── page.tsx                    GET /vendors
-│   │   │   └── [id]/products/page.tsx      GET /vendors/:id/products
-│   │   ├── offers/[id]/page.tsx            Offer detail page
-│   │   └── categories/page.tsx             GET /categories
+│   │   │   └── [id]/
+│   │   │       ├── products/page.tsx       GET /vendors/:id/products
+│   │   │       └── photos/page.tsx         Vendor photo gallery [NEW]
+│   │   ├── offers/
+│   │   │   ├── page.tsx                    General offers search/listing [NEW]
+│   │   │   └── [id]/
+│   │   │       ├── page.tsx                Offer detail page
+│   │   │       ├── loading.tsx             [NEW]
+│   │   │       └── create-review/page.tsx  Leave a review for an offer [NEW]
+│   │   ├── search/page.tsx                 Search page [NEW]
+│   │   └── customer-reviews/[id]/page.tsx  Public customer review detail [NEW]
 │   │
 │   ├── (auth)/
 │   │   ├── login/page.tsx                  POST /auth/login
-│   │   └── register/page.tsx              POST /auth/register
+│   │   ├── register/page.tsx              POST /auth/register
+│   │   ├── forgot-password/page.tsx       Request password reset [NEW]
+│   │   ├── reset-password/page.tsx        Set new password from reset link [NEW]
+│   │   ├── verify-otp/page.tsx            OTP verification step [NEW]
+│   │   └── verify-email/page.tsx          Email verification step [NEW]
+│   ├── auth/callback/page.tsx              OAuth callback — outside route groups [NEW]
 │   │
 │   ├── (consumer)/
 │   │   ├── layout.tsx                      Consumer shell
 │   │   ├── favorites/page.tsx             User favorites list
 │   │   ├── notifications/page.tsx         GET /notifications
 │   │   ├── coupons/page.tsx               GET /coupons
+│   │   ├── my-reviews/page.tsx            Reviews the current user has written [NEW]
 │   │   └── profile/
 │   │       ├── page.tsx                    GET + PATCH /users/profile
-│   │       └── location/page.tsx          PATCH /users/location
+│   │       ├── become-merchant/page.tsx   Consumer → merchant onboarding [NEW]
+│   │       └── location/
+│   │           ├── page.tsx                PATCH /users/location
+│   │           ├── new/page.tsx           Add a new saved location [NEW]
+│   │           └── [id]/edit/page.tsx     Edit a saved location [NEW]
 │   │
 │   └── (merchant)/
 │       ├── layout.tsx                      Merchant shell + sidebar navigation
@@ -78,17 +96,19 @@ client/
 │       ├── products/
 │       │   ├── page.tsx                    GET /merchant/products
 │       │   ├── new/page.tsx               POST /merchant/products
-│       │   └── [id]/edit/page.tsx         PATCH /merchant/products/:id
-│       ├── sales/
-│       │   ├── active/page.tsx            GET /merchant/sales/active
-│       │   ├── history/page.tsx           GET /merchant/sales/history
-│       │   ├── deals/page.tsx             GET /merchant/deals/active
-│       │   └── new/page.tsx               POST /merchant/sales
-│       ├── locations/
-│       │   ├── page.tsx                    GET /merchant/locations
-│       │   └── [id]/page.tsx              PATCH /merchant/locations/:id
+│       │   └── [id]/
+│       │       ├── page.tsx                Product detail [NEW]
+│       │       ├── edit/page.tsx          PATCH /merchant/products/:id
+│       │       └── offers/                 Sales/offers, now nested per-product [REPLACES old sales/* routes]
+│       │           ├── new/page.tsx       POST /merchant/sales
+│       │           └── [offerId]/
+│       │               ├── page.tsx        Offer detail [NEW]
+│       │               └── edit/page.tsx  PATCH /merchant/sales/:id
+│       ├── locations/page.tsx             GET /merchant/locations
 │       ├── reviews/page.tsx               GET /merchant/reviews
-│       └── profile/page.tsx               GET + PATCH /merchant/profile
+│       └── settings/
+│           ├── page.tsx                    Merchant settings [NEW]
+│           └── profile/page.tsx           GET + PATCH /merchant/profile [MOVED from profile/page.tsx]
 │
 ├── features/                               Domain logic — one folder per backend module
 │   ├── auth/
@@ -96,22 +116,56 @@ client/
 │   │   ├── hooks.ts                        useLogin, useRegister, useLogout
 │   │   ├── components/
 │   │   │   ├── LoginForm.tsx
-│   │   │   └── RegisterForm.tsx
+│   │   │   ├── RegisterForm.tsx
+│   │   │   ├── ForgotPasswordForm.tsx      [NEW]
+│   │   │   ├── ResetPasswordForm.tsx       [NEW]
+│   │   │   └── VerifyOtpForm.tsx           [NEW]
 │   │   └── types.ts                        AuthUser, Tokens, LoginDto, RegisterDto
+│   │
+│   ├── ai-search/                          [NEW]
+│   │   ├── api.ts
+│   │   ├── hooks.ts
+│   │   ├── types.ts
+│   │   └── components/
+│   │       ├── AiSearchBar.tsx
+│   │       └── AiSearchResults.tsx
+│   │
+│   ├── categories/                         [NEW] Category/subcategory data
+│   │   ├── api.ts
+│   │   ├── hooks.ts
+│   │   └── index.ts
 │   │
 │   ├── home/
 │   │   ├── api.ts                          getHomeFeed(query)
 │   │   ├── hooks.ts                        useHomeFeed
 │   │   └── components/
 │   │       ├── CategoryBar.tsx             Horizontal scrollable category pills
+│   │       ├── SubcategoryBar.tsx          Subcategory pills for selected category
 │   │       ├── OfferSection.tsx            Renders a feed section (top_deals, recommended, etc.)
-│   │       └── OfferCard.tsx               Single offer card with price, badge, promo timer
+│   │       ├── OfferCard.tsx               Single offer card with price, badge, promo timer
+│   │       ├── OfferCardSkeleton.tsx       [NEW]
+│   │       ├── HeroBanner.tsx              [NEW]
+│   │       ├── FeaturedVendors.tsx         [NEW]
+│   │       ├── OffersMapView.tsx           [NEW]
+│   │       ├── FiltersSidebar.tsx          [NEW] Shared price/rating/category filter panel
+│   │       ├── MobileFilterModal.tsx       [NEW] Mobile slide-over filter drawer
+│   │       ├── PriceRangeFilter.tsx        [NEW]
+│   │       ├── CategoryOffersResult.tsx    [NEW] Result grid + "Load more" for category pages
+│   │       └── layout/
+│   │           └── CategoryOffersLayout.tsx [NEW] Layout for /home/[id] category detail page
 │   │
 │   ├── offers/
 │   │   ├── api.ts                          getOffer, getOffers
 │   │   ├── hooks.ts                        useOffer, useOffers
 │   │   └── components/
 │   │       ├── OfferDetail.tsx
+│   │       ├── OfferDetailSkeleton.tsx     [NEW]
+│   │       ├── OfferImageGallery.tsx       [NEW]
+│   │       ├── OfferAccordion.tsx          [NEW]
+│   │       ├── OfferClaimBar.tsx           [NEW]
+│   │       ├── OffersView.tsx              [NEW] General /offers search page view
+│   │       ├── MerchantRow.tsx             [NEW]
+│   │       ├── RelatedOffers.tsx           [NEW]
 │   │       ├── PriceBlock.tsx              original / discounted / promo price display
 │   │       └── PromoTimer.tsx              countdown for promo_end_at
 │   │
@@ -120,6 +174,8 @@ client/
 │   │   ├── hooks.ts                        useVendors, useVendorProducts
 │   │   └── components/
 │   │       ├── VendorCard.tsx
+│   │       ├── VendorCardSkeleton.tsx      [NEW]
+│   │       ├── StoreGallery.tsx            [NEW]
 │   │       └── VendorProductList.tsx
 │   │
 │   ├── favorites/
@@ -127,7 +183,7 @@ client/
 │   │   ├── hooks.ts                        useFavorites, useToggleFavorite
 │   │   └── components/
 │   │       ├── FavoriteButton.tsx          Heart toggle — optimistic update via TanStack Query
-│   │       └── FavoritesList.tsx
+│   │       └── FavoriteCard.tsx            [CORRECTED — was documented as FavoritesList.tsx, which doesn't exist]
 │   │
 │   ├── notifications/
 │   │   ├── api.ts                          getNotifications, markRead
@@ -146,7 +202,12 @@ client/
 │   │   ├── hooks.ts                        useReviews, useCreateReview
 │   │   └── components/
 │   │       ├── ReviewForm.tsx
-│   │       └── ReviewList.tsx
+│   │       ├── ReviewList.tsx
+│   │       ├── ReviewItem.tsx              [NEW]
+│   │       ├── ReviewItemSkeleton.tsx      [NEW]
+│   │       ├── ReviewsPage.tsx             [NEW] Used by (consumer)/my-reviews
+│   │       ├── ReviewSummary.tsx           [NEW]
+│   │       └── ReviewSummarySkeleton.tsx   [NEW]
 │   │
 │   ├── locations/
 │   │   ├── api.ts                          searchLocation, reverseGeocode, createAddress
@@ -159,41 +220,60 @@ client/
 │   │   ├── hooks.ts                        useProfile, useUpdateProfile
 │   │   └── components/
 │   │       ├── ProfileForm.tsx
-│   │       └── AvatarUpload.tsx            POST /upload
+│   │       ├── AvatarUpload.tsx            POST /upload
+│   │       ├── LocationForm.tsx            [NEW] Used by profile/location new/edit pages
+│   │       └── LocationOnboardingModal.tsx [NEW]
 │   │
 │   └── merchant/
-│       ├── overview/
+│       ├── analytics/                      [RENAMED from overview/]
 │       │   ├── api.ts                      getMerchantOverview
 │       │   ├── hooks.ts                    useOverview
 │       │   └── components/
-│       │       └── StatsGrid.tsx
-│       ├── products/
+│       │       └── DashboardSkeleton.tsx
+│       ├── products/                       Also owns per-product offer/sale forms now
 │       │   ├── api.ts                      getProducts, addProduct, editProduct, deleteProduct, toggleAtLocation
 │       │   ├── hooks.ts                    useProducts, useAddProduct, useEditProduct
 │       │   └── components/
-│       │       ├── ProductTable.tsx
-│       │       └── ProductForm.tsx
-│       ├── sales/
+│       │       ├── ProductForm.tsx
+│       │       ├── ProductDetailPage.tsx   [NEW]
+│       │       ├── ProductDetailSkeleton.tsx [NEW]
+│       │       ├── ProductHeader.tsx       [NEW]
+│       │       ├── ProductInfoCard.tsx     [NEW]
+│       │       ├── ProductGallery.tsx      [NEW]
+│       │       ├── ProductStats.tsx        [NEW]
+│       │       ├── ProductActivity.tsx     [NEW]
+│       │       ├── ProductSummaryCard.tsx  [NEW]
+│       │       ├── ProductLocationsCard.tsx [NEW]
+│       │       ├── ProductsTab.tsx         [NEW]
+│       │       ├── ProductsTabSkeleton.tsx [NEW]
+│       │       ├── SalesTab.tsx            [NEW]
+│       │       ├── OfferForm.tsx           Create/edit form for a product's offer
+│       │       ├── OfferDetails.tsx        [NEW]
+│       │       ├── OfferListItem.tsx       [NEW]
+│       │       ├── OfferHistoryTable.tsx   [NEW]
+│       │       ├── ActiveOffersList.tsx    [NEW]
+│       │       ├── InventoryFilters.tsx    [NEW]
+│       │       └── ConfirmDialog.tsx       [NEW]
+│       ├── sales/                          Offer/sale API + detail view (routes now live under products/[id]/offers/*)
 │       │   ├── api.ts                      createOffer, updateOffer, deactivateOffer, getActiveSales, getHistorySales, getAllActiveDeals
 │       │   ├── hooks.ts                    useSales, useCreateOffer, useUpdateOffer
 │       │   └── components/
-│       │       ├── OfferForm.tsx
-│       │       └── SalesTable.tsx
+│       │       ├── OfferDetail.tsx         [NEW]
+│       │       └── OfferDetailSkeleton.tsx [NEW]
 │       ├── locations/
 │       │   ├── api.ts                      getMerchantLocations, createLocation, updateLocation
 │       │   ├── hooks.ts                    useMerchantLocations
 │       │   └── components/
-│       │       └── LocationForm.tsx
+│       │       └── LocationPicker.tsx      [CORRECTED — was documented as LocationForm.tsx]
 │       ├── reviews/
 │       │   ├── api.ts                      getMerchantReviews
-│       │   ├── hooks.ts                    useMerchantReviews
-│       │   └── components/
-│       │       └── ReviewsTable.tsx
+│       │   └── hooks.ts                    useMerchantReviews
+│       │       [CORRECTED — no components/ dir currently; ReviewsTable.tsx does not exist]
 │       └── profile/
 │           ├── api.ts                      getMerchantProfile, saveProfile
-│           ├── hooks.ts                    useMerchantProfile
-│           └── components/
-│               └── MerchantProfileForm.tsx
+│           └── hooks.ts                    useMerchantProfile
+│               [CORRECTED — no components/ dir currently; MerchantProfileForm.tsx does not exist,
+│                form lives in (merchant)/settings/profile/page.tsx directly]
 │
 ├── components/                             Shared global UI only — no domain logic here
 │   ├── ui/                                 shadcn/Radix primitives (kept from previous setup)
@@ -206,27 +286,39 @@ client/
 │   │   ├── avatar.tsx
 │   │   ├── skeleton.tsx
 │   │   └── pagination.tsx
-│   └── layout/
-│       ├── MerchantSidebar.tsx            Sidebar nav (Dashboard, Products, Sales, Locations, Reviews, Profile)
-│       └── TopBar.tsx                      Shared top bar with back button + title
+│   ├── layout/
+│   │   ├── MerchantSidebar.tsx            Sidebar nav (Dashboard, Products, Sales, Locations, Reviews, Profile)
+│   │   └── TopBar.tsx                      Shared top bar with back button + title
+│   ├── form/                               [NEW]
+│   │   └── field.tsx                       Shared RHF field wrapper
+│   ├── product/                            [NEW]
+│   │   └── status-pill.tsx
+│   └── providers/                          [NEW]
+│       ├── AuthProvider.tsx
+│       └── QueryProvider.tsx
 │
 ├── lib/
 │   ├── api-client.ts                       Axios instance — base URL, JWT header, auto refresh on 401
 │   ├── token.ts                            get/set/clear access_token + refresh_token (localStorage)
+│   ├── constants.ts                        [NEW] ROUTES and other app-wide constants
+│   ├── location.ts                         [NEW] Location/geocoding helpers
 │   └── utils.ts                            cn, formatPrice, formatNumber, truncate (kept from previous)
 │
 ├── store/
-│   └── auth.store.ts                       Zustand — { user, merchant_id, isAuthenticated, setAuth, clearAuth }
+│   ├── auth.store.ts                       Zustand — { user, merchant_id, isAuthenticated, setAuth, clearAuth }
+│   └── location.store.ts                   [NEW] Zustand — selected/saved location state
 │
 ├── hooks/
-│   └── useUpload.ts                        Shared file upload hook — POST /upload
+│   ├── useUpload.ts                        Shared file upload hook — POST /upload
+│   └── useFitCount.ts                      [NEW]
 │
 ├── types/
 │   ├── api.ts                              ApiResponse<T> wrapper — { success, message, data }
 │   ├── offer.ts                            Offer, OfferSection, HomeFeed
 │   ├── user.ts                             User, UserProfile
 │   ├── merchant.ts                         Merchant, MerchantProfile, MerchantOverview
-│   └── common.ts                          Category, Subcategory, Notification, Coupon, Review, Favorite
+│   ├── common.ts                          Category, Subcategory, Notification, Coupon, Review, Favorite
+│   └── index.ts                           [NEW] Barrel export
 │
 ├── middleware.ts                           Route protection for (consumer) and (merchant) groups
 ├── tailwind.config.ts                      MD3 color tokens + typography scale + spacing tokens
@@ -245,7 +337,6 @@ client/
 | `/vendors` | Public | `GET /vendors` |
 | `/vendors/[id]/products` | Public | `GET /vendors/:id/products` |
 | `/offers/[id]` | Public | `GET /offers/:id` |
-| `/categories` | Public | `GET /categories` |
 | `/login` | Guest only | `POST /auth/login` |
 | `/register` | Guest only | `POST /auth/register` |
 | `/favorites` | Consumer | Favorites API |

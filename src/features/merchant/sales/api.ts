@@ -1,5 +1,5 @@
 import apiClient from "@/lib/api-client";
-import type { MerchantSale } from "@/types/merchant";
+import type { MerchantOfferDetailResponse, MerchantSale } from "@/types/merchant";
 
 interface ApiResponse<T> { message: string; data: T }
 interface PaginatedResponse<T> { data: T[]; meta: { total: number; page: number; limit: number; total_pages: number } }
@@ -18,12 +18,28 @@ export interface CreateOfferInput {
 
 export type UpdateOfferInput = Partial<Omit<CreateOfferInput, "product_id" | "location_ids"> & { location_id?: string }>;
 
-export async function getActiveSales(params?: { page?: number; limit?: number }): Promise<PaginatedResponse<MerchantSale>> {
+export async function getActiveSales(params?: { 
+  page?: number; 
+  limit?: number, 
+  category_id?: string, 
+  subcategory_id?: string, 
+  max_price?: number, 
+  min_price?: number,   
+  product_id?: string 
+}): Promise<PaginatedResponse<MerchantSale>> {
   const res = await apiClient.get<PaginatedResponse<MerchantSale> & { message: string }>("/merchant/sales/active", { params });
   return res.data;
 }
 
-export async function getSalesHistory(params?: { page?: number; limit?: number }): Promise<PaginatedResponse<MerchantSale>> {
+export async function getSalesHistory(params?: { 
+  page?: number; 
+  limit?: number;
+  category_id?: string, 
+  subcategory_id?: string, 
+  max_price?: number, 
+  min_price?: number,   
+  product_id?: string
+ }): Promise<PaginatedResponse<MerchantSale>> {
   const res = await apiClient.get<PaginatedResponse<MerchantSale> & { message: string }>("/merchant/sales/history", { params });
   return res.data;
 }
@@ -40,5 +56,18 @@ export async function updateOffer(id: string, data: UpdateOfferInput): Promise<A
 
 export async function deactivateOffer(id: string): Promise<ApiResponse<MerchantSale>> {
   const res = await apiClient.patch<ApiResponse<MerchantSale>>(`/merchant/sales/${id}/deactivate`);
+  return res.data;
+}
+
+export async function getOffer(offerId: string) {
+  const res = await apiClient.get<MerchantOfferDetailResponse>(`/merchant/sales/${offerId}`);
+  return res.data;
+}
+
+export async function notifyOffer(id: string, custom_message?: string): Promise<ApiResponse<null>> {
+  const res = await apiClient.post<ApiResponse<null>>(
+    `/merchant/sales/${id}/notify`,
+    custom_message ? { custom_message } : {}
+  );
   return res.data;
 }

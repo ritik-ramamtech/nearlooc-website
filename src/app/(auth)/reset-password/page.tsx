@@ -1,22 +1,18 @@
-"use client";
-
-import { Suspense, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { ROUTES } from "@/lib/constants";
 import { ResetPasswordForm } from "@/features/auth/components/ResetPasswordForm";
 
-function ResetPasswordContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const email = searchParams.get("email");
-  const otp = searchParams.get("otp");
+export const metadata: Metadata = { title: "Reset Password" };
 
-  useEffect(() => {
-    if (!email || !otp) router.replace(ROUTES.FORGOT_PASSWORD);
-  }, [email, otp, router]);
+interface Props {
+  searchParams: Promise<{ email?: string; otp?: string }>;
+}
 
-  if (!email || !otp) return null;
+export default async function ResetPasswordPage({ searchParams }: Props) {
+  const { email, otp } = await searchParams;
+
+  if (!email || !otp) redirect(ROUTES.FORGOT_PASSWORD);
 
   return (
     <>
@@ -26,19 +22,5 @@ function ResetPasswordContent() {
       </p>
       <ResetPasswordForm email={email} otp={otp} />
     </>
-  );
-}
-
-export default function ResetPasswordPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex justify-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin text-stitch-primary" />
-        </div>
-      }
-    >
-      <ResetPasswordContent />
-    </Suspense>
   );
 }

@@ -1,17 +1,44 @@
 "use client";
 
 import { use, useState } from "react";
-import { BadgeCheck, Star, MapPin, Globe, Phone, Images, X, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  BadgeCheck,
+  Star,
+  MapPin,
+  Globe,
+  Phone,
+  Images,
+  X,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { VendorProductList } from "@/features/vendors/components/VendorProductList";
-import { useVendorProducts, useVendorById } from "@/features/vendors/hooks";
+import {
+  useVendorProducts,
+  useVendorById,
+  useVendorReviews,
+} from "@/features/vendors/hooks";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LocationMap, type LocationPin } from "@/components/LocationMap";
+import { ReviewSummary } from "@/features/reviews/components/ReviewSummary";
+import { ReviewItem } from "@/features/reviews/components/ReviewItem";
+import { useRouter } from "next/navigation";
+import ReviewSummarySkeleton from "@/features/reviews/components/ReviewSummarySkeleton";
+import ReviewItemSkeleton from "@/features/reviews/components/ReviewItemSkeleton";
 
 interface Props {
   params: Promise<{ id: string }>;
 }
 
-function StoreGallery({ images, businessName }: { images: string[]; businessName: string }) {
+const EMPTY_DISTRIBUTION = { "1": 0, "2": 0, "3": 0, "4": 0, "5": 0 } as const;
+
+function StoreGallery({
+  images,
+  businessName,
+}: {
+  images: string[];
+  businessName: string;
+}) {
   const [open, setOpen] = useState(false);
   const [idx, setIdx] = useState(0);
 
@@ -23,7 +50,10 @@ function StoreGallery({ images, businessName }: { images: string[]; businessName
   return (
     <>
       <button
-        onClick={() => { setIdx(0); setOpen(true); }}
+        onClick={() => {
+          setIdx(0);
+          setOpen(true);
+        }}
         className="inline-flex items-center gap-2 rounded-lg border border-outline-variant bg-surface-container-low px-3 py-2 text-[13px] font-medium text-on-surface hover:bg-surface-container transition-colors"
       >
         <Images className="h-4 w-4 text-stitch-primary" />
@@ -94,7 +124,9 @@ function StoreGallery({ images, businessName }: { images: string[]; businessName
                   alt=""
                   onClick={() => setIdx(i)}
                   className={`h-14 w-14 shrink-0 cursor-pointer rounded-lg object-cover transition-all ${
-                    i === idx ? "ring-2 ring-white opacity-100" : "opacity-50 hover:opacity-80"
+                    i === idx
+                      ? "ring-2 ring-white opacity-100"
+                      : "opacity-50 hover:opacity-80"
                   }`}
                 />
               ))}
@@ -108,37 +140,181 @@ function StoreGallery({ images, businessName }: { images: string[]; businessName
 
 export default function VendorProductsPage({ params }: Props) {
   const { id } = use(params);
+  const router = useRouter();
+
+  const [activeTab, setActiveTab] = useState<"products" | "reviews" | "photos">(
+    "products",
+  );
+
   const { data, isPending } = useVendorProducts(id);
   const { data: fullVendor } = useVendorById(id);
+  console.log("vendor->",fullVendor)
+  const {
+    data: reviewdata,
+    isPending: isReviewPending,
+    isFetching,
+  } = useVendorReviews(id);
 
   const summary = data?.vendor;
   const storeImages = summary?.stores_imgs_url ?? [];
-  const primaryLocation =
-    fullVendor?.locations?.find((l) => l.is_primary) ?? fullVendor?.locations?.[0];
+  const primaryLocation = fullVendor?.primaryLocation[0];
+  const reviewSummary = reviewdata?.summary;
+  const reviews = reviewdata?.data;
+  const previewReviews = reviews?.slice(0, 3);
 
-  const locationPins: LocationPin[] = (fullVendor?.locations ?? [])
-    .filter((l) => l.latitude != null && l.longitude != null)
-    .map((l) => ({
-      lat: l.latitude as number,
-      lng: l.longitude as number,
-      label: l.label ?? l.city ?? l.street ?? "Store",
-      isPrimary: l.is_primary,
-    }));
+  // const locationPins: LocationPin[] = (fullVendor?.locations ?? [])
+  //   .filter((l) => l.latitude != null && l.longitude != null)
+  //   .map((l) => ({
+  //     lat: l.latitude as number,
+  //     lng: l.longitude as number,
+  //     label: l.label ?? l.city ?? l.street ?? "Store",
+  //     isPrimary: l.is_primary,
+  //   }));
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-surface">
-
       {/* Cover — always full width */}
       <div className="h-36 w-full bg-gradient-to-br from-stitch-primary/20 to-stitch-secondary/10 sm:h-44 md:h-52" />
 
+      <div className="mx-auto md:-mt-16 mb-4 max-w-container-max px-2">
+        <div className="rounded-2xl bg-white md:shadow-sm md:border md:border-gray-200 px-2 md:px-6 py-4">
+          <div className="flex flex-col lg:flex-row gap-6 lg:justify-between items-start">
+            <div className="flex  flex-col items-start text-center md:flex-row lg:text-left lg:items-start gap-5">
+              <div className="h-24 w-24 md:h-28 md:w-28 overflow-hidden rounded-full border bg-white">
+                {summary?.logo_url ? (
+                  <img
+                    src={summary.logo_url}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center bg-stitch-primary/10 text-4xl font-bold">
+                    {summary?.business_name.charAt(0)}
+                  </div>
+                )}
+              </div>
+
+              <div className="">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-2xl font-bold">
+                    {summary?.business_name}
+                  </h1>
+
+                  {summary?.is_verified && (
+                    <BadgeCheck className="h-6 w-6 text-stitch-primary fill-stitch-primary/20" />
+                  )}
+                </div>
+
+                <div className="mt-2.5 flex items-center gap-2 text-sm">
+                  <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+
+                  <span className="font-semibold">
+                    {summary?.rating.toFixed(1)}
+                  </span>
+
+                  <span className="text-gray-500">
+                    ({summary?.review_count} Reviews)
+                  </span>
+                </div>
+
+                <div className="mt-2.5 flex gap-4 text-gray-500">
+                  <span>{fullVendor?.category_name}</span>
+
+                  <span>•</span>
+
+                  <span>{fullVendor?.subcategory_name}</span>
+                </div>
+
+                {primaryLocation && (
+                  <div className="mt-2 flex items-center gap-2 text-gray-500 text-sm">
+                    <MapPin className="h-4 w-4" />
+
+                    {[primaryLocation.city, primaryLocation.state]
+                      .filter(Boolean)
+                      .join(", ")}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4 lg:flex lg:gap-14">
+              <div className="text-center">
+                <p className="text-3xl font-bold">
+                  {fullVendor?.active_offer_count ?? 0}
+                </p>
+                <p className="text-sm text-gray-500">Active Deals</p>
+              </div>
+
+              <div className="text-center">
+                <p className="text-3xl font-bold">{summary?.review_count}</p>
+                <p className="text-sm text-gray-500">Reviews</p>
+              </div>
+
+              <div className="text-center">
+                <p className="text-3xl font-bold">{storeImages.length}</p>
+                <p className="text-sm text-gray-500">Photos</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="sticky top-16 z-20 mt-6 flex lg:hidden border-b bg-white">
+        {[
+          { key: "products", label: "Products" },
+          { key: "reviews", label: "Reviews" },
+          { key: "photos", label: "Photos" },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key as typeof activeTab)}
+            className={`flex-1 border-b-2 py-3 text-sm font-medium transition ${
+              activeTab === tab.key
+                ? "border-stitch-primary text-stitch-primary"
+                : "border-transparent text-gray-500"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
       {/* Constrained content */}
       <div className="mx-auto max-w-container-max px-4">
-        <div className="md:flex md:gap-8 md:items-start">
+        <div className="lg:hidden mt-6">
+          {activeTab === "products" && <VendorProductList vendorId={id} />}
 
+          {activeTab === "reviews" && (
+            <div className="sm:px-4">
+              <ReviewSummary
+                total_reviews={reviewSummary?.total_reviews ?? 0}
+                avg_rating={reviewSummary?.avg_rating ?? 0}
+                distribution={reviewSummary?.rating_distribution ?? EMPTY_DISTRIBUTION}
+              />
+
+              <div className="sm:pl-36 pt-4">
+                {reviews?.map((review) => (
+                  <ReviewItem key={review.id} review={review} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "photos" && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {storeImages.map((img) => (
+                <img
+                  key={img}
+                  src={img}
+                  className="aspect-square rounded-xl object-cover"
+                />
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="hidden lg:flex md:gap-8 md:items-start">
           {/* ── Left: vendor info ── */}
-          <div className="py-4 md:w-72 md:shrink-0 md:py-6 md:sticky md:top-20">
+          {/* <div className="py-4 md:w-72 md:shrink-0 md:py-6 md:sticky md:top-20">
 
-            {/* Skeleton */}
             {isPending && (
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
@@ -153,10 +329,8 @@ export default function VendorProductsPage({ params }: Props) {
               </div>
             )}
 
-            {/* Vendor info */}
             {summary && (
               <div className="space-y-3">
-                {/* Logo + name */}
                 <div className="flex items-center gap-3">
                   <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-outline-variant bg-surface-container-low shadow-sm">
                     {summary.logo_url ? (
@@ -189,14 +363,12 @@ export default function VendorProductsPage({ params }: Props) {
                   </div>
                 </div>
 
-                {/* Bio */}
                 {fullVendor?.bio && (
                   <p className="text-[13px] leading-relaxed text-on-surface-variant">
                     {fullVendor.bio}
                   </p>
                 )}
 
-                {/* Contact info */}
                 {(primaryLocation || fullVendor?.website || fullVendor?.phone) && (
                   <div className="flex flex-col gap-2">
                     {primaryLocation && (
@@ -238,7 +410,6 @@ export default function VendorProductsPage({ params }: Props) {
                   </div>
                 )}
 
-                {/* Additional locations */}
                 {fullVendor?.locations && fullVendor.locations.length > 1 && (
                   <div>
                     <p className="mb-1.5 text-[12px] font-medium text-on-surface-variant">
@@ -261,25 +432,107 @@ export default function VendorProductsPage({ params }: Props) {
                   </div>
                 )}
 
-                {/* Map */}
                 {locationPins.length > 0 && (
                   <LocationMap locations={locationPins} heightClass="h-[160px] sm:h-[180px]" />
                 )}
 
-                {/* Store photos */}
                 {storeImages.length > 0 && (
                   <StoreGallery images={storeImages} businessName={summary.business_name} />
                 )}
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* ── Right: products ── */}
-          <div className="flex-1 border-t border-outline-variant py-4 md:border-l md:border-t-0 md:pl-8 md:py-6">
-            <h3 className="mb-4 text-[15px] font-semibold text-on-surface">All Products</h3>
+          <div className="flex-1 border-outline-variant">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h2 className="text-2xl font-bold">Active Deals</h2>
+
+                <p className="text-sm text-gray-500">
+                  {data?.products.length ?? 0} products available
+                </p>
+              </div>
+            </div>
             <VendorProductList vendorId={id} />
           </div>
 
+          <div className="md:w-[30%] flex gap-6 flex-col">
+            <div className=" rounded-2xl shadow py-4 px-4">
+              {isReviewPending ? (
+                <ReviewSummarySkeleton />
+              ) : (
+                <ReviewSummary
+                  total_reviews={reviewSummary?.total_reviews ?? 0}
+                  avg_rating={reviewSummary?.avg_rating ?? 0}
+                  distribution={reviewSummary?.rating_distribution ?? EMPTY_DISTRIBUTION}
+                />
+              )}
+
+              <div className="mt-8">
+                <div className="flex justify-between font-medium">
+                  <p>Recent reviews</p>
+                  <button
+                    onClick={() => router.push(`/vendors/${id}/reviews`)}
+                    className="text-sm text-blue-500 hover:underline hover:font-semibold"
+                  >
+                    View All
+                  </button>
+                </div>
+                {isReviewPending ? (
+                  <>
+                    <ReviewItemSkeleton />
+                    <ReviewItemSkeleton />
+                    <ReviewItemSkeleton />
+                  </>
+                ) : (
+                  previewReviews?.map((review) => (
+                    <ReviewItem review={review} key={review.id} />
+                  ))
+                )}
+              </div>
+            </div>
+
+            <div className="w-full flex flex-col border-gray-600 shadow px-4 py-4 rounded-xl gap-4">
+              <h3 className="font-medium">Store Photos</h3>
+              <div className="grid grid-cols-2 gap-3">
+                {storeImages.slice(0, 4).map((img, index) => {
+                  const isLast = index === 3 && storeImages.length > 4;
+
+                  return (
+                    <div
+                      key={index}
+                      onClick={() => {
+                        if (isLast) {
+                          router.push(`/vendors/${id}/photos`);
+                        }
+                      }}
+                      className={`relative aspect-square overflow-hidden rounded-xl ${
+                        isLast ? "cursor-pointer" : ""
+                      }`}
+                    >
+                      <img
+                        src={img}
+                        className="h-full w-full object-cover"
+                        alt=""
+                      />
+
+                      {isLast && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/60">
+                          <div className="text-center text-white">
+                            <p className="text-3xl font-bold">
+                              +{storeImages.length - 4}
+                            </p>
+                            <p className="text-sm">View all</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
