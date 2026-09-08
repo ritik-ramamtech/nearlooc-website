@@ -16,7 +16,7 @@
     /* #ffffff */
     --popover: 0 0% 100%;
     --popover-foreground: 220 47% 13%;
-    --primary: 160 100% 11%;
+    --primary: 158 44% 40%;
     /* #003527 */
     --primary-foreground: 0 0% 100%;
     --secondary: 159 100% 21%;
@@ -125,6 +125,29 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .thin-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #bfc9c3 transparent;
+  }
+
+  .thin-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .thin-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .thin-scrollbar::-webkit-scrollbar-thumb {
+    background: #bfc9c3;
+    border-radius: 9999px;
+  }
+
+  .thin-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #006c49;
   }
 }
 

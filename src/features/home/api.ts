@@ -2,7 +2,6 @@ import apiClient from "@/lib/api-client";
 import type { ApiResponse, HomeFeed } from "@/types";
 
 export interface HomeFeedQuery {
-  category_id?: string;
   latitude?: number;
   longitude?: number;
   page?: number;

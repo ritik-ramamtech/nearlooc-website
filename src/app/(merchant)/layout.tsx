@@ -38,12 +38,12 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
   return (
     <div className="min-h-screen bg-brand-50">
       {/* Desktop sidebar */}
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <MerchantSidebar />
       </div>
 
       {/* Mobile top bar */}
-      <header className="fixed left-0 right-0 top-0 z-40 flex h-14 items-center justify-between border-b border-gray-200 bg-white px-4 md:hidden">
+      <header className="fixed left-0 right-0 top-0 z-40 flex h-14 items-center justify-between border-b border-gray-200 bg-white px-4 lg:hidden">
         <div className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-500">
             <Store className="h-3.5 w-3.5 text-white" />
@@ -71,7 +71,7 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
       {/* Mobile drawer overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/40 md:hidden"
+          className="fixed inset-0 z-50 bg-black/40 lg:hidden"
           onClick={() => setMobileOpen(false)}
         >
           <div
@@ -148,7 +148,7 @@ export default function MerchantLayout({ children }: { children: React.ReactNode
       )}
 
       {/* Page content */}
-      <div className="min-h-screen pt-14 md:ml-52 md:pt-0">
+      <div className="min-h-screen pt-14 lg:ml-48 lg:pt-0">
         {children}
       </div>
     </div>

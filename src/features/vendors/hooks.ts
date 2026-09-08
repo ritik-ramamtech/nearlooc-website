@@ -1,9 +1,14 @@
 "use client";
 
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
-import { getAllVendors, getVendorById, getVendorProducts, type VendorProductsNormalised } from "./api";
+import {
+  getAllVendors,
+  getVendorById,
+  getVendorProducts,
+  getVendorReviews,
+  type VendorProductsNormalised,
+} from "./api";
 import type { GetVendorsQuery, GetVendorProductsQuery } from "./types";
-
 
 export function useVendors(query?: GetVendorsQuery) {
   return useQuery({
@@ -19,7 +24,8 @@ export function useVendors(query?: GetVendorsQuery) {
 export function useVendorsInfinite(query?: Omit<GetVendorsQuery, "page">) {
   return useInfiniteQuery({
     queryKey: ["vendors", "infinite", query],
-    queryFn: ({ pageParam }) => getAllVendors({ ...query, page: pageParam as number }),
+    queryFn: ({ pageParam }) =>
+      getAllVendors({ ...query, page: pageParam as number }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.meta.has_more ? lastPage.meta.page + 1 : undefined,
@@ -50,5 +56,29 @@ export function useVendorProducts(id: string, query?: GetVendorProductsQuery) {
       meta: res.meta,
     }),
     enabled: !!id,
+  });
+}
+
+export function useVendorReviews(id: string) {
+  return useQuery({
+    queryKey: ["vendors", "reviews", id],
+    queryFn: () => getVendorReviews(id),
+    enabled: !!id,
+  });
+}
+
+export function useVendorReviewsInfinite(id: string, limit = 20) {
+  return useInfiniteQuery({
+    queryKey: ["vendors", "reviews", "infinite", id, limit],
+    queryFn: ({ pageParam }) => getVendorReviews(id, pageParam as number, limit),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.meta.has_more ? lastPage.meta.page + 1 : undefined,
+    enabled: !!id,
+    select: (data) => ({
+      summary: data.pages[0].summary,
+      items: data.pages.flatMap((p) => p.data),
+      meta: data.pages[data.pages.length - 1].meta,
+    }),
   });
 }

@@ -190,6 +190,7 @@ export default function MerchantProfilePage() {
                     src={profile.logo_url}
                     alt="Logo"
                     fill
+                    sizes="80px"
                     className="object-cover rounded-xl"
                   />
                 ) : (
@@ -238,7 +239,7 @@ export default function MerchantProfilePage() {
                   key={i}
                   className="relative h-24 w-24 rounded-xl overflow-hidden border border-gray-200"
                 >
-                  <Image src={url} alt={`Store ${i + 1}`} fill className="object-cover" />
+                  <Image src={url} alt={`Store ${i + 1}`} fill sizes="96px" className="object-cover" />
                 </div>
               ))}
 

@@ -1,14 +1,49 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
 import { VendorCard } from "@/features/vendors/components/VendorCard";
 import { VendorCardSkeleton } from "@/features/vendors/components/VendorCardSkeleton";
 import { useVendorsInfinite } from "@/features/vendors/hooks";
+import { useCategories } from "@/features/categories";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function VendorsPage() {
-  const [search, setSearch] = useState("");
+  return (
+    <Suspense fallback={<div className="min-h-[calc(100vh-4rem)] bg-surface" />}>
+      <VendorsPageContent />
+    </Suspense>
+  );
+}
+
+function VendorsPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [search, setSearch] = useState(searchParams.get("search") ?? "");
+  const [categoryId, setCategoryId] = useState(
+    searchParams.get("categoryId") ?? "",
+  );
+  const [subcategoryId, setSubcategoryId] = useState(
+    searchParams.get("subcategoryId") ?? "",
+  );
   const sentinelRef = useRef<HTMLDivElement>(null);
+
+  const updateQueryParams = (updates: Record<string, string>) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
+    });
+
+    router.replace(`/vendors?${params.toString()}`, {
+      scroll: false,
+    });
+  };
 
   const {
     data,
@@ -17,7 +52,12 @@ export default function VendorsPage() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useVendorsInfinite(search ? { search } : undefined);
+  } = useVendorsInfinite({search, category_id: categoryId, subcategory_id: subcategoryId});
+  const { data: categories } = useCategories();
+
+  const selectedCategory = categories?.find((c) => c.id === categoryId);
+
+  const subcategories = selectedCategory?.subcategories ?? [];
 
   // Infinite scroll — load next page when sentinel enters the viewport
   useEffect(() => {
@@ -30,7 +70,7 @@ export default function VendorsPage() {
           fetchNextPage();
         }
       },
-      { rootMargin: "200px" }
+      { rootMargin: "200px" },
     );
 
     observer.observe(sentinel);
@@ -39,7 +79,7 @@ export default function VendorsPage() {
 
   // Deduplicate across pages — backend may return the same item on adjacent pages
   const vendors = Array.from(
-    new Map((data?.items ?? []).map((v) => [v.id, v])).values()
+    new Map((data?.items ?? []).map((v) => [v.id, v])).values(),
   );
   const total = data?.meta.total ?? 0;
 
@@ -48,20 +88,75 @@ export default function VendorsPage() {
       {/* Header */}
       <div className="bg-surface-container-lowest px-4 py-4">
         <div className="mx-auto max-w-container-max">
-          <h1 className="text-headline-md font-bold text-on-surface">Vendors</h1>
+          <h1 className="text-headline-md font-bold text-on-surface">
+            Vendors
+          </h1>
           <p className="mt-0.5 text-body-sm text-on-surface-variant">
             Discover local businesses near you
           </p>
 
-          {/* Search */}
-          <div className="relative mt-3">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-on-surface-variant" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search vendors..."
-              className="w-full rounded-xl border border-outline-variant bg-surface-container-low py-2.5 pl-10 pr-4 text-body-sm focus:outline-none focus:ring-1 focus:ring-stitch-primary"
-            />
+          <div className="flex gap-4 items-center mt-3">
+            {/* Search */}
+            <div className="relative w-[50%]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-on-surface-variant" />
+              <input
+                value={search}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setSearch(value);
+
+                  updateQueryParams({
+                    search
+                  });
+                }}
+                placeholder="Search vendors..."
+                className="w-full rounded-xl border border-outline-variant bg-surface-container-low py-2.5 pl-10 pr-4 text-body-sm focus:outline-none focus:ring-1 focus:ring-stitch-primary"
+              />
+            </div>
+
+            <select
+              value={categoryId}
+              onChange={(e) => {
+                const value = e.target.value;
+                setCategoryId(value);
+                setSubcategoryId("");
+
+                updateQueryParams({
+                  categoryId: value,
+                  subcategoryId: ""
+                })
+              }}
+              className="rounded-xl border border-outline-variant px-3 h-11"
+            >
+              <option value="">All Categories</option>
+
+              {categories?.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={subcategoryId}
+              disabled={!categoryId}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSubcategoryId(value);
+                updateQueryParams({
+                  subcategoryId: value,
+                });
+              }}
+              className="rounded-xl border border-outline-variant px-3 h-11"
+            >
+              <option value="">All Subcategories</option>
+
+              {subcategories.map((subcategory) => (
+                <option key={subcategory.id} value={subcategory.id}>
+                  {subcategory.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </div>

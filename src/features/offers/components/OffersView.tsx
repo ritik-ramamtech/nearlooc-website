@@ -81,6 +81,9 @@ export function OffersView({
       (defaultSort as Sort | null) ??
       null,
     merchantname: searchParams.get("merchant_name") ?? null,
+    maxDistanceKm: searchParams.get("max_distance_km")
+      ? Number(searchParams.get("max_distance_km"))
+      : null,
   };
 
   const updateFilters = (
@@ -108,6 +111,7 @@ export function OffersView({
     setParam(params, "subcategory_id", next.subcategoryId);
     setParam(params, "sort", next.sort);
     setParam(params, "merchant_name", next.merchantname);
+    setParam(params, "max_distance_km", next.maxDistanceKm);
 
     params.delete("badge");
     next.badges.forEach((badge) => params.append("badge", badge));
@@ -149,7 +153,8 @@ export function OffersView({
     page,
     limit: 20,
     latitude: location?.latitude,
-    longitude: location?.longitude
+    longitude: location?.longitude,
+    max_distance_km: filters.maxDistanceKm ?? undefined,
   });
   const selectedCategory = categories.find((c) => c.id === selectedCategoryId);
   const subCategories = selectedCategory?.subcategories ?? [];
@@ -162,7 +167,7 @@ export function OffersView({
     "All Offers";
 
   // Reset page + accumulated items whenever the query parameters/filters change
-  const filtersKey = `${debouncedSearch}|${selectedCategoryId ?? ""}|${filters.priceMin ?? ""}|${filters.priceMax ?? ""}|${filters.minRating ?? ""}|${filters.badges.join(",")}|${filters.subcategoryId ?? ""}|${filters.sort ?? ""}|${filters.merchantname ?? ""}`;
+  const filtersKey = `${debouncedSearch}|${selectedCategoryId ?? ""}|${filters.priceMin ?? ""}|${filters.priceMax ?? ""}|${filters.minRating ?? ""}|${filters.badges.join(",")}|${filters.subcategoryId ?? ""}|${filters.sort ?? ""}|${filters.merchantname ?? ""}|${filters.maxDistanceKm ?? ""}`;
   const prevFiltersKey = useRef(filtersKey);
 
 
@@ -239,6 +244,7 @@ export function OffersView({
                 subCategories={subCategories}
                 categories={categories}
                 selectedCategoryId={selectedCategoryId}
+                hasCoordinates={!!location}
               />
             )}
           </aside>
@@ -280,6 +286,7 @@ export function OffersView({
               onSortChange={(sort) =>
                 updateFilters({ sort }, selectedCategoryId)
               }
+              hasCoordinates={!!location}
             />
           </div>
           {/* Click outside to close */}

@@ -1,7 +1,10 @@
+import { PublicNav } from "@/components/layout/PublicNav";
+
 export default function ConsumerLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <main className="min-h-screen">{children}</main>
+      <PublicNav/>
+      <main className="min-h-screen pt-16">{children}</main>
     </>
   );
 }

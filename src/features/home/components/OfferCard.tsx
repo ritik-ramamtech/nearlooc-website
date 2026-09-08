@@ -14,14 +14,14 @@ interface OfferCardProps {
   };
   className?: string;
   fluid?: boolean;
-  isFetching: boolean;
+  isFetching?: boolean;
 }
 
 export function OfferCard({
   offer,
   className,
   fluid,
-  isFetching,
+  isFetching = false,
 }: OfferCardProps) {
   const router = useRouter();
   const merchantName = offer.merchant?.name ?? offer.merchant_name ?? null;

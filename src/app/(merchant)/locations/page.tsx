@@ -2,7 +2,15 @@
 
 import { useState, useCallback } from "react";
 import {
-  MapPin, Plus, Pencil, Trash2, Star, Bell, Search, X, Check,
+  MapPin,
+  Plus,
+  Pencil,
+  Trash2,
+  Star,
+  Bell,
+  Search,
+  X,
+  Check,
 } from "lucide-react";
 import {
   useMerchantLocations,
@@ -14,7 +22,10 @@ import { useMerchantProfile } from "@/features/merchant/profile/hooks";
 import { SkeletonList } from "@/components/ui/skeleton";
 import type { MerchantLocationData } from "@/types/merchant";
 import type { CreateLocationInput } from "@/features/merchant/locations/api";
-import { LocationPicker, type PickedLocation } from "@/features/merchant/locations/components/LocationPicker";
+import {
+  LocationPicker,
+  type PickedLocation,
+} from "@/features/merchant/locations/components/LocationPicker";
 
 const EMPTY_FORM: CreateLocationInput = {
   label: "",
@@ -38,9 +49,20 @@ export default function LocationsPage() {
   const [editing, setEditing] = useState<MerchantLocationData | null>(null);
   const [form, setForm] = useState<CreateLocationInput>(EMPTY_FORM);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{
+    label?: string;
+    street?: string;
+    city?: string;
+    state?: string;
+    postal_code?: string;
+    location?: string;
+    general?: string;
+  }>({});
 
-  const set = (field: keyof CreateLocationInput, value: string | boolean | number | undefined) =>
-    setForm((prev) => ({ ...prev, [field]: value }));
+  const set = (
+    field: keyof CreateLocationInput,
+    value: string | boolean | number | undefined,
+  ) => setForm((prev) => ({ ...prev, [field]: value }));
 
   const handleLocationPicked = useCallback((loc: PickedLocation) => {
     setForm((prev) => ({
@@ -58,6 +80,7 @@ export default function LocationsPage() {
     setEditing(null);
     setForm(EMPTY_FORM);
     setShowForm(true);
+    setErrors({});
   };
 
   const openEdit = (loc: MerchantLocationData) => {
@@ -73,18 +96,54 @@ export default function LocationsPage() {
       is_primary: loc.is_primary,
     });
     setShowForm(true);
+    setErrors({});
   };
 
   const handleSubmit = () => {
-    if (!form.label || !form.street || !form.city || !form.state || !form.postal_code) return;
+    setErrors({});
+    const newErrors: typeof errors = {};
+    if (!form.label) newErrors.label = "Label is required";
+    if (!form.street) newErrors.street = "Street is required";
+    if (!form.city) newErrors.city = "City is required";
+    if (!form.state) newErrors.state = "State is requiered";
+    if (!form.postal_code.trim()) {
+      newErrors.postal_code = "Postal Code is required";
+    } else if (!/^\d{6}$/.test(form.postal_code)) {
+      newErrors.postal_code = "Postal code must be 6 digits";
+    }
 
-    if (editing) {
-      update(
-        { id: editing.id, data: form },
-        { onSuccess: () => { setShowForm(false); setEditing(null); } }
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    try {
+      if (editing) {
+        update(
+          { id: editing.id, data: form },
+          {
+            onSuccess: () => {
+              setShowForm(false);
+              setEditing(null);
+            },
+          },
+        );
+      } else {
+        create(form, {
+          onSuccess: () => {
+            setShowForm(false);
+            setForm(EMPTY_FORM);
+          },
+        });
+      }
+    } catch (e) {
+      const msg = (e as { response?: { data?: { message?: string } } })
+        ?.response?.data?.message;
+      setErrors(
+        typeof msg === "string"
+          ? { general: msg }
+          : { general: "Failed to create product. Please try again." },
       );
-    } else {
-      create(form, { onSuccess: () => { setShowForm(false); setForm(EMPTY_FORM); } });
     }
   };
 
@@ -96,7 +155,9 @@ export default function LocationsPage() {
       <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-20 sm:px-6">
         <div>
           <h1 className="text-lg font-bold text-gray-900">Store Locations</h1>
-          <p className="text-xs text-gray-400">Manage your physical store presence</p>
+          <p className="text-xs text-gray-400">
+            Manage your physical store presence
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2">
@@ -114,8 +175,6 @@ export default function LocationsPage() {
           </div>
         </div>
       </header>
-
-
 
       <div className="p-4 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
@@ -155,16 +214,23 @@ export default function LocationsPage() {
           {/* Right content */}
           <div className="flex-1">
             {isPending ? (
-              <SkeletonList itemHeight={96} itemClassName="rounded-xl" min={2} />
+              <SkeletonList
+                itemHeight={96}
+                itemClassName="rounded-xl"
+                min={2}
+              />
             ) : count === 0 && !showForm ? (
               /* Empty state */
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-10 flex flex-col items-center text-center">
                 <div className="h-16 w-16 rounded-full bg-brand-50 flex items-center justify-center mb-4">
                   <MapPin className="h-8 w-8 text-gray-300" />
                 </div>
-                <p className="text-base font-semibold text-gray-800">No locations added</p>
+                <p className="text-base font-semibold text-gray-800">
+                  No locations added
+                </p>
                 <p className="text-sm text-gray-400 mt-1 max-w-xs">
-                  Start by pinning your physical branches on the map to help customers find you easily.
+                  Start by pinning your physical branches on the map to help
+                  customers find you easily.
                 </p>
                 <button
                   onClick={openAdd}
@@ -176,7 +242,9 @@ export default function LocationsPage() {
 
                 {/* Map placeholder */}
                 <div className="mt-6 w-full max-w-md bg-gray-100 rounded-xl h-40 flex items-center justify-center border border-dashed border-gray-300">
-                  <p className="text-xs text-gray-400">Map will activate after first location</p>
+                  <p className="text-xs text-gray-400">
+                    Map will activate after first location
+                  </p>
                 </div>
               </div>
             ) : (
@@ -190,7 +258,9 @@ export default function LocationsPage() {
                     onEdit={() => openEdit(loc)}
                     onDeleteRequest={() => setDeleteConfirm(loc.id)}
                     onDeleteConfirm={() => {
-                      remove(loc.id, { onSuccess: () => setDeleteConfirm(null) });
+                      remove(loc.id, {
+                        onSuccess: () => setDeleteConfirm(null),
+                      });
                     }}
                     onDeleteCancel={() => setDeleteConfirm(null)}
                   />
@@ -206,7 +276,11 @@ export default function LocationsPage() {
                     {editing ? "Edit Location" : "Add New Location"}
                   </h2>
                   <button
-                    onClick={() => { setShowForm(false); setEditing(null); }}
+                    onClick={() => {
+                      setShowForm(false);
+                      setEditing(null);
+                      setErrors({});
+                    }}
                     className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
                   >
                     <X className="h-4 w-4 text-gray-500" />
@@ -219,12 +293,14 @@ export default function LocationsPage() {
                     placeholder="e.g. Main Branch"
                     value={form.label}
                     onChange={(v) => set("label", v)}
+                    error={errors.label}
                   />
                   <FormField
                     label="Street Address *"
                     placeholder="e.g. 123 Palm Beach Road"
                     value={form.street}
                     onChange={(v) => set("street", v)}
+                    error={errors.street}
                   />
                   <div className="grid grid-cols-2 gap-3">
                     <FormField
@@ -232,12 +308,14 @@ export default function LocationsPage() {
                       placeholder="e.g. Goa"
                       value={form.city}
                       onChange={(v) => set("city", v)}
+                      error={errors.city}
                     />
                     <FormField
                       label="Pincode *"
                       placeholder="6 digits"
                       value={form.postal_code}
                       onChange={(v) => set("postal_code", v)}
+                      error={errors.postal_code}
                     />
                   </div>
                   <FormField
@@ -245,6 +323,7 @@ export default function LocationsPage() {
                     placeholder="e.g. Goa"
                     value={form.state}
                     onChange={(v) => set("state", v)}
+                    error={errors.state}
                   />
 
                   <div>
@@ -258,7 +337,8 @@ export default function LocationsPage() {
                       onLocationChange={handleLocationPicked}
                     />
                     <p className="mt-1.5 text-[11px] text-gray-400">
-                      Search for an address or click anywhere on the map — coordinates and address fields will fill automatically.
+                      Search for an address or click anywhere on the map —
+                      coordinates and address fields will fill automatically.
                     </p>
                   </div>
 
@@ -271,15 +351,22 @@ export default function LocationsPage() {
                           : "border-gray-300 bg-white"
                       }`}
                     >
-                      {form.is_primary && <Check className="h-3 w-3 text-white" />}
+                      {form.is_primary && (
+                        <Check className="h-3 w-3 text-white" />
+                      )}
                     </div>
-                    <span className="text-sm font-medium text-gray-700">Set as primary location</span>
+                    <span className="text-sm font-medium text-gray-700">
+                      Set as primary location
+                    </span>
                   </label>
                 </div>
 
                 <div className="flex items-center gap-3 mt-6">
                   <button
-                    onClick={() => { setShowForm(false); setEditing(null); }}
+                    onClick={() => {
+                      setShowForm(false);
+                      setEditing(null);
+                    }}
                     className="px-5 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors"
                   >
                     Cancel
@@ -289,7 +376,11 @@ export default function LocationsPage() {
                     disabled={creating || updating}
                     className="flex items-center gap-2 px-5 py-2.5 bg-brand-500 hover:bg-brand-800 text-white rounded-lg text-sm font-semibold transition-colors disabled:opacity-60"
                   >
-                    {creating || updating ? "Saving..." : editing ? "Save Changes" : "Save Location"}
+                    {creating || updating
+                      ? "Saving..."
+                      : editing
+                        ? "Save Changes"
+                        : "Save Location"}
                   </button>
                 </div>
               </div>
@@ -302,7 +393,12 @@ export default function LocationsPage() {
 }
 
 function LocationCard({
-  loc, deleteConfirm, onEdit, onDeleteRequest, onDeleteConfirm, onDeleteCancel,
+  loc,
+  deleteConfirm,
+  onEdit,
+  onDeleteRequest,
+  onDeleteConfirm,
+  onDeleteCancel,
 }: {
   loc: MerchantLocationData;
   deleteConfirm: string | null;
@@ -361,7 +457,9 @@ function LocationCard({
 
       {deleteConfirm === loc.id && (
         <div className="mt-4 flex items-center justify-between bg-red-50 border border-red-200 rounded-lg px-4 py-3">
-          <p className="text-sm text-red-700 font-medium">Delete this location?</p>
+          <p className="text-sm text-red-700 font-medium">
+            Delete this location?
+          </p>
           <div className="flex gap-2">
             <button
               onClick={onDeleteCancel}
@@ -383,13 +481,19 @@ function LocationCard({
 }
 
 function FormField({
-  label, placeholder, value, onChange, type = "text",
+  label,
+  placeholder,
+  value,
+  onChange,
+  type = "text",
+  error,
 }: {
   label: string;
   placeholder: string;
   value: string;
   onChange: (v: string) => void;
   type?: string;
+  error?: string;
 }) {
   return (
     <div>
@@ -401,8 +505,15 @@ function FormField({
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3 py-2.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10 transition"
+        className={`w-full px-3 py-2.5 rounded-md text-sm bg-white transition
+          ${
+            error
+              ? "border border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/10"
+              : "border border-gray-300 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
+          }
+        `}
       />
+      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
     </div>
   );
 }

@@ -28,7 +28,7 @@ export default function CustomerReviewsPage({ offerId }: ReviewsPageProps) {
         </div>
         <div className="lg:gap-10 hidden lg:flex">
           <div className="w-40 h-40">
-            <img src={offer?.image_url} />
+            <img src={offer?.image_url || ""} />
           </div>
           <div className="flex flex-col gap-2">
             <h3 className="text-xl font-semibold">{offer?.title}</h3>

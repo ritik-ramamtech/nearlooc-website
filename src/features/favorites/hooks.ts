@@ -52,19 +52,20 @@ function patchOfferInCache(
     };
   });
 
-  // Home feed (offers nested inside sections)
+  // Home feed (offers nested inside top_deals + category_sections)
   qc.setQueriesData<ApiResponse<HomeFeed>>({ queryKey: ["home"] }, (old) => {
-    if (!old?.data?.sections) return old;
+    if (!old?.data) return old;
+    const patchOffer = (o: Offer) =>
+      o.id === offerId ? { ...o, is_favorite: isFavorite } : o;
     return {
       ...old,
       data: {
         ...old.data,
-        sections: old.data.sections.map((section) => ({
+        top_deals: old.data.top_deals?.map(patchOffer) ?? old.data.top_deals,
+        category_sections: old.data.category_sections?.map((section) => ({
           ...section,
-          offers: section.offers.map((o) =>
-            o.id === offerId ? { ...o, is_favorite: isFavorite } : o
-          ),
-        })),
+          offers: section.offers.map(patchOffer),
+        })) ?? old.data.category_sections,
       },
     };
   });
