@@ -7,7 +7,9 @@
     "dev": "next dev --port 3001",
     "build": "next build",
     "start": "next start --port 3001",
-    "lint": "next lint"
+    "lint": "next lint",
+    "security:scan": "node scripts/security-scan.mjs --worktree",
+    "safe-pull": "node scripts/safe-pull.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
