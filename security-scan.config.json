@@ -1,0 +1,22 @@
+{
+  "requiredGitignore": [".env", ".env.local"],
+  "allowedScripts": {
+    "package.json": {
+      "predev": "node -e \"require('fs').rmSync('.next', {recursive: true, force: true})\""
+    }
+  },
+  "allowedRegistries": ["https://registry.npmjs.org/"],
+  "allowedMergeCommits": [],
+  "allow": [
+    {
+      "rule": "process-spawn",
+      "file": "scripts/security-scan.mjs",
+      "reason": "Scanner runs git to read objects."
+    },
+    {
+      "rule": "process-spawn",
+      "file": "scripts/safe-pull.mjs",
+      "reason": "Runs git fetch/merge and the scanner."
+    }
+  ]
+}
