@@ -1,0 +1,14 @@
+# Changes to CI, the security scanner, git/editor/build config and dependency manifests need owner review.
+# Enforced once branch protection has "Require review from Code Owners" enabled.
+/.github/                    @ritik-ramamtech
+/scripts/security-scan.mjs   @ritik-ramamtech
+/scripts/safe-pull.mjs       @ritik-ramamtech
+/security-scan.config.json   @ritik-ramamtech
+/.gitignore                  @ritik-ramamtech
+/.vscode/                    @ritik-ramamtech
+/package.json                @ritik-ramamtech
+/package-lock.json           @ritik-ramamtech
+/postcss.config.js           @ritik-ramamtech
+/next.config.ts              @ritik-ramamtech
+/tailwind.config.ts          @ritik-ramamtech
+/eslint.config.mjs           @ritik-ramamtech
