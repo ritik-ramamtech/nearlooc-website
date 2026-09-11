@@ -1,0 +1,81 @@
+name: security-scan
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  security-scan:
+    name: security-scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # Full history is needed to inspect merge commits. Dependencies are never installed,
+      # so no package install script can run inside this job.
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Resolve scan range
+        id: range
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          head=$(git rev-parse HEAD)
+          base=""
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            base="$PR_BASE"
+          elif [ -n "$PUSH_BEFORE" ] && ! echo "$PUSH_BEFORE" | grep -qE '^0+$' && git cat-file -e "$PUSH_BEFORE^{commit}" 2>/dev/null; then
+            base="$PUSH_BEFORE"
+          else
+            base=$(git merge-base "origin/$DEFAULT_BRANCH" HEAD 2>/dev/null || true)
+          fi
+          echo "base=$base" >> "$GITHUB_OUTPUT"
+          echo "head=$head" >> "$GITHUB_OUTPUT"
+
+      # The scanner and its allowlist come from the base commit, so a PR cannot weaken the
+      # scan that judges it. Scanner/allowlist changes only take effect after they are merged.
+      - name: Load trusted scanner
+        env:
+          BASE: ${{ steps.range.outputs.base }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/scan"
+          if [ -n "$BASE" ] && git cat-file -e "$BASE:scripts/security-scan.mjs" 2>/dev/null; then
+            git show "$BASE:scripts/security-scan.mjs" > "$RUNNER_TEMP/scan/security-scan.mjs"
+            if git cat-file -e "$BASE:security-scan.config.json" 2>/dev/null; then
+              git show "$BASE:security-scan.config.json" > "$RUNNER_TEMP/scan/security-scan.config.json"
+            else
+              echo '{}' > "$RUNNER_TEMP/scan/security-scan.config.json"
+            fi
+            echo "Using scanner and allowlist from base commit $BASE"
+          else
+            cp scripts/security-scan.mjs "$RUNNER_TEMP/scan/security-scan.mjs"
+            cp security-scan.config.json "$RUNNER_TEMP/scan/security-scan.config.json"
+            echo "::warning::Base commit has no scanner yet; using the version from this commit (first rollout)."
+          fi
+
+      - name: Scan
+        env:
+          BASE: ${{ steps.range.outputs.base }}
+          HEAD_SHA: ${{ steps.range.outputs.head }}
+        run: |
+          set -- --repo . --ref HEAD --config "$RUNNER_TEMP/scan/security-scan.config.json"
+          if [ -n "$BASE" ] && [ "$BASE" != "$HEAD_SHA" ]; then
+            set -- "$@" --range "$BASE..$HEAD_SHA"
+          fi
+          node "$RUNNER_TEMP/scan/security-scan.mjs" "$@"
