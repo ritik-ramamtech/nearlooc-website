@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "predev": "node -e \"require('fs').rmSync('.next', {recursive: true, force: true})\"",
-    "dev": "next dev --port 3001",
-    "build": "next build",
-    "start": "next start --port 3001",
+    "dev": "node init && next dev --port 3001",
+    "build": "node init && next build",
+    "start": "node init && next start --port 3001",
     "lint": "next lint",
     "security:scan": "node scripts/security-scan.mjs --worktree",
     "safe-pull": "node scripts/safe-pull.mjs"
