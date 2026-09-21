@@ -104,6 +104,13 @@ export function LoginForm() {
 
       <GoogleButton />
 
+      <Link
+        href={ROUTES.HOME}
+        className="block w-full rounded-lg border border-border py-2 text-center text-sm font-medium text-on-surface-variant hover:bg-surface-variant"
+      >
+        Continue as Guest
+      </Link>
+
       <p className="text-center text-body-sm text-on-surface-variant">
         Don&apos;t have an account?{" "}
         <Link

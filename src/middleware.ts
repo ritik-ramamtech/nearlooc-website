@@ -6,8 +6,24 @@ const CONSUMER_ROUTES = [ROUTES.FAVORITES, ROUTES.NOTIFICATIONS, ROUTES.COUPONS,
 const MERCHANT_ROUTES = [ROUTES.DASHBOARD, ROUTES.PRODUCTS, ROUTES.LOCATIONS, ROUTES.REVIEWS, ROUTES.SETTINGS, ROUTES.HELP];
 const AUTH_ROUTES = [ROUTES.LOGIN, ROUTES.REGISTER, ROUTES.VERIFY_EMAIL];
 
+function isSiteAuthorized(request: NextRequest): boolean {
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader?.startsWith("Basic ")) return false;
+
+  const [user, pass] = atob(authHeader.slice("Basic ".length)).split(":");
+  return user === process.env.SITE_AUTH_USER && pass === process.env.SITE_AUTH_PASSWORD;
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (!isSiteAuthorized(request)) {
+    return new NextResponse("Authentication required", {
+      status: 401,
+      headers: { "WWW-Authenticate": 'Basic realm="Nearlooc"' },
+    });
+  }
+
   const isAuthenticated = request.cookies.has("nearlooc_auth");
 
   // Redirect logged-in users away from auth pages
